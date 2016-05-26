@@ -32,6 +32,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <!--
   <run_depend>controller_manager</run_depend>
   <run_depend>gazebo_ros</run_depend>
   <run_depend>gazebo_ros_control</run_depend>
@@ -39,10 +40,9 @@
   <run_depend>std_msgs</run_depend>
   <run_depend>tf</run_depend>
   <run_depend>xacro</run_depend>
-  <run_depend>hector_gazebo_plugins</run_depend>
-  <run_depend>hector_gazebo_worlds</run_depend>
   <run_depend>joy</run_depend>
   <run_depend>effort_controllers</run_depend>
   <run_depend>joint_state_controller</run_depend>
+-->
 
 </package>
