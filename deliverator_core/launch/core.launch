@@ -1,0 +1,9 @@
+<launch>
+
+  <arg name="NAMESPACE" default="core"/>
+
+  <group ns="$(arg NAMESPACE)">
+    <node pkg="deliverator_core" type="manager.py" name="manager" output="screen"/>
+  </group>
+
+</launch>
