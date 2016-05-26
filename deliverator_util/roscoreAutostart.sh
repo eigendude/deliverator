@@ -21,4 +21,4 @@ source $SCRIPT_DIR/../../../devel/setup.bash
 export ROS_PACKAGE_PATH=$SCRIPT_DIR/..:$ROS_PACKAGE_PATH
 export PATH=$PATH:$ROS_ROOT/bin
 
-roscore
+roslaunch deliverator_core core.launch NAMESPACE:=deliverator
