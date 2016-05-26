@@ -1,0 +1,18 @@
+<launch>
+
+  <arg name="NAMESPACE" default="core"/>
+  <arg name="CAMERA_NAME" default="camera"/>
+  <arg name="DEVICE" default="/dev/video0"/>
+  <arg name="FPS" default="30/1"/>
+
+  <group ns="$(arg NAMESPACE)">
+    <node pkg="gscam" type="gscam" name="$(arg CAMERA_NAME)" output="screen">
+      <param name="camera_name" value="default"/>
+      <param name="camera_info_url" value="package://gscam/examples/uncalibrated_parameters.ini"/>
+      <param name="gscam_config" value="v4l2src device=$(arg DEVICE) ! video/x-raw-rgb,framerate=$(arg FPS) ! ffmpegcolorspace"/>
+      <param name="frame_id" value="/v4l_frame"/>
+      <param name="sync_sink" value="true"/>
+    </node>
+  </group>
+
+</launch>
