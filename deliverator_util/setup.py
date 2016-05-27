@@ -24,19 +24,12 @@
 #
 ################################################################################
 
-import rospy
+from distutils.core import setup
+from catkin_pkg.python_setup import generate_distutils_setup
 
-try:
-    from wakeonlan import wol
-except ImportError:
-    print('Error: This node requires py-wakeonlan. Try:')
-    print('sudo pip install wakeonlan')
-    exit()
+d = generate_distutils_setup(
+  scripts = ['nodes/power_on.py'],
+  requires = ['rospy'],
+)
 
-if __name__ == '__main__':
-    if rospy.has_param('mac_address'):
-        mac_address = rospy.get_param('mac_address')
-        print('Sending WOL packet to %s' % mac_address)
-        wol.send_magic_packet(mac_address)
-    else:
-        print("Error: Can't get mac address for WOL packet from param server")
+setup(**d)
