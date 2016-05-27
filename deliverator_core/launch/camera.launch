@@ -3,7 +3,7 @@
   <arg name="NAMESPACE" default="core"/>
   <arg name="CAMERA_NAME" default="camera"/>
   <arg name="DEVICE" default="/dev/video0"/>
-  <arg name="FPS" default="30/1"/>
+  <arg name="FPS" default="30/1"/> <!-- GStreamer framerate needs to be an integral fraction -->
 
   <group ns="$(arg NAMESPACE)">
     <node pkg="gscam" type="gscam" name="$(arg CAMERA_NAME)" output="screen">
