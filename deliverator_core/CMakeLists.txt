@@ -2,9 +2,12 @@ cmake_minimum_required(VERSION 2.8.3)
 project(deliverator_core)
 
 find_package(catkin REQUIRED)
+
 catkin_python_setup()
 
-catkin_package()
+catkin_package(
+    DEPENDS lm-sensors
+)
 
 install(PROGRAMS
   nodes/manager.py
