@@ -37,4 +37,5 @@ class Diagnostics:
                              self.powerSupply, \
                              self.temperature, \
                              self.network]:
-            diagnostics.updateValues()
+            if diagnostics:
+                diagnostics.updateValues()

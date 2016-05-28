@@ -37,8 +37,6 @@
   <run_depend>gscam</run_depend>
   <run_depend>gstreamer0.10-plugins-good</run_depend> <!-- TODO: Fix gscam depends -->
   <!--<run_depend>libsensors4-dev</run_depend>--> <!-- TODO: Install lm-sensors manually -->
-  <run_depend>acpi</run_depend>
-
 
   <!--
   <build_depend>roscpp</build_depend>

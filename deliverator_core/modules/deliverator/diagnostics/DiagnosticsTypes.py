@@ -25,8 +25,9 @@
 
 class Battery:
     def __init__(self):
-        self.percentage = 0.0
-        self.charging = True
+        self.percentage = -1.0
+        self.voltage = -1.0 # Volts
+        self.discharging = None
 
 class PowerSupply:
     def __init__(self):

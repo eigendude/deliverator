@@ -38,8 +38,12 @@ def GetDiagnostics(diagnostics):
     diagnostics.updateValues()
 
     if diagnostics.battery:
-        values.append(KeyValue(key='Laptop Battery Level', value=str(diagnostics.battery.percentage)))
-        values.append(KeyValue(key='Charging', value=str(diagnostics.battery.charging)))
+        if diagnostics.battery.percentage >= 0.0:
+            values.append(KeyValue(key='Laptop Battery Level', value=str(diagnostics.battery.percentage)))
+        if diagnostics.battery.voltage >= 0.0:
+            values.append(KeyValue(key='Laptop Battery Voltage', value=str(diagnostics.battery.voltage)))
+        if diagnostics.battery.discharging is not None:
+            values.append(KeyValue(key='Discharging', value=str(diagnostics.battery.discharging)))
 
     if diagnostics.powerSupply:
         values.append(KeyValue(key='Battery Level', value=str(diagnostics.powerSupply.percentage)))
@@ -47,13 +51,13 @@ def GetDiagnostics(diagnostics):
         values.append(KeyValue(key='3.3v Rail', value=str(diagnostics.powerSupply.V33)))
         values.append(KeyValue(key='5v Rail', value=str(diagnostics.powerSupply.V5)))
         values.append(KeyValue(key='12v Rail', value=str(diagnostics.powerSupply.V12)))
-        if diagnostics.powerSupply.temperature != -1.0:
+        if diagnostics.powerSupply.temperature >= 0.0:
             values.append(KeyValue(key='Power Supply Temp', value=str(diagnostics.powerSupply.temperature)))
 
     if diagnostics.temperature:
-        if diagnostics.temperature.cpuTemp != -1.0:
+        if diagnostics.temperature.cpuTemp >= 0.0:
             values.append(KeyValue(key='CPU Temp', value=str(diagnostics.temperature.cpuTemp)))
-        if diagnostics.temperature.fanSpeed != -1.0:
+        if diagnostics.temperature.fanSpeed >= 0.0:
             values.append(KeyValue(key='Fan Speed', value=str(diagnostics.temperature.fanSpeed)))
 
     if diagnostics.network:

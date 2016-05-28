@@ -23,22 +23,18 @@
 #
 ################################################################################
 
-from BatteryACPI import BatteryACPI
-from NetworkTest import NetworkTest
-from PowerSupplyTest import PowerSupplyTest
+from BatterySysfs import BatterySysfs
 from TemperatureLmSensors import TemperatureLmSensors
 
 class DiagnosticsFactory:
     @staticmethod
     def createBattery():
-        if BatteryACPI.isSupported():
-            return BatteryACPI()
+        if BatterySysfs.isSupported():
+            return BatterySysfs()
         return None
 
     @staticmethod
     def createPowerSupply():
-        if PowerSupplyTest.isSupported():
-            return PowerSupplyTest()
         return None
 
     @staticmethod
@@ -49,6 +45,4 @@ class DiagnosticsFactory:
 
     @staticmethod
     def createNetwork():
-        if NetworkTest.isSupported():
-            return NetworkTest()
         return None
