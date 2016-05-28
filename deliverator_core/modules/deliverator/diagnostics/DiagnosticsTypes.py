@@ -23,6 +23,9 @@
 #
 ################################################################################
 
+# Members are initialized with invalid values. Node must verify that detected
+# values are valid (e.g. positive or not None).
+
 class Battery:
     def __init__(self):
         self.percentage = -1.0
@@ -31,11 +34,11 @@ class Battery:
 
 class PowerSupply:
     def __init__(self):
-        self.percentage = 0.0
-        self.VIN = 0.0 # Volts
-        self.V33 = 0.0 # Volts
-        self.V5 = 0.0 # Volts
-        self.V12 = 0.0 # Volts
+        self.percentage = -1.0
+        self.VIN = -1.0 # Volts
+        self.V33 = -1.0 # Volts
+        self.V5 = -1.0 # Volts
+        self.V12 = -1.0 # Volts
         self.temperature = -1.0 # Celsius
 
 class Temperature:
@@ -45,5 +48,5 @@ class Temperature:
 
 class Network:
     def __init__(self):
-        self.wirelessLinkQuality = 0.0
-        self.wirelessMaxQuality = 0.0
+        self.wirelessLinkQuality = -1.0
+        self.wirelessMaxQuality = -1.0

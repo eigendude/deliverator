@@ -46,11 +46,16 @@ def GetDiagnostics(diagnostics):
             values.append(KeyValue(key='Charging', value=str(diagnostics.battery.charging)))
 
     if diagnostics.powerSupply:
-        values.append(KeyValue(key='Battery Level', value=str(diagnostics.powerSupply.percentage)))
-        values.append(KeyValue(key='VIN', value=str(diagnostics.powerSupply.VIN)))
-        values.append(KeyValue(key='3.3v Rail', value=str(diagnostics.powerSupply.V33)))
-        values.append(KeyValue(key='5v Rail', value=str(diagnostics.powerSupply.V5)))
-        values.append(KeyValue(key='12v Rail', value=str(diagnostics.powerSupply.V12)))
+        if diagnostics.powerSupply.percentage >= 0.0:
+            values.append(KeyValue(key='Battery Level', value=str(diagnostics.powerSupply.percentage)))
+        if diagnostics.powerSupply.VIN >= 0.0:
+            values.append(KeyValue(key='VIN', value=str(diagnostics.powerSupply.VIN)))
+        if diagnostics.powerSupply.V33 >= 0.0:
+            values.append(KeyValue(key='3.3v Rail', value=str(diagnostics.powerSupply.V33)))
+        if diagnostics.powerSupply.V5 >= 0.0:
+            values.append(KeyValue(key='5v Rail', value=str(diagnostics.powerSupply.V5)))
+        if diagnostics.powerSupply.V12 >= 0.0:
+            values.append(KeyValue(key='12v Rail', value=str(diagnostics.powerSupply.V12)))
         if diagnostics.powerSupply.temperature >= 0.0:
             values.append(KeyValue(key='Power Supply Temp', value=str(diagnostics.powerSupply.temperature)))
 
@@ -61,8 +66,10 @@ def GetDiagnostics(diagnostics):
             values.append(KeyValue(key='Fan Speed', value=str(diagnostics.temperature.fanSpeed)))
 
     if diagnostics.network:
-        values.append(KeyValue(key='WiFi Quality', value=str(diagnostics.network.wirelessLinkQuality)))
-        values.append(KeyValue(key='WiFi Max Quality', value=str(diagnostics.network.wirelessMaxQuality)))
+        if diagnostics.network.wirelessLinkQuality >= 0.0:
+            values.append(KeyValue(key='WiFi Quality', value=str(diagnostics.network.wirelessLinkQuality)))
+        if diagnostics.network.wirelessMaxQuality >= 0.0:
+            values.append(KeyValue(key='WiFi Max Quality', value=str(diagnostics.network.wirelessMaxQuality)))
 
     return values
 
