@@ -29,11 +29,16 @@ from DiagnosticsTypes import Temperature
 
 class TemperatureLmSensors(Temperature):
     def updateValues(self):
+        cpuTemp1 = -1.0
+        cpuTemp2 = -1.0
+        cpuTemp3 = -1.0
+        cpuTemp4 = -1.0
+
         outputString = commands.getoutput('sensors | grep "Core 0:"')
         cpuTempLocation = outputString.find('+')
         if cpuTempLocation >= 0:
             try:
-                self.cpuTemp1 = float(outputString[cpuTempLocation + 1 : cpuTempLocation + 5])
+                cpuTemp1 = float(outputString[cpuTempLocation + 1 : cpuTempLocation + 5])
             except ValueError:
                 pass
 
@@ -41,7 +46,7 @@ class TemperatureLmSensors(Temperature):
         cpuTempLocation = outputString.find('+')
         if cpuTempLocation >= 0:
             try:
-                self.cpuTemp2 = float(outputString[cpuTempLocation + 1 : cpuTempLocation + 5])
+                cpuTemp2 = float(outputString[cpuTempLocation + 1 : cpuTempLocation + 5])
             except ValueError:
                 pass
 
@@ -49,7 +54,7 @@ class TemperatureLmSensors(Temperature):
         cpuTempLocation = outputString.find('+')
         if cpuTempLocation >= 0:
             try:
-                self.cpuTemp3 = float(outputString[cpuTempLocation + 1 : cpuTempLocation + 5])
+                cpuTemp3 = float(outputString[cpuTempLocation + 1 : cpuTempLocation + 5])
             except ValueError:
                 pass
 
@@ -57,11 +62,11 @@ class TemperatureLmSensors(Temperature):
         cpuTempLocation = outputString.find('+')
         if cpuTempLocation >= 0:
             try:
-                self.cpuTemp4 = float(outputString[cpuTempLocation + 1 : cpuTempLocation + 5])
+                cpuTemp4 = float(outputString[cpuTempLocation + 1 : cpuTempLocation + 5])
             except ValueError:
                 pass
 
-        self.cpuTemp = max(self.cpuTemp1, self.cpuTemp2, self.cpuTemp3, self.cpuTemp4)
+        self.cpuTemp = max(cpuTemp1, cpuTemp2, cpuTemp3, cpuTemp4)
 
         outputString = commands.getoutput('sensors | grep "fan2:"')
         try:
