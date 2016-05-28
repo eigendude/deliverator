@@ -29,48 +29,45 @@ from DiagnosticsTypes import Temperature
 
 class TemperatureLmSensors(Temperature):
     def updateValues(self):
-        outputString = commands.getoutput("sensors | grep \"Core 0:\"")
-        cpuTempLocation = outputString.find("+")
+        outputString = commands.getoutput('sensors | grep "Core 0:"')
+        cpuTempLocation = outputString.find('+')
         if cpuTempLocation >= 0:
             try:
                 self.cpuTemp1 = float(outputString[cpuTempLocation + 1 : cpuTempLocation + 5])
             except ValueError:
-                self.cpuTemp1 = -1.0
-        else:
-            self.cpuTemp1 = 0.0
-        outputString = commands.getoutput("sensors | grep \"Core 1:\"")
-        cpuTempLocation = outputString.find("+")
+                pass
+
+        outputString = commands.getoutput('sensors | grep "Core 1:"')
+        cpuTempLocation = outputString.find('+')
         if cpuTempLocation >= 0:
             try:
                 self.cpuTemp2 = float(outputString[cpuTempLocation + 1 : cpuTempLocation + 5])
             except ValueError:
-                self.cpuTemp2 = -1.0
-        else:
-            self.cpuTemp2 = 0.0
-        outputString = commands.getoutput("sensors | grep \"Core 2:\"")
-        cpuTempLocation = outputString.find("+")
+                pass
+
+        outputString = commands.getoutput('sensors | grep "Core 2:"')
+        cpuTempLocation = outputString.find('+')
         if cpuTempLocation >= 0:
             try:
                 self.cpuTemp3 = float(outputString[cpuTempLocation + 1 : cpuTempLocation + 5])
             except ValueError:
-                self.cpuTemp3 = -1.0
-        else:
-            self.cpuTemp3 = 0.0
-        outputString = commands.getoutput("sensors | grep \"Core 3:\"")
-        cpuTempLocation = outputString.find("+")
+                pass
+
+        outputString = commands.getoutput('sensors | grep "Core 3:"')
+        cpuTempLocation = outputString.find('+')
         if cpuTempLocation >= 0:
             try:
                 self.cpuTemp4 = float(outputString[cpuTempLocation + 1 : cpuTempLocation + 5])
             except ValueError:
-                self.cpuTemp4 = -1.0
-        else:
-            self.cpuTemp4 = 0.0
+                pass
+
         self.cpuTemp = max(self.cpuTemp1, self.cpuTemp2, self.cpuTemp3, self.cpuTemp4)
-        outputString = commands.getoutput("sensors | grep \"fan2:\"")
+
+        outputString = commands.getoutput('sensors | grep "fan2:"')
         try:
             self.fanSpeed = float(outputString[23 : 27])
         except ValueError:
-            self.fanSpeed = -1.0
+            pass
 
     @staticmethod
     def isSupported():
