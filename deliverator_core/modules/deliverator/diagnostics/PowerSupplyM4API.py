@@ -23,12 +23,45 @@
 #
 ################################################################################
 
-from DiagnosticsTypes import Network
+from DiagnosticsTypes import PowerSupply
 
-class NetworkTest(Network):
+import os
+import subprocess
+
+M4CTL_CMD = 'm4ctl'
+
+class PowerSupplyM4API(PowerSupply):
     def updateValues(self):
-        pass
+        try:
+            output = subprocess.check_output(M4CTL_CMD, shell=True)
+        except:
+            pass
+        else:
+            for line in output.split("\n"):
+                tokens = line.split("\t")
+                if len(tokens) is 2:
+                    if tokens[0] == 'VIN:':
+                        self.VIN = float(tokens[1])
+                        # Battery max voltage 25, fully depleted 19, 6 volt span
+                        self.percentage = min(100, ((float(tokens[1]) - 19) / 6.0) * 100)
+                    if tokens[0] == '33V:':
+                        self.V33 = float(tokens[1])
+                    if tokens[0] == '5V:':
+                        self.V5 = float(tokens[1])
+                    if tokens[0] == '12V:':
+                        self.V12 = float(tokens[1])
+                    if tokens[0] == 'TEMP:':
+                        self.temperature = float(tokens[1])
 
     @staticmethod
     def isSupported():
+        # Must be root
+        if os.geteuid() != 0:
+            return False
+
+        try:
+            subprocess.check_output(M4CTL_CMD, shell=True)
+        except:
+            return False
+
         return True

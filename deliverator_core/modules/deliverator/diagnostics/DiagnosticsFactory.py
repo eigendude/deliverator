@@ -24,6 +24,8 @@
 ################################################################################
 
 from BatterySysfs import BatterySysfs
+from NetworkIwconfig import NetworkIwconfig
+from PowerSupplyM4API import PowerSupplyM4API
 from TemperatureLmSensors import TemperatureLmSensors
 
 class DiagnosticsFactory:
@@ -35,6 +37,8 @@ class DiagnosticsFactory:
 
     @staticmethod
     def createPowerSupply():
+        if PowerSupplyM4API.isSupported():
+            return PowerSupplyM4API()
         return None
 
     @staticmethod
@@ -45,4 +49,6 @@ class DiagnosticsFactory:
 
     @staticmethod
     def createNetwork():
+        if NetworkIwconfig.isSupported():
+            return NetworkIwconfig()
         return None

@@ -23,12 +23,34 @@
 #
 ################################################################################
 
-from DiagnosticsTypes import PowerSupply
+from DiagnosticsTypes import Network
 
-class PowerSupplyTest(PowerSupply):
+import commands
+import os
+
+IWCONFIG_CMD = "iwconfig | grep 'Link Quality='"
+
+class NetworkIwconfig(Network):
     def updateValues(self):
-        pass
+        outputString = commands.getoutput(IWCONFIG_CMD)
+        linkQualityLocation = outputString.find("Link Quality=")
+        if linkQualityLocation >= 0:
+            strLinkQuality = outputString[linkQualityLocation + 13 : linkQualityLocation + 15]
+            strMaxQuality = outputString[linkQualityLocation + 16 : linkQualityLocation + 18]
+            if strLinkQuality.isdigit():
+                self.linkQuality = int(strLinkQuality)
+            if strMaxQuality.isdigit():
+                self.maxQuality = int(strMaxQuality)
 
     @staticmethod
     def isSupported():
+        # Must be root
+        if os.geteuid() != 0:
+            return False
+
+        try:
+            commands.getoutput(IWCONFIG_CMD)
+        except:
+            return False
+
         return True
