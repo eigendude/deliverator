@@ -25,12 +25,19 @@
 ################################################################################
 
 from deliverator.diagnostics import Diagnostics
+from deliverator.hardware import Hardware
 
 import rospy
+import roslaunch
+import rospkg
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
+
+import os
+import subprocess
 
 NODE_NAME         = 'manager'
 DIAGNOSTICS_TOPIC = '/diagnostics'
+SCRIPT_DIR        = os.path.dirname(os.path.abspath(__file__))
 
 def GetDiagnostics(diagnostics):
     values = []
@@ -73,6 +80,33 @@ def GetDiagnostics(diagnostics):
 
     return values
 
+def GetLaunchDir():
+    # Look for launch dir relative to this script
+    launchDir = os.path.join(SCRIPT_DIR, '../launch')
+    if os.path.exists(launchDir):
+        return launchDir
+
+    # Check if node is run from folder named after the package
+    packageName = os.path.basename(SCRIPT_DIR)
+    rospack = rospkg.RosPack()
+    try:
+        return os.path.join(rospack.get_path(packageName), 'launch')
+    except rospkg.ResourceNotFound:
+        pass
+
+    return None
+
+def LaunchHardwareNodes(hardware):
+    launchDir = GetLaunchDir()
+    if launchDir is not None:
+        videoDevice = hardware.videoDevice
+        if videoDevice is not None:
+            launchfile = os.path.join(launchDir, 'camera.launch')
+            subprocess.Popen(['roslaunch',
+                              launchfile,
+                              'NAMESPACE:=' + rospy.get_namespace(),
+                              'DEVICE:=' + videoDevice])
+
 def main():
     rospy.init_node(NODE_NAME, log_level=rospy.DEBUG)
     pub = rospy.Publisher(DIAGNOSTICS_TOPIC, DiagnosticArray, queue_size=1)
@@ -83,6 +117,9 @@ def main():
     array.status = [status]
 
     diagnostics = Diagnostics()
+    hardware = Hardware()
+
+    LaunchHardwareNodes(hardware)
 
     rate = rospy.Rate(1.0)
     while not rospy.is_shutdown():

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 ################################################################################
 #
 #      Copyright (C) 2016 juztamau5
@@ -24,14 +23,12 @@
 #
 ################################################################################
 
-from distutils.core import setup
-from catkin_pkg.python_setup import generate_distutils_setup
+import os
 
-d = generate_distutils_setup(
-  packages=['deliverator',
-            'deliverator.diagnostics',
-            'deliverator.hardware'],
-  package_dir={'': 'modules'},
-)
-
-setup(**d)
+class HardwareScanner:
+    @staticmethod
+    def getVideoDevice():
+        for device in os.listdir('/dev'):
+            if device.startswith('video'):
+                return os.path.join('/dev', device)
+        return None

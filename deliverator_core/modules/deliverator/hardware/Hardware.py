@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 ################################################################################
 #
 #      Copyright (C) 2016 juztamau5
@@ -24,14 +23,8 @@
 #
 ################################################################################
 
-from distutils.core import setup
-from catkin_pkg.python_setup import generate_distutils_setup
+from HardwareScanner import HardwareScanner
 
-d = generate_distutils_setup(
-  packages=['deliverator',
-            'deliverator.diagnostics',
-            'deliverator.hardware'],
-  package_dir={'': 'modules'},
-)
-
-setup(**d)
+class Hardware:
+    def __init__(self):
+        self.videoDevice = HardwareScanner.getVideoDevice()
