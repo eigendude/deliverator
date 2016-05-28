@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 ################################################################################
 #
 #      Copyright (C) 2016 juztamau5
@@ -24,12 +23,26 @@
 #
 ################################################################################
 
-from distutils.core import setup
-from catkin_pkg.python_setup import generate_distutils_setup
+class Battery:
+    def __init__(self):
+        self.percentage = 0.0
+        self.charging = True
 
-d = generate_distutils_setup(
-  packages=['deliverator'],
-  package_dir={'': 'modules'},
-)
+class PowerSupply:
+    def __init__(self):
+        self.percentage = 0.0
+        self.VIN = 0.0 # Volts
+        self.V33 = 0.0 # Volts
+        self.V5 = 0.0 # Volts
+        self.V12 = 0.0 # Volts
+        self.temperature = -1.0 # Celsius
 
-setup(**d)
+class Temperature:
+    def __init__(self):
+        self.cpuTemp = -1.0 # Celsius
+        self.fanSpeed = -1.0 # RPM
+
+class Network:
+    def __init__(self):
+        self.wirelessLinkQuality = 0.0
+        self.wirelessMaxQuality = 0.0

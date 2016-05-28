@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 ################################################################################
 #
 #      Copyright (C) 2016 juztamau5
@@ -24,12 +23,18 @@
 #
 ################################################################################
 
-from distutils.core import setup
-from catkin_pkg.python_setup import generate_distutils_setup
+from DiagnosticsFactory import DiagnosticsFactory
 
-d = generate_distutils_setup(
-  packages=['deliverator'],
-  package_dir={'': 'modules'},
-)
+class Diagnostics:
+    def __init__(self):
+        self.battery = DiagnosticsFactory.createBattery()
+        self.powerSupply = DiagnosticsFactory.createPowerSupply()
+        self.temperature = DiagnosticsFactory.createTemperature()
+        self.network = DiagnosticsFactory.createNetwork()
 
-setup(**d)
+    def updateValues(self):
+        for diagnostics in [ self.battery, \
+                             self.powerSupply, \
+                             self.temperature, \
+                             self.network]:
+            diagnostics.updateValues()

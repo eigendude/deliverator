@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 ################################################################################
 #
 #      Copyright (C) 2016 juztamau5
@@ -24,12 +23,4 @@
 #
 ################################################################################
 
-from distutils.core import setup
-from catkin_pkg.python_setup import generate_distutils_setup
-
-d = generate_distutils_setup(
-  packages=['deliverator'],
-  package_dir={'': 'modules'},
-)
-
-setup(**d)
+from Diagnostics import Diagnostics

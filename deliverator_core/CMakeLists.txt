@@ -1,20 +1,19 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(deliverator_core)
 
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS
+  rospy
+  diagnostic_msgs
+)
 
 catkin_python_setup()
 
-catkin_package(
-    DEPENDS lm-sensors
-)
+catkin_package()
 
-install(PROGRAMS
-  nodes/manager.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+catkin_install_python(PROGRAMS nodes/manager.py
+                      DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(DIRECTORY launch/
-   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
-   FILES_MATCHING PATTERN "*.launch"
+    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+    FILES_MATCHING PATTERN "*.launch"
 )

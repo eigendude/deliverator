@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 ################################################################################
 #
 #      Copyright (C) 2016 juztamau5
@@ -24,12 +23,20 @@
 #
 ################################################################################
 
-from distutils.core import setup
-from catkin_pkg.python_setup import generate_distutils_setup
+from DiagnosticsTypes import Battery
 
-d = generate_distutils_setup(
-  packages=['deliverator'],
-  package_dir={'': 'modules'},
-)
+import commands
 
-setup(**d)
+class BatteryACPI(Battery):
+    def updateValues(self):
+        outputString = commands.getoutput("acpi")
+        percentageLocation = outputString.find("%")
+        if percentageLocation >= 0:
+            self.percentage = int(outputString[percentageLocation - 3 : percentageLocation])
+
+    @staticmethod
+    def isSupported():
+        outputString = commands.getoutput("acpi")
+        if outputString == "No support for device type: power_supply":
+            return False
+        return True

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 ################################################################################
 #
 #      Copyright (C) 2016 juztamau5
@@ -24,12 +23,32 @@
 #
 ################################################################################
 
-from distutils.core import setup
-from catkin_pkg.python_setup import generate_distutils_setup
+from BatteryACPI import BatteryACPI
+from NetworkTest import NetworkTest
+from PowerSupplyTest import PowerSupplyTest
+from TemperatureLmSensors import TemperatureLmSensors
 
-d = generate_distutils_setup(
-  packages=['deliverator'],
-  package_dir={'': 'modules'},
-)
+class DiagnosticsFactory:
+    @staticmethod
+    def createBattery():
+        if BatteryACPI.isSupported():
+            return BatteryACPI()
+        return None
 
-setup(**d)
+    @staticmethod
+    def createPowerSupply():
+        if PowerSupplyTest.isSupported():
+            return PowerSupplyTest()
+        return None
+
+    @staticmethod
+    def createTemperature():
+        if TemperatureLmSensors.isSupported():
+            return TemperatureLmSensors()
+        return None
+
+    @staticmethod
+    def createNetwork():
+        if NetworkTest.isSupported():
+            return NetworkTest()
+        return None
