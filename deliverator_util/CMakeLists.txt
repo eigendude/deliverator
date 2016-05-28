@@ -7,10 +7,8 @@ catkin_python_setup()
 
 catkin_package()
 
-install(PROGRAMS
-    nodes/power_on.py
-    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+catkin_install_python(PROGRAMS nodes/power_on.py
+                      DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(DIRECTORY launch/
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
