@@ -49,21 +49,21 @@ class BatteryDir:
             voltage = -1.0
         return voltage
 
-    def isDischarging(self):
+    def isCharging(self):
         try:
             with open(os.path.join(self.path, 'status')) as f:
                 status = f.read()
-                bIsDischarging = status.startswith('Discharging')
+                bIsCharging = not status.startswith('Discharging')
         except:
-            bIsDischarging = None
-        return bIsDischarging
+            bIsCharging = None
+        return bIsCharging
 
 class BatterySysfs(Battery):
     def updateValues(self):
         batteries = self.getBatteries()
         self.percentage = sum([battery.getCapacity() for battery in batteries]) / float(len(batteries))
         self.voltage = sum([battery.getVoltage() for battery in batteries]) / float(len(batteries))
-        self.discharging = all([battery.isDischarging() for battery in batteries])
+        self.charging = any([battery.isCharging() for battery in batteries])
 
     @staticmethod
     def getBatteries():
@@ -76,6 +76,6 @@ class BatterySysfs(Battery):
 
         return batteries
 
-    @staticmethod
-    def isSupported():
-        return len(BatterySysfs.getBatteries()) > 0
+    @classmethod
+    def isSupported(cls):
+        return len(cls.getBatteries()) > 0

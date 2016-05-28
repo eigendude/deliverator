@@ -42,8 +42,8 @@ def GetDiagnostics(diagnostics):
             values.append(KeyValue(key='Laptop Battery Level', value=str(diagnostics.battery.percentage)))
         if diagnostics.battery.voltage >= 0.0:
             values.append(KeyValue(key='Laptop Battery Voltage', value=str(diagnostics.battery.voltage)))
-        if diagnostics.battery.discharging is not None:
-            values.append(KeyValue(key='Discharging', value=str(diagnostics.battery.discharging)))
+        if diagnostics.battery.charging is not None:
+            values.append(KeyValue(key='Charging', value=str(diagnostics.battery.charging)))
 
     if diagnostics.powerSupply:
         values.append(KeyValue(key='Battery Level', value=str(diagnostics.powerSupply.percentage)))
