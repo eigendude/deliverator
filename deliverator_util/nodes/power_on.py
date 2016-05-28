@@ -29,8 +29,12 @@ import rospy
 try:
     from wakeonlan import wol
 except ImportError:
+    print('')
+    print('********************************************************************************')
     print('Error: This node requires py-wakeonlan. Try:')
     print('sudo pip install wakeonlan')
+    print('********************************************************************************')
+    print('')
     exit()
 
 if __name__ == '__main__':
