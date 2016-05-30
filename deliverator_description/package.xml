@@ -28,13 +28,18 @@
   <author email="juztamau5@gmail.com">juztamau5</author>
   <maintainer email="juztamau5@gmail.com">juztamau5</maintainer>
   <license>MIT</license>
-  <url type="website">http://github.com/juztamau5/deliverator</url>
+  <url type="website">https://github.com/juztamau5/deliverator</url>
+  <url type="bugtracker">https://github.com/juztamau5/deliverator/issues</url>
+  <url type="repository">https://github.com/juztamau5/deliverator.git</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <!--
+  <run_depend>rviz</run_depend>
+  <run_depend>xacro</run_depend>
   <run_depend>joint_state_publisher</run_depend>
   <run_depend>robot_state_publisher</run_depend>
+
+  <!--
   <run_depend>rviz</run_depend>
   <run_depend>xacro</run_depend>
   -->
