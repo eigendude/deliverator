@@ -46,7 +46,7 @@ Within the catkin workspace folder, run this command to install the packages thi
 
 To compile and install run `catkin_make` from the catkin workspace folder.
 
-_Note:_ If you are unfamiliar with catkin, please know that you must run `source <catkin_ws>/devel/setup.sh` before ROS will be able to locate the autorally packages. This line can be added to your ~/.bashrc file.
+_Note:_ If you are unfamiliar with catkin, please know that you must run `source <catkin_ws>/devel/setup.sh` before ROS will be able to locate the deliverator packages. This line can be added to your ~/.bashrc file.
 
 ### 5. Test Setup in Simulation
 
