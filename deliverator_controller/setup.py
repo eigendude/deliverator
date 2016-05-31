@@ -24,28 +24,13 @@
 #
 ################################################################################
 
-import rospy
-import smach
+from distutils.core import setup
+from catkin_pkg.python_setup import generate_distutils_setup
 
-class Record(smach.State):
-    def __init__(self):
-        smach.State.__init__(self,
-                             outcomes=['stop'],
-                             input_keys=['input'],
-                             output_keys=['output'])
+d = generate_distutils_setup(
+  packages=['deliverator',
+            'deliverator.controller'],
+  package_dir={'': 'modules'},
+)
 
-    def execute(self, userdata):
-        #i = 0
-        #while (i < 10):
-        #    if (self.preempt_requested()):
-        #        rospy.logwarn('Record Preempted!')
-        #        return 'stop'
-        #    print i
-        #    i += 1
-        #    rospy.sleep(5.0)
-        rospy.sleep(3.0)
-        output = { }
-        output['error'] = 'None'
-        output['data'] = None
-        userdata.output = output
-        return 'stop'
+setup(**d)

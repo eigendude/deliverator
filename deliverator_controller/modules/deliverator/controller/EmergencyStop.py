@@ -35,17 +35,13 @@ class EmergencyStop(smach.State):
                              output_keys=['output'])
 
     def execute(self, userdata):
-        #i = 0
-        #while (i < 10):
-        #    if (self.preempt_requested()):
-        #        rospy.logwarn('EmergencyStop Preempted!')
-        #        return 'Stop'
-        #    print i
-        #    i += 1
-        #    rospy.sleep(5.0)
-        rospy.sleep(3.0)
-        output = {}
+        rospy.sleep(2.0)
+        output = { }
         output['error'] = 'None'
         output['data'] = None
         userdata.output = output
-        return 'fatal'
+
+        if not rospy.is_shutdown():
+            return 'success'
+        else:
+            return 'fatal'

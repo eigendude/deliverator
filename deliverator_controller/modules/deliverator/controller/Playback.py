@@ -35,15 +35,7 @@ class Playback(smach.State):
                              output_keys=['output'])
 
     def execute(self, userdata):
-        #i = 0
-        #while (i < 10):
-        #    if (self.preempt_requested()):
-        #        rospy.logwarn('Playback Preempted!')
-        #        return 'stop'
-        #    print i
-        #    i += 1
-        #    rospy.sleep(5.0)
-        rospy.sleep(3.0)
+        rospy.sleep(2.0)
         output = { }
         output['error'] = 'None'
         output['data'] = None

@@ -28,7 +28,6 @@ from deliverator.controller import EmergencyStop
 from deliverator.controller import FreeDrive
 from deliverator.controller import Playback
 from deliverator.controller import PlaybackReady
-from deliverator.controller import Record
 from deliverator.controller import ReturnToStart
 
 import rospy
@@ -48,12 +47,8 @@ class DeliveratorController:
             # Initial state is free drive mode
             smach.StateMachine.add('FREE_DRIVE',
                                    FreeDrive(),
-                                   transitions={'record': 'RECORD', 'playback': 'RETURN_TO_START', 'stop': 'EMERGENCY_STOP'})
-            # Add record mode
-            smach.StateMachine.add('RECORD',
-                                   Record(),
-                                   transitions={'stop': 'EMERGENCY_STOP'})
-            # Add mode for returning to start of playback
+                                   transitions={'playback': 'RETURN_TO_START', 'stop': 'EMERGENCY_STOP'})
+            # Add mode for returning to start of a recording
             smach.StateMachine.add('RETURN_TO_START',
                                    ReturnToStart(),
                                    transitions={'ready': 'PLAYBACK_READY', 'stop': 'EMERGENCY_STOP'})
@@ -75,29 +70,10 @@ class DeliveratorController:
         #self.sis.start()
 
     def Start(self):
-        # Start the state machine
-        self.running = True
-        #self.sm.userdata.sm_input = 'Testing'
-        #print 'Starting...'
-        #print self.sm.userdata.sm_input
-        #print '...starting'
-        final_outcome = self.sm.execute()
-        #print 'Final outcome: %s' % final_outcome
-        self.running = False
-        #self.safemode.execute([])
-        #self.cleanup()
-
-    def cleanup(self):
-        # Complete any steps necessary for task controller shutdown
-        if (self.running):
-            rospy.logfatal('Forced shutdown of controller...')
-            self.sm.request_preempt()
-        rospy.loginfo('Shutting down controller...')
-        #self.sis.stop()
-        rospy.loginfo('...Controller shutdown complete')
+        finalOutcome = self.sm.execute()
 
 def main():
-    rospy.init_node(NODE_NAME)
+    rospy.init_node(NODE_NAME, log_level=rospy.DEBUG)
     controller = DeliveratorController()
     controller.Start()
 

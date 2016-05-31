@@ -35,17 +35,12 @@ class ReturnToStart(smach.State):
                              output_keys=['output'])
 
     def execute(self, userdata):
-        #i = 0
-        #while (i < 10):
-        #    if (self.preempt_requested()):
-        #        rospy.logwarn('ReturnToStart Preempted!')
-        #        return 'stop'
-        #    print i
-        #    i += 1
-        #    rospy.sleep(5.0)
         rospy.sleep(3.0)
         output = { }
         output['error'] = 'None'
         output['data'] = None
         userdata.output = output
-        return 'stop'
+        if not rospy.is_shutdown():
+            return 'ready'
+        else:
+            return 'stop'
