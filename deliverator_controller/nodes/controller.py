@@ -26,6 +26,7 @@
 
 from deliverator.controller import EmergencyStop
 from deliverator.controller import FreeDrive
+from deliverator.controller import JoystickListener
 from deliverator.controller import Playback
 from deliverator.controller import PlaybackReady
 from deliverator.controller import ReturnToStart
@@ -43,22 +44,24 @@ class DeliveratorController:
         # Initialize the state machine
         self.sm = smach.StateMachine(outcomes=['succeeded', 'aborted', 'preempted'])
 
+        self.joy = JoystickListener()
+
         with self.sm:
             # Initial state is free drive mode
             smach.StateMachine.add('FREE_DRIVE',
-                                   FreeDrive(),
+                                   FreeDrive(self.joy),
                                    transitions={'playback': 'RETURN_TO_START', 'stop': 'EMERGENCY_STOP'})
             # Add mode for returning to start of a recording
             smach.StateMachine.add('RETURN_TO_START',
-                                   ReturnToStart(),
+                                   ReturnToStart(self.joy),
                                    transitions={'ready': 'PLAYBACK_READY', 'stop': 'EMERGENCY_STOP'})
             # Add playback ready state
             smach.StateMachine.add('PLAYBACK_READY',
-                                   PlaybackReady(),
+                                   PlaybackReady(self.joy),
                                    transitions={'start': 'PLAYBACK', 'stop': 'EMERGENCY_STOP'})
             # Add playback mode
             smach.StateMachine.add('PLAYBACK',
-                                   Playback(),
+                                   Playback(self.joy),
                                    transitions={'stop': 'EMERGENCY_STOP'})
             # Add emergency stop mode
             smach.StateMachine.add('EMERGENCY_STOP',
@@ -70,7 +73,8 @@ class DeliveratorController:
         #self.sis.start()
 
     def Start(self):
-        finalOutcome = self.sm.execute()
+        with self.joy:
+            finalOutcome = self.sm.execute()
 
 def main():
     rospy.init_node(NODE_NAME, log_level=rospy.DEBUG)

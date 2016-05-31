@@ -28,11 +28,12 @@ import rospy
 import smach
 
 class Playback(smach.State):
-    def __init__(self):
+    def __init__(self, joyListener):
         smach.State.__init__(self,
                              outcomes=['stop'],
                              input_keys=['input'],
                              output_keys=['output'])
+        self.joyListener = joyListener
 
     def execute(self, userdata):
         rospy.sleep(2.0)
