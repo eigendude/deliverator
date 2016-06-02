@@ -12,10 +12,10 @@ catkin_package()
 
 catkin_python_setup()
 
-catkin_install_python(PROGRAMS nodes/controller.py
+catkin_install_python(PROGRAMS nodes/controller
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-#catkin_install_python(PROGRAMS nodes/controller_action.py
+#catkin_install_python(PROGRAMS nodes/controller_action
 #                      DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(DIRECTORY launch/

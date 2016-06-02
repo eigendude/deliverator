@@ -5,7 +5,7 @@ find_package(catkin REQUIRED)
 
 catkin_package()
 
-catkin_install_python(PROGRAMS nodes/power_on.py
+catkin_install_python(PROGRAMS nodes/power_on
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

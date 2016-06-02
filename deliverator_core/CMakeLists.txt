@@ -10,7 +10,7 @@ catkin_python_setup()
 
 catkin_package()
 
-catkin_install_python(PROGRAMS nodes/manager.py
+catkin_install_python(PROGRAMS nodes/manager
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(DIRECTORY launch/
