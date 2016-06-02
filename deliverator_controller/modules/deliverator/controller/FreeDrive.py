@@ -29,8 +29,13 @@ from JoystickListener import Button
 import rospy
 import smach
 from sensor_msgs.msg import Joy
+from ackermann_msgs.msg import AckermannDrive
+from ackermann_msgs.msg import AckermannDriveStamped
 
 import threading
+
+def clamp(minimum, value, maximum):
+    return max(minimum, min(value, maximum))
 
 class FreeDrive(smach.State):
     def __init__(self, joyListener):
@@ -44,6 +49,10 @@ class FreeDrive(smach.State):
         # Create an event to block on until we transition to the next state
         self.stateChangeEvent = threading.Event()
 
+        self.car_ctl = AckermannDrive()
+        self.car_msg = AckermannDriveStamped()
+        self.cmdPub = rospy.Publisher('ackermann_cmd', AckermannDriveStamped)
+
     def onPress(self, button):
         if button == Button.A:
             self.beginRecording()
@@ -56,9 +65,20 @@ class FreeDrive(smach.State):
         pass
 
     def onCommand(self, steering, throttle):
+        steering = clamp(-1.0, steering, 1.0)
+        throttle = clamp(-1.0, throttle, 1.0)
+
         #rospy.logdebug('Steering: %s', steering)
         #rospy.logdebug('  Throttle: %s', throttle)
-        pass # TODO
+
+        MAX_THROTTLE = 2 # m/s
+        MAX_STEERING_ANGLE = 0.785398 # 45 deg
+
+        self.car_ctl.speed = throttle * MAX_THROTTLE
+        self.car_ctl.steering_angle = steering * MAX_STEERING_ANGLE
+        self.car_msg.drive = self.car_ctl
+        self.car_msg.header.stamp = rospy.Time.now()
+        self.cmdPub.publish(self.car_msg)
 
     def beginRecording(self):
         if not self.recording:

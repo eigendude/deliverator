@@ -6,6 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
   smach
   smach_ros
   sensor_msgs
+  ackermann_msgs
 )
 
 catkin_package()
