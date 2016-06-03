@@ -48,7 +48,7 @@ AXIS_LEFT_TRIGGER_ID = 2
 AXIS_RIGHT_TRIGGER_ID = 5
 
 def xAxisValue(observed):
-    return -observed
+    return observed
 
 def yAxisValue(observed):
     return observed
