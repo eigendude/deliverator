@@ -5,7 +5,7 @@
 
   <group ns="$(arg NAMESPACE)">
     <rosparam command="load" file="$(find deliverator_util)/config/hardware.yaml"/>
-    <node pkg="deliverator_util" type="power_on.py" name="power_on" output="screen"/>
+    <node pkg="deliverator_util" type="power_on" name="power_on" output="screen"/>
   </group>
 
 </launch>

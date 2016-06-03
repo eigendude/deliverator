@@ -4,7 +4,7 @@
   <arg name="NAMESPACE" default="controller"/>
 
   <group ns="$(arg NAMESPACE)">
-    <node pkg="deliverator_controller" type="controller.py" name="controller" output="screen"/>
+    <node pkg="deliverator_controller" type="controller" name="controller" output="screen"/>
   </group>
 
 </launch>
