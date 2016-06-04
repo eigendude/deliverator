@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Robot-specific arguments -->
+  <arg name="NAMESPACE" default="deliverator"/>
+  <arg name="GAZEBO_PACKAGE" default="deliverator_gazebo"/>
+
+  <arg name="cmd_timeout" default="0.5"/>
+
+  <group ns="$(arg NAMESPACE)">
+    <!-- Control the steering, axle, and shock absorber joints -->
+    <node name="ackermann_controller" pkg="$(arg GAZEBO_PACKAGE)" type="ackermann_controller">
+      <param name="cmd_timeout" value="$(arg cmd_timeout)"/>
+      <rosparam file="$(eval find(GAZEBO_PACKAGE) + '/config/em_3905_ackermann_ctrlr_params.yaml')" command="load"/>
+    </node>
+  </group>
+</launch>
