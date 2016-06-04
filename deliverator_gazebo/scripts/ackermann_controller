@@ -455,8 +455,8 @@ def _wait_for_ctrlr(list_ctrlrs, ctrlr_name):
             if ctrlr.name == ctrlr_name:
                 if ctrlr.state == "running":
                     return
-                rospy.sleep(0.1)
                 break
+        rospy.sleep(0.1)
 
 
 def _create_axle_cmd_pub(list_ctrlrs, axle_ctrlr_name):
