@@ -164,29 +164,26 @@ class _AckermannCtrlr(object):
         # Shock absorbers
         shock_param_list = rospy.get_param("~shock_absorbers", [])
         self._shock_pubs = []
-        try:
-            for shock_params in shock_param_list:
-                try:
-                    ctrlr_name = shock_params["controller_name"]
-                    try:
-                        eq_pos = shock_params["equilibrium_position"]
-                    except:
-                        eq_pos = self._DEF_EQ_POS
-                    eq_pos = float(eq_pos)
-                except:
-                    rospy.logwarn("An invalid parameter was specified for a "
-                                  "shock absorber. The shock absorber will "
-                                  "not be used.")
-                    continue
+        for shock_params in shock_param_list:
+            try:
+                ctrlr_name = shock_params["controller_name"]
+            except KeyError:
+                rospy.logwarn("An invalid parameter was specified for a "
+                              "shock absorber. The shock absorber will "
+                              "not be used.")
+                continue
 
-                pub = rospy.Publisher(ctrlr_name + "/command", Float64,
-                                      latch=True, queue_size=1)
-                _wait_for_ctrlr(list_ctrlrs, ctrlr_name)
-                pub.publish(eq_pos)
-                self._shock_pubs.append(pub)
-        except:
-            rospy.logwarn("The specified list of shock absorbers is invalid. "
-                          "No shock absorbers will be used.")
+            try:
+                eq_pos = shock_params["equilibrium_position"]
+            except KeyError:
+                eq_pos = self._DEF_EQ_POS
+            eq_pos = float(eq_pos)
+
+            pub = rospy.Publisher(ctrlr_name + "/command", Float64,
+                                  latch=True, queue_size=1)
+            _wait_for_ctrlr(list_ctrlrs, ctrlr_name)
+            pub.publish(eq_pos)
+            self._shock_pubs.append(pub)
 
         # Command timeout
         try:
