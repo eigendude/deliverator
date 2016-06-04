@@ -114,6 +114,7 @@ limitations under the License.
 
 import math
 import numpy
+import os
 import time
 import threading
 
@@ -126,6 +127,7 @@ from ackermann_msgs.msg import AckermannDriveStamped
 from std_msgs.msg import Float64
 from controller_manager_msgs.srv import ListControllers
 
+SCRIPT_NAME = os.path.basename(__file__)
 
 class _AckermannCtrlr(object):
     """Ackermann controller
@@ -264,6 +266,8 @@ class _AckermannCtrlr(object):
         self._ackermann_cmd_sub = \
             rospy.Subscriber("ackermann_cmd", AckermannDriveStamped,
                              self.ackermann_cmd_cb, queue_size=1)
+
+        rospy.logdebug('Successfully initialized %s', SCRIPT_NAME)
 
     def spin(self):
         """Control the vehicle."""
