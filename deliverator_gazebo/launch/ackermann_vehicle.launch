@@ -43,6 +43,7 @@ limitations under the License.
   <arg name="GAZEBO_PACKAGE" default="deliverator_gazebo"/>
 
   <arg name="world_name" default="worlds/empty.world"/>
+  <arg name="cmd_timeout" default="0.5"/>
 
   <!-- Vehicle pose -->
   <arg name="x" default="0.0"/>
@@ -73,5 +74,12 @@ limitations under the License.
          to joint_states. -->
     <node name="controller_spawner" pkg="controller_manager" type="spawner"
           args="$(eval find(GAZEBO_PACKAGE) + '/config/em_3905_joint_ctrlr_params.yaml')"/>
+
+    <!-- Control the steering, axle, and shock absorber joints. -->
+    <node name="ackermann_controller" pkg="$(arg GAZEBO_PACKAGE)"
+          type="ackermann_controller">
+      <param name="cmd_timeout" value="$(arg cmd_timeout)"/>
+      <rosparam file="$(eval find(GAZEBO_PACKAGE) + '/config/em_3905_ackermann_ctrlr_params.yaml')" command="load"/>
+    </node>
   </group>
 </launch>
