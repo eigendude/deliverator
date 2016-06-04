@@ -35,7 +35,10 @@ class EmergencyStop(smach.State):
                              output_keys=['output'])
 
     def execute(self, userdata):
-        rospy.sleep(2.0)
+        try:
+            rospy.sleep(2.0)
+        except rospy.exceptions.ROSInterruptException:
+            pass
         output = { }
         output['error'] = 'None'
         output['data'] = None
