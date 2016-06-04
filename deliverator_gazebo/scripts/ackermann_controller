@@ -366,14 +366,19 @@ class _AckermannCtrlr(object):
         # Return the position of the specified link, relative to the right
         # rear wheel link.
 
+        timeout = 0.1 # seconds
+        step = 0.01 # seconds
+
         while True:
             try:
-                trans, not_used = \
-                    tfl.lookupTransform(self._right_rear_link_name, link,
-                                        rospy.Time(0))
+                trans, not_used = tfl.lookupTransform(self._right_rear_link_name, \
+                    link, rospy.Time(0))
                 return numpy.array(trans)
-            except:
-                pass
+            except tf.LookupException:
+                if timeout <= 0:
+                    raise
+            rospy.sleep(step)
+            timeout = timeout - step
 
     def _ctrl_steering(self, steer_ang, steer_ang_vel_limit, delta_t):
         # Control the steering joints.
