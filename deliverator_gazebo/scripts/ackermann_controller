@@ -448,6 +448,9 @@ def _wait_for_ctrlr(list_ctrlrs, ctrlr_name):
     # Commands can be lost if they are published before their controller is
     # running, even if a latched publisher is used.
 
+    timeout = 1 # seconds
+    step = 0.1 # seconds
+
     while True:
         response = list_ctrlrs()
         for ctrlr in response.controller:
@@ -455,7 +458,10 @@ def _wait_for_ctrlr(list_ctrlrs, ctrlr_name):
                 if ctrlr.state == "running":
                     return
                 break
-        rospy.sleep(0.1)
+        rospy.sleep(step)
+        timeout = timeout - step
+        if timeout <= 0:
+            raise Exception('Waiting for controller timed out after %f seconds', timeout)
 
 def _create_cmd_pub(list_ctrlrs, ctrlr_name):
     # Create a command publisher.
