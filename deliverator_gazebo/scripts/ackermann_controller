@@ -97,6 +97,7 @@ Required tf Transforms:
         wheel's frame.
 
 Copyright (c) 2013-2015 Wunderkammer Laboratory
+Copyright (c) 2016 juztamau5
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -141,17 +142,17 @@ class _AckermannCtrlr(object):
 
         # Wheels
         (left_steer_link_name, left_steer_ctrlr_name,
-         left_front_axle_ctrlr_name, self._left_front_inv_circ) = \
-         self._get_front_wheel_params("left")
+            left_front_axle_ctrlr_name, self._left_front_inv_circ) = \
+            self._get_front_wheel_params("left")
         (right_steer_link_name, right_steer_ctrlr_name,
-         right_front_axle_ctrlr_name, self._right_front_inv_circ) = \
-         self._get_front_wheel_params("right")
+            right_front_axle_ctrlr_name, self._right_front_inv_circ) = \
+            self._get_front_wheel_params("right")
         (left_rear_link_name, left_rear_axle_ctrlr_name,
-         self._left_rear_inv_circ) = \
-         self._get_rear_wheel_params("left")
+            self._left_rear_inv_circ) = \
+            self._get_rear_wheel_params("left")
         (self._right_rear_link_name, right_rear_axle_ctrlr_name,
-         self._right_rear_inv_circ) = \
-         self._get_rear_wheel_params("right")
+            self._right_rear_inv_circ) = \
+            self._get_rear_wheel_params("right")
 
         list_ctrlrs = rospy.ServiceProxy("controller_manager/list_controllers",
                                          ListControllers)
@@ -297,8 +298,7 @@ class _AckermannCtrlr(object):
             if self._left_front_axle_cmd_pub:
                 self._left_front_axle_cmd_pub.publish(self._left_front_ang_vel)
             if self._right_front_axle_cmd_pub:
-                self._right_front_axle_cmd_pub.\
-                    publish(self._right_front_ang_vel)
+                self._right_front_axle_cmd_pub.publish(self._right_front_ang_vel)
             if self._left_rear_axle_cmd_pub:
                 self._left_rear_axle_cmd_pub.publish(self._left_rear_ang_vel)
             if self._right_rear_axle_cmd_pub:
@@ -432,10 +432,8 @@ class _AckermannCtrlr(object):
             self._right_front_ang_vel = gain * r * self._right_front_inv_circ
             # Rear
             gain = (2 * pi) * veh_speed / center_y
-            self._left_rear_ang_vel = \
-                gain * left_dist * self._left_rear_inv_circ
-            self._right_rear_ang_vel = \
-                gain * right_dist * self._right_rear_inv_circ
+            self._left_rear_ang_vel = gain * left_dist * self._left_rear_inv_circ
+            self._right_rear_ang_vel = gain * right_dist * self._right_rear_inv_circ
 
     _DEF_WHEEL_DIA = 1.0    # Default wheel diameter. Unit: meter.
     _DEF_EQ_POS = 0.0       # Default equilibrium position. Unit: meter.
@@ -458,19 +456,16 @@ def _wait_for_ctrlr(list_ctrlrs, ctrlr_name):
                 break
         rospy.sleep(0.1)
 
-
 def _create_axle_cmd_pub(list_ctrlrs, axle_ctrlr_name):
     # Create an axle command publisher.
     if not axle_ctrlr_name:
         return None
     return _create_cmd_pub(list_ctrlrs, axle_ctrlr_name)
 
-
 def _create_cmd_pub(list_ctrlrs, ctrlr_name):
     # Create a command publisher.
     _wait_for_ctrlr(list_ctrlrs, ctrlr_name)
     return rospy.Publisher(ctrlr_name + "/command", Float64, queue_size=1)
-
 
 def _get_steer_ang(phi):
     # Return the desired steering angle for a front wheel.
