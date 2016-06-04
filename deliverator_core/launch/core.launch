@@ -1,10 +1,12 @@
 <?xml version="1.0"?>
 <launch>
 
-  <arg name="NAMESPACE" default="core"/>
+  <!-- Robot-specific arguments -->
+  <arg name="NAMESPACE" default="deliverator"/>
+  <arg name="CORE_PACKAGE" default="deliverator_core"/>
 
   <group ns="$(arg NAMESPACE)">
-    <node pkg="deliverator_core" type="manager" name="manager" output="screen"/>
+    <node pkg="$(arg CORE_PACKAGE)" type="manager" name="manager" output="screen"/>
   </group>
 
 </launch>

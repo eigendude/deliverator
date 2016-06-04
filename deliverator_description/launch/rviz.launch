@@ -2,13 +2,14 @@
 
 <!-- rviz.launch
 
-Launch RViz in the "ackermann_vehicle" namespace.
+Launch RViz in a robot-specific namespace.
 
 Arguments:
-    namespace (string, default: ackermann_vehicle)
+    NAMESPACE (string, robot-specific)
         Vehicle namespace.
 
 Copyright (c) 2013 Wunderkammer Laboratory
+Copyright (c) 2016 juztamau5
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,6 +25,8 @@ limitations under the License.
 -->
 
 <launch>
-  <arg name="namespace" default="ackermann_vehicle"/>
-  <node name="rviz" pkg="rviz" type="rviz" ns="$(arg namespace)"/>
+  <!-- Robot-specific arguments -->
+  <arg name="NAMESPACE" default="deliverator"/>
+
+  <node name="rviz" pkg="rviz" type="rviz" ns="$(arg NAMESPACE)"/>
 </launch>

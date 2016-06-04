@@ -22,18 +22,18 @@ limitations under the License.
 -->
 
 <launch>
-  <arg name="namespace" default="ackermann_vehicle"/>
+  <!-- Robot-specific arguments -->
+  <arg name="NAMESPACE" default="deliverator"/>
+  <arg name="DESCRIPTION_PACKAGE" default="deliverator_description"/>
 
-  <group ns="$(arg namespace)">
-    <!-- robot_description is used by nodes that publish to joint_states. -->
-    <param name="robot_description"
-           command="$(find xacro)/xacro.py $(find deliverator_description)/urdf/em_3905.urdf.xacro"/>
+  <group ns="$(arg NAMESPACE)">
+    <!-- robot_description is used by nodes that publish to joint_states -->
+    <param name="robot_description" command="$(eval find('xacro') + '/xacro.py ' + find(DESCRIPTION_PACKAGE) + '/urdf/em_3905.urdf.xacro')"/>
 
-    <!-- Read joint positions from joint_states, then publish the vehicle's
-         state to tf. -->
-    <node name="vehicle_state_publisher" pkg="robot_state_publisher"
-          type="robot_state_publisher">
+    <!-- Read joint positions from joint_states, then publish the vehicle's state to tf -->
+    <node name="vehicle_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
       <param name="publish_frequency" value="30.0"/>
     </node>
   </group>
+
 </launch>

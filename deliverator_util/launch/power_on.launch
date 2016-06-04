@@ -1,11 +1,13 @@
 <?xml version="1.0"?>
 <launch>
 
-  <arg name="NAMESPACE" default="util"/>
+  <!-- Robot-specific arguments -->
+  <arg name="NAMESPACE" default="deliverator"/>
+  <arg name="UTIL_PACKAGE" default="deliverator_util"/>
 
   <group ns="$(arg NAMESPACE)">
-    <rosparam command="load" file="$(find deliverator_util)/config/hardware.yaml"/>
-    <node pkg="deliverator_util" type="power_on" name="power_on" output="screen"/>
+    <rosparam command="load" file="$(eval find(UTIL_PACKAGE) + '/config/hardware.yaml')"/>
+    <node pkg="$(arg UTIL_PACKAGE)" type="power_on" name="power_on" output="screen"/>
   </group>
 
 </launch>

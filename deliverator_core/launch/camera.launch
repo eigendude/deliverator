@@ -1,7 +1,10 @@
 <?xml version="1.0"?>
 <launch>
 
-  <arg name="NAMESPACE" default="core"/>
+  <!-- Robot-specific arguments -->
+  <arg name="NAMESPACE" default="deliverator"/>
+
+  <!-- Camera arguments -->
   <arg name="CAMERA_NAME" default="camera"/>
   <arg name="DEVICE" default="/dev/video0"/>
   <arg name="FPS" default="30/1"/> <!-- GStreamer framerate needs to be an integral fraction -->

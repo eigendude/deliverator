@@ -1,10 +1,14 @@
 <?xml version="1.0"?>
 <launch>
 
-  <arg name="NAMESPACE" default="controller"/>
+  <!-- Robot-specific arguments -->
+  <arg name="NAMESPACE" default="deliverator"/>
+  <arg name="CONTROLLER_PACKAGE" default="deliverator_controller"/>
+
+  <include file="$(eval find(CONTROLLER_PACKAGE) + '/launch/joystick.launch')"/>
 
   <group ns="$(arg NAMESPACE)">
-    <node pkg="deliverator_controller" type="controller" name="controller" output="screen"/>
+    <node pkg="$(arg CONTROLLER_PACKAGE)" type="controller" name="controller" output="screen"/>
   </group>
 
 </launch>

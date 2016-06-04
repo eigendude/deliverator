@@ -5,7 +5,7 @@
 Use RViz to visualize a vehicle with Ackermann steering.
 
 Arguments:
-    namespace (string, default: ackermann_vehicle)
+    NAMESPACE (string, robot-specific)
         Vehicle namespace.
 
 Copyright (c) 2013 Wunderkammer Laboratory
@@ -25,20 +25,21 @@ limitations under the License.
 -->
 
 <launch>
-  <arg name="namespace" default="ackermann_vehicle"/>
+  <!-- Robot-specific arguments -->
+  <arg name="NAMESPACE" default="deliverator"/>
+  <arg name="DESCRIPTION_PACKAGE" default="deliverator_description"/>
 
-  <include file="$(find deliverator_description)/launch/ackermann_vehicle.launch">
-    <arg name="namespace" value="$(arg namespace)"/>
+  <include file="$(eval find(DESCRIPTION_PACKAGE) + '/launch/ackermann_vehicle.launch')">
+    <arg name="NAMESPACE" value="$(arg NAMESPACE)"/>
   </include>
 
-  <!-- Read joint positions from a GUI, then publish them to joint_states. -->
-  <node name="joint_state_publisher" pkg="joint_state_publisher"
-        type="joint_state_publisher" ns="$(arg namespace)">
+  <!-- Read joint positions from a GUI, then publish them to joint_states -->
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" ns="$(arg NAMESPACE)">
     <param name="rate" value="30"/>
     <param name="use_gui" value="true"/>
   </node>
 
-  <include file="$(find deliverator_description)/launch/rviz.launch">
-    <arg name="namespace" value="$(arg namespace)"/>
+  <include file="$(eval find(DESCRIPTION_PACKAGE) + '/launch/rviz.launch')">
+    <arg name="NAMESPACE" value="$(arg NAMESPACE)"/>
   </include>
 </launch>

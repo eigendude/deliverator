@@ -1,11 +1,16 @@
 <?xml version="1.0"?>
 <launch>
 
-  <arg name="NAMESPACE" default="controller"/>
+  <!-- Robot-specific arguments -->
+  <arg name="NAMESPACE" default="deliverator"/>
+
+  <!-- Joystick arguments -->
+  <arg name="JOYSTICK_NAME" default="joystick"/>
+  <arg name="DEVICE" default="/dev/input/js0"/>
 
   <group ns="$(arg NAMESPACE)">
-    <node pkg="joy" type="joy_node" name="joystick" output="screen">
-      <param name="dev" value="/dev/input/js0"/>
+    <node pkg="joy" type="joy_node" name="$(arg JOYSTICK_NAME)" output="screen">
+      <param name="dev" value="$(arg DEVICE)"/>
       <param name="deadzone" value="0.05"/>
       <param name="autorepeat_rate" value="10"/>
       <param name="coalesce_interval" value="0.01"/>
