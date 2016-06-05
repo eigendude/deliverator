@@ -71,11 +71,11 @@ class FreeDrive(smach.State):
         #rospy.logdebug('Steering: %s', steering)
         #rospy.logdebug('  Throttle: %s', throttle)
 
-        MAX_THROTTLE = 2 # m/s
+        MAX_THROTTLE = 5 # m/s
         MAX_STEERING_ANGLE = 0.785398 # 45 deg
 
         self.car_ctl.speed = throttle * MAX_THROTTLE
-        self.car_ctl.steering_angle = steering * MAX_STEERING_ANGLE
+        self.car_ctl.steering_angle = steering * abs(steering) * MAX_STEERING_ANGLE
         self.car_msg.drive = self.car_ctl
         self.car_msg.header.stamp = rospy.Time.now()
         self.cmdPub.publish(self.car_msg)
