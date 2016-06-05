@@ -364,8 +364,8 @@ class _AckermannCtrlr(object):
         # Return the position of the specified link, relative to the right
         # rear wheel link.
 
-        timeout = 0.1 # seconds
-        step = 0.01 # seconds
+        timeout = 1 # seconds
+        step = 0.1 # seconds
 
         while True:
             try:

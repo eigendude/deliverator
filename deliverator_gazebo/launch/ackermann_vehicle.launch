@@ -77,7 +77,7 @@ limitations under the License.
 
     <!-- Control the steering, axle, and shock absorber joints. -->
     <node name="ackermann_controller" pkg="$(arg GAZEBO_PACKAGE)"
-          type="ackermann_controller">
+          type="ackermann_controller" respawn="true">
       <param name="cmd_timeout" value="$(arg cmd_timeout)"/>
       <rosparam file="$(eval find(GAZEBO_PACKAGE) + '/config/em_3905_ackermann_ctrlr_params.yaml')" command="load"/>
     </node>
