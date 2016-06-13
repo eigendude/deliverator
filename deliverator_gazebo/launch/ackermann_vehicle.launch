@@ -41,6 +41,7 @@ limitations under the License.
   <arg name="NAMESPACE" default="deliverator"/>
   <arg name="DESCRIPTION_PACKAGE" default="deliverator_description"/>
   <arg name="GAZEBO_PACKAGE" default="deliverator_gazebo"/>
+  <arg name="CONTROLLER_PACKAGE" default="deliverator_controller"/>
 
   <arg name="world_name" default="worlds/empty.world"/>
   <arg name="cmd_timeout" default="0.5"/>
@@ -82,4 +83,10 @@ limitations under the License.
       <rosparam file="$(eval find(GAZEBO_PACKAGE) + '/config/em_3905_ackermann_ctrlr_params.yaml')" command="load"/>
     </node>
   </group>
+  <!--
+  <include file="$(eval find(CONTROLLER_PACKAGE) + '/launch/controller.launch')">
+    <arg name="NAMESPACE" value="$(arg NAMESPACE)"/>
+    <arg name="CONTROLLER_PACKAGE" value="$(arg CONTROLLER_PACKAGE)"/>
+  </include>
+  -->
 </launch>
