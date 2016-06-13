@@ -51,7 +51,7 @@ class FreeDrive(smach.State):
 
         self.car_ctl = AckermannDrive()
         self.car_msg = AckermannDriveStamped()
-        self.cmdPub = rospy.Publisher('ackermann_cmd', AckermannDriveStamped)
+        self.cmdPub = rospy.Publisher('ackermann_cmd', AckermannDriveStamped, queue_size=1)
 
     def onPress(self, button):
         if button == Button.A:
