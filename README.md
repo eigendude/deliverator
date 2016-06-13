@@ -1,6 +1,6 @@
 # Deliverator
 
-![Cosa Nostra Pizza Delivery](https://cdn2.artstation.com/p/assets/images/images/001/167/838/large/igor-sobolevsky-dtf-cn-front-hero-copy.jpg?1443928195&dl=1 "The Deliverator")
+![Cosa Nostra Pizza Delivery](https://raw.githubusercontent.com/juztamau5/deliverator/master/Cosa_Notra_Pizza_Delivery_Vehicle_by_Igor_Sobolevsky.jpg "The Deliverator")
 
 Image credit: https://www.artstation.com/artwork/cosa-nostra-pizza-delivery-vehicle
 
