@@ -15,13 +15,11 @@ Image credit: https://www.artstation.com/artwork/cosa-nostra-pizza-delivery-vehi
 
 ### 1. Install Prerequisites
 
-The Deliverator package depends on gscam for camera usage. If gscam isn't available for your current ROS version, clone it to your [catkin workspace](http://wiki.ros.org/catkin/workspaces) and build it manually:
+The Deliverator package depends on gscam for camera usage. If gscam isn't available for your current ROS version, enter your [catkin workspace](http://wiki.ros.org/catkin/workspaces) and clone it manually:
 
 ```shell
 cd src
 git clone https://github.com/ros-drivers/gscam.git
-rosdep update --from-path . --ignore-src
-catkin_make
 ```
 
 gscam doesn't fully install all dependencies. gscam may fail at runtime if the following package isn't installed:
@@ -30,21 +28,37 @@ gscam doesn't fully install all dependencies. gscam may fail at runtime if the f
 sudo apt-get install gstreamer0.10-plugins-good
 ```
 
-### 2. Clone Repositories
+The Deliverator package also depends on gazebo_ros_control, which may not be available for your current ROS version. Per [this answer](http://answers.ros.org/question/235846/did-ros-kinetic-gazebo-ros-control-package-release/), it can be cloned as follows:
+
+```shell
+git clone -b kinetic-devel https://github.com/ros-simulation/gazebo_ros_pkgs.git
+cd gazebo_ros_pkgs
+git config core.sparsecheckout true
+echo gazebo_ros_control/ >> .git/info/sparse-checkout
+git checkout
+cd ..
+```
+
+### 2. Clone Repository
 
 Clone the deliverator repository into your catkin workspace. The suggested location is `~/catkin_ws/src/`, but any valid catkin worskspace source folder will work.
 
-```git clone https://github.com/juztamau5/deliverator.git```
+```shell
+git clone https://github.com/juztamau5/deliverator.git
+```
 
 ### 3. Install ROS Dependencies
 
-Within the catkin workspace folder, run this command to install the packages this project depends on.
+If the prerequisites above are avaiable, installing dependencies from the catkin workspace folder should now work:
 
-```rosdep install --from-path src --ignore-src -y```
+```shell
+cd ../..
+rosdep update --from-path ./src --ignore-src -y
+```
 
 ### 3. Compilation & Running
 
-To compile and install run `catkin_make` from the catkin workspace folder.
+To compile run `catkin_make` from the catkin workspace folder.
 
 _Note:_ If you are unfamiliar with catkin, please know that you must run `source <catkin_ws>/devel/setup.sh` before ROS will be able to locate the deliverator packages. This line can be added to your ~/.bashrc file.
 
@@ -52,4 +66,7 @@ _Note:_ If you are unfamiliar with catkin, please know that you must run `source
 
 To test that your setup process was successful, run the simulator with the following command:
 
-```roslaunch deliverator_gazebo gazeboSim.launch```
+```shell
+roslaunch deliverator_gazebo ackermann_vehicle.launch
+```
+
