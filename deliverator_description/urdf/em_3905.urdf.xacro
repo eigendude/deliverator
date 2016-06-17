@@ -396,6 +396,26 @@ limitations under the License.
   <xacro:battery prefix="left" reflect="1"/>
   <xacro:battery prefix="right" reflect="-1"/>
 
+  <link name="imu_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1e-5"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+    </inertial>
+  </link>
+
+  <joint name="imu_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+  </joint>
+
   <!-- Wheels -->
   <xacro:front_wheel lr_prefix="left" fr_prefix="front"
                      lr_reflect="1" fr_reflect="1"/>
@@ -408,5 +428,30 @@ limitations under the License.
 
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so"/>
+
+    <plugin name="imu" filename="libhector_gazebo_ros_imu.so">
+      <bodyName>imu_link</bodyName>
+      <frameId>imu_link</frameId>
+      <topicName>imu</topicName>
+      <biasTopicName>imu/bias</biasTopicName>
+      <serviceName>imu/calibrate</serviceName>
+      <accelOffset>0 0 0</accelOffset>
+      <accelDrift>0.00000001 0.00000001 0.00000001</accelDrift> <!-- Source: AutoRally -->
+      <accelDriftFrequency>0.00000001 0.00000001 0.00000001</accelDriftFrequency> <!-- Source: AutoRally -->
+      <accelGaussianNoise>0.00000001 0.00000001 0.00000001</accelGaussianNoise> <!-- Source: AutoRally -->
+      <accelScaleError>1 1 1</accelScaleError>
+      <rateOffset>0 0 0</rateOffset>
+      <rateDrift>0 0 0</rateDrift>
+      <rateDriftFrequency>0 0 0</rateDriftFrequency>
+      <rateGaussianNoise>0 0 0</rateGaussianNoise>
+      <rateScaleError>1 1 1</rateScaleError>
+      <yawOffset>0</yawOffset>
+      <yawDrift>0</yawDrift>
+      <yawDriftFrequency>0</yawDriftFrequency>
+      <yawGaussianNoise>0</yawGaussianNoise>
+      <yawScaleError>1</yawScaleError>
+      <xyzOffset>0 0 0</xyzOffset>
+      <rpyOffset>0 0 0</rpyOffset>
+    </plugin>
   </gazebo>
 </robot>
