@@ -4,9 +4,22 @@ project(deliverator_msgs)
 find_package(catkin REQUIRED COMPONENTS
   genmsg
   std_msgs
-  sensor_msgs
-  geometry_msgs
-  diagnostic_msgs
+  #sensor_msgs
+  #geometry_msgs
+  #diagnostic_msgs
+  message_generation
 )
 
-catkin_package()
+add_message_files(
+  FILES
+  WheelSpeeds.msg
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
+
+catkin_package(
+    CATKIN_DEPENDS message_runtime
+)
