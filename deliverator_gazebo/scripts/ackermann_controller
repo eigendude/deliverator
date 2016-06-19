@@ -124,6 +124,7 @@ import rospy
 import tf
 
 from ackermann_msgs.msg import AckermannDriveStamped
+from deliverator_msgs.msg import WheelSpeeds
 from std_msgs.msg import Float64
 from controller_manager_msgs.srv import ListControllers
 
@@ -263,6 +264,8 @@ class _AckermannCtrlr(object):
         self._ackermann_cmd_sub = \
             rospy.Subscriber("ackermann_cmd", AckermannDriveStamped,
                              self.ackermann_cmd_cb, queue_size=1)
+
+        self._wheelSpeedPub = rospy.Publisher('wheelSpeeds', WheelSpeeds, queue_size=1)
 
         rospy.logdebug('Successfully initialized %s', SCRIPT_NAME)
 
@@ -437,6 +440,24 @@ class _AckermannCtrlr(object):
             gain = (2 * pi) * veh_speed / center_y
             self._left_rear_ang_vel = gain * left_dist * self._left_rear_inv_circ
             self._right_rear_ang_vel = gain * right_dist * self._right_rear_inv_circ
+
+        # Publish wheel speed msg
+        lfVel = self._left_front_ang_vel # Rad/s
+        rfVel = self._right_front_ang_vel # Rad/s
+        lbVel = self._left_rear_ang_vel # Rad/s
+        rbVel = self._right_rear_ang_vel # Rad/s
+
+        lfSpeed = lfVel / (2 * pi * self._left_front_inv_circ) # m/s
+        rfSpeed = rfVel / (2 * pi * self._right_front_inv_circ) # m/s
+        lbSpeed = lbVel / (2 * pi * self._left_rear_inv_circ) # m/s
+        rbSpeed = rbVel / (2 * pi * self._right_rear_inv_circ) # m/s
+
+        msg = WheelSpeeds()
+        msg.lfSpeed = lfSpeed
+        msg.rfSpeed = rfSpeed
+        msg.lbSpeed = lbSpeed
+        msg.rbSpeed = rbSpeed
+        self._wheelSpeedPub.publish(msg)
 
     _DEF_WHEEL_DIA = 1.0    # Default wheel diameter. Unit: meter.
     _DEF_EQ_POS = 0.0       # Default equilibrium position. Unit: meter.
