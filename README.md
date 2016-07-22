@@ -76,7 +76,7 @@ git clone https://github.com/juztamau5/deliverator.git
 Installing dependencies from the catkin workspace folder should now work:
 
 ```shell
-rosdep update --from-path . --ignore-src -y
+rosdep install --from-path . --ignore-src -y
 ```
 
 gscam may not fully list all dependencies. gscam may fail at runtime if the following package isn't installed:
