@@ -39,6 +39,7 @@
   <run_depend>deliverator_gazebo</run_depend>
   <run_depend>deliverator_msgs</run_depend>
   <run_depend>deliverator_util</run_depend>
+  <run_depend>deliverator_vision</run_depend>
 
   <export>
     <metapackage />
