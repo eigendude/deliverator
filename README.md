@@ -17,7 +17,7 @@ Image credit: https://www.artstation.com/artwork/cosa-nostra-pizza-delivery-vehi
 
 ### 1. Create catkin workspace
 
-If you aren't cloning to an existing [catkin workspace](http://wiki.ros.org/catkin/workspaces), you should create one for this project now:
+If you aren't cloning to an existing [catkin workspace](http://wiki.ros.org/catkin/Tutorials/create_a_workspace), you should create one for this project now:
 
 ```shell
 mkdir -p ~/deliverator_ws/src
