@@ -10,7 +10,7 @@ catkin_install_python(PROGRAMS nodes/power_on
 )
 
 install(PROGRAMS
-        autostart_vision.sh
+        autostart.sh
         setup_env.sh
         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
