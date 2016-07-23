@@ -28,6 +28,7 @@ from deliverator.hardware import HardwareScanner
 
 import rospy
 
+import os
 import subprocess
 
 NODE_NAME = 'device_manager'
@@ -44,10 +45,12 @@ def main():
         # Spawn nodes for new devices
         for device in devices:
             if device.name() not in [oldDevice.name() for oldDevice in oldDevices]:
-                subprocess.Popen(['roslaunch',
-                                  device.launchFile(),
-                                  'NAMESPACE:=' + rospy.get_namespace(),
-                                  'DEVICE:=' + device.path()])
+                # Make sure launch file exists
+                if device.launchFile() and os.path.exists(device.launchFile()):
+                    subprocess.Popen(['roslaunch',
+                                      device.launchFile(),
+                                      'NAMESPACE:=' + rospy.get_namespace(),
+                                      'DEVICE:=' + device.path()])
 
         # TODO: Kill nodes of expired devices
         for oldDevice in oldDevices:
