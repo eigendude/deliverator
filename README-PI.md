@@ -88,7 +88,7 @@ Installing from source takes about 8.5 hours (when run by a script) and uses 3.7
 
 Before running the script, you should ensure that your **swap is big enough** and that your **sudo timeout is long enough**.
 
-##### 7.3.1 Increasing swap
+### 7.3.1 Increasing swap
 
 Raspbian ships with a 100MB swap file. Compiling ROS with `-j4` on the Raspberry Pi 2 exceeds this limited space.
 
