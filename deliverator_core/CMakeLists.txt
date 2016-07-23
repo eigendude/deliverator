@@ -3,6 +3,7 @@ project(deliverator_core)
 
 find_package(catkin REQUIRED COMPONENTS
   rospy
+  rospack
   diagnostic_msgs
 )
 
