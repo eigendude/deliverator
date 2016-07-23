@@ -9,8 +9,10 @@ catkin_install_python(PROGRAMS nodes/power_on
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-install(PROGRAMS coreAutostart.sh
-    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+install(PROGRAMS
+        autostart_vision.sh
+        setup_env.sh
+        DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 install(DIRECTORY launch/

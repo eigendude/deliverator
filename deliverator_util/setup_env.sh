@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -18,8 +18,4 @@ done
 source $SCRIPT_DIR/../../../devel/setup.bash
 
 # Set params
-export ROS_PACKAGE_PATH=$SCRIPT_DIR/..:$ROS_PACKAGE_PATH
 export PATH=$PATH:$ROS_ROOT/bin
-
-roslaunch deliverator_core core.launch NAMESPACE:=deliverator
-#roscore
