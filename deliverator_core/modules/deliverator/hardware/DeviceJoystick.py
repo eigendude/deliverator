@@ -23,26 +23,11 @@
 #
 ################################################################################
 
-from DeviceJoystick import DeviceJoystick
-from DeviceV4L import DeviceV4L
+from Device import Device
 
-import os
+DRIVER_PACKAGE = 'deliverator_input'
+JOYSTICK_LAUNCHFILE = 'joystick.launch'
 
-class HardwareScanner:
-    @staticmethod
-    def getDevices():
-        devices = [ ]
-
-        # Scan for V4L devices
-        for deviceName in os.listdir('/dev'):
-            if deviceName.startswith('video'):
-                devicePath = os.path.join('/dev', deviceName)
-                devices.append(DeviceV4L(deviceName, devicePath))
-
-        # Scan for joysticks
-        for deviceName in os.listdir('/dev/input'):
-            if deviceName.startswith('js'):
-                devicePath = os.path.join('/dev/input', deviceName)
-                devices.append(DeviceJoystick(deviceName, devicePath))
-
-        return devices
+class DeviceJoystick(Device):
+    def __init__(self, name):
+        super(Device, self).__init__(name, DRIVER_PACKAGE, JOYSTICK_LAUNCHFILE)
