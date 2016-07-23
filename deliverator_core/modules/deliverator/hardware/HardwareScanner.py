@@ -23,12 +23,19 @@
 #
 ################################################################################
 
+from DeviceV4L import DeviceV4L
+
 import os
 
 class HardwareScanner:
     @staticmethod
-    def getVideoDevice():
-        for device in os.listdir('/dev'):
-            if device.startswith('video'):
-                return os.path.join('/dev', device)
-        return None
+    def getDevices():
+        devices = [ ]
+
+        # Scan for V4L devices
+        for deviceName in os.listdir('/dev'):
+            if deviceName.startswith('video'):
+                devicePath = os.path.join('/dev', deviceName)
+                devices.append(DeviceV4L(deviceName, devicePath))
+
+        return devices

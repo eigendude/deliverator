@@ -6,7 +6,8 @@
   <arg name="CORE_PACKAGE" default="deliverator_core"/>
 
   <group ns="$(arg NAMESPACE)">
-    <node pkg="$(arg CORE_PACKAGE)" type="manager" name="manager" output="screen"/>
+    <node pkg="$(arg CORE_PACKAGE)" type="device_manager" name="device_manager" output="screen"/>
+    <node pkg="$(arg CORE_PACKAGE)" type="diagnostics" name="diagnostics" output="screen"/>
   </group>
 
 </launch>

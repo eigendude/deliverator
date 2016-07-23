@@ -10,7 +10,9 @@ catkin_python_setup()
 
 catkin_package()
 
-catkin_install_python(PROGRAMS nodes/manager
+catkin_install_python(PROGRAMS
+                      nodes/device_manager
+                      nodes/diagnostics
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(DIRECTORY launch/

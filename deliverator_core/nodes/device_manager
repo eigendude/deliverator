@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 ################################################################################
 #
 #      Copyright (C) 2016 juztamau5
@@ -23,8 +24,39 @@
 #
 ################################################################################
 
-from HardwareScanner import HardwareScanner
+from deliverator.hardware import HardwareScanner
 
-class Hardware:
-    def __init__(self):
-        self.videoDevice = HardwareScanner.getVideoDevice()
+import rospy
+
+import subprocess
+
+NODE_NAME = 'device_manager'
+
+def main():
+    rospy.init_node(NODE_NAME, log_level=rospy.DEBUG)
+
+    rate = rospy.Rate(1.0)
+    devices = []
+    while True:
+        oldDevices = devices
+        devices = HardwareScanner.getDevices()
+
+        # Spawn nodes for new devices
+        for device in devices:
+            if device.name() not in [oldDevice.name() for oldDevice in oldDevices]:
+                subprocess.Popen(['roslaunch',
+                                  device.launchFile(),
+                                  'NAMESPACE:=' + rospy.get_namespace(),
+                                  'DEVICE:=' + device.path()])
+
+        # TODO: Kill nodes of expired devices
+        for oldDevice in oldDevices:
+            if oldDevice.name() not in [device.name() for device in devices]:
+                pass
+
+        if rospy.is_shutdown():
+            break
+        rate.sleep()
+
+if __name__ == '__main__':
+    main()

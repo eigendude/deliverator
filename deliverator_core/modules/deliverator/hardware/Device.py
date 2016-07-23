@@ -23,4 +23,35 @@
 #
 ################################################################################
 
-from HardwareScanner import HardwareScanner
+import rospack
+
+import os
+
+class Device:
+    def __init__(self, name, path , packageName, launchfile):
+        self._name = name
+        self._path = path
+        self._launchFile = self._getLaunchFile(packageName, launchfile)
+
+    def name(self):
+        return self._name
+
+    def path(self):
+        return self._path
+
+    def launchFile(self):
+        return self._launchFile
+
+    @staticmethod
+    def _getLaunchFile(packageName, launchfile):
+        packageDir = None
+
+        rospack = rospkg.RosPack()
+        try:
+            packageDir = rospack.get_path(packageName)
+        except rospkg.ResourceNotFound:
+            pass
+        else:
+            return os.path.join(packageDir, 'launch', launchfile)
+
+        return None
