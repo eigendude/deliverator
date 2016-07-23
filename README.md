@@ -1,6 +1,6 @@
 # Deliverator
 
-![Cosa Nostra Pizza Delivery](https://raw.githubusercontent.com/juztamau5/deliverator/master/Cosa_Notra_Pizza_Delivery_Vehicle_by_Igor_Sobolevsky.jpg "The Deliverator")
+![Cosa Nostra Pizza Delivery](Cosa_Notra_Pizza_Delivery_Vehicle_by_Igor_Sobolevsky.jpg "The Deliverator")
 
 Image credit: https://www.artstation.com/artwork/cosa-nostra-pizza-delivery-vehicle
 
