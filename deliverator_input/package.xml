@@ -22,9 +22,9 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 <package>
-  <name>deliverator_controller</name>
+  <name>deliverator_input</name>
   <version>0.1.0</version>
-  <description>Deliverator controller</description>
+  <description>This package contains ROS files for a node with an input device attached.</description>
   <maintainer email="juztamau5@gmail.com">juztamau5</maintainer>
   <author email="juztamau5@gmail.com">juztamau5</author>
   <url type="website">https://github.com/juztamau5/deliverator</url>
@@ -34,11 +34,6 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>ackermann_msgs</build_depend>
+  <run_depend>joy</run_depend>
 
-  <run_depend>smach</run_depend>
-  <run_depend>smach_ros</run_depend>
-  <run_depend>sensor_msgs</run_depend>
-  <run_depend>ackermann_msgs</run_depend>
 </package>
