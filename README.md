@@ -225,7 +225,17 @@ After the script is complete, you can set the timeout to something more reasonab
 Defaults  timestamp_timeout=60
 ```
 
-##### 7.3.3 Performing the install
+##### 7.3.3 Upgrading packages
+
+Before installing ROS, it is recommended that you upgrade your packages from the debian repository:
+
+```shell
+sudo apt-get update
+sudo apt-get upgrade -y
+sudo shutdown -r now
+```
+
+##### 7.3.4 Performing the install
 
 A script has been added to the `deliverator_util` package to perform the entire install. It follows the instructions on the [Installing ROS Kinetic on the Raspberry Pi](http://wiki.ros.org/ROSberryPi/Installing%20ROS%20Kinetic%20on%20the%20Raspberry%20Pi) documentation article, so if the script breaks the offending line will be explained in the article.
 
