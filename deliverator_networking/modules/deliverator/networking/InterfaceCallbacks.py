@@ -24,7 +24,7 @@
 #
 ################################################################################
 
-class InterfaceCallbacks:
+class InterfaceCallbacks(object):
     def __init__(self):
         pass
 

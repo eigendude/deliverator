@@ -28,7 +28,7 @@ from Interface import Interface
 
 class Interface3G(Interface):
     def __init__(self, name):
-        super(Interface, self).__init(name)
+        super(Interface3G, self).__init(name)
 
     def isExternal(self):
         return True

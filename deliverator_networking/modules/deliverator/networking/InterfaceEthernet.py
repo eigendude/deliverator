@@ -28,7 +28,7 @@ from Interface import Interface
 
 class InterfaceEthernet(Interface):
     def __init__(self, name):
-        super(Interface, self).__init(name)
+        super(InterfaceEthernet, self).__init(name)
 
     def hasWired(self):
         return True

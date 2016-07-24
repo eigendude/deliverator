@@ -24,21 +24,21 @@
 #
 ################################################################################
 
-class NetworkCallbacks:
+class NetworkCallbacks(object):
     """
     @brief Callbacks for the network layer
     """
     def __init__(self):
         pass
 
-    def wifiClientConnected(client):
+    def wifiClientConnected(self, client):
         """
         @brief    A WiFi client has connected
         @param    WiFiClient - the client
         """
         pass
 
-    def wifiClientDisconnected(client):
+    def wifiClientDisconnected(self, client):
         """
         @brief    A WiFi client has disconnected
         @param    WiFiClient - the client

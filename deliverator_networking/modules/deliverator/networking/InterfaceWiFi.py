@@ -28,7 +28,7 @@ from Interface import Interface
 
 class InterfaceWiFi(Interface):
     def __init__(self, name):
-        super(Interface, self).__init(name)
+        super(InterfaceWiFi, self).__init(name)
 
     def hasWireless(self):
         return True

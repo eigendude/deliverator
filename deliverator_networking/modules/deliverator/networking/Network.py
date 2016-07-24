@@ -24,7 +24,7 @@
 #
 ################################################################################
 
-class Network:
+class Network(object):
     """
     @brief Abstraction of a computer network
 
