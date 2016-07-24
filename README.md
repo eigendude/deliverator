@@ -9,9 +9,9 @@ Image credit: https://www.artstation.com/artwork/cosa-nostra-pizza-delivery-vehi
 ### Contents
 1. [Set up Raspberry Pis with ROS](#1-set-up-raspberry-pis-with-ros)
 2. [Create catkin workspace](#2-create-catkin-workspace)
-3. [Download dependencies](#3-download-dependencies)
-4. [Clone repository](#4-clone-repository)
-5. [Install ROS Dependencies](#5-install-ros-dependencies)
+3. [Clone repository](#3-clone-repository)
+4. [Configure which packages to use](#4-configure-which-packages-to-use)
+5. [Download dependencies](#5-download-dependencies)
 6. [Compilation](#6-compilation)
 7. [Test Setup in Simulation](#7-test-setup-in-simulation)
 
@@ -31,22 +31,75 @@ cd ..
 catkin_make
 ```
 
-Before continuing source your new setup.*sh file:
+Before continuing source your new setup.*sh file (and add to `.bashrc`):
 
 ```shell
 source ~/deliverator_ws/devel/setup.bash
 ```
 
-### 3. Download dependencies
+### 3. Clone repository
 
-The Deliverator package depends on gscam for camera usage. If gscam isn't available for your current ROS version, enter your catkin workspace and clone it manually:
+Clone the deliverator repository into your catkin workspace.
 
 ```shell
-cd src
+cd ~/deliverator_ws/src
+git clone https://github.com/juztamau5/deliverator.git
+```
+
+### 4. Configure which packages to use
+
+Lightweight nodes (such as the RPi Zero) can disable packages to avoid heavy dependencies (such as Gazebo).
+
+Packages can be whitelisted or blacklisted. Whitelisting can be accomplished using git sparse checkout:
+
+```shell
+cd deliverator
+git config core.sparsecheckout true
+echo gazebo_ros_core/ > .git/info/sparse-checkout
+git checkout
+```
+
+Packages can also be blacklisted by adding a `CATKIN_IGNORE` file to their folder:
+
+```shell
+touch deliverator_gazebo/CATKIN_IGNORE
+```
+
+### 5. Download dependencies
+
+Dependencies are installed using `rosdep`.
+
+```shell
+rosdep install --from-path . --ignore-src -y
+```
+
+If `rosdep` can't locate a package for the system, it will fail and report the package name. If a package is missing for your system, match the error message below and follow the commands.
+
+#### Cannot locate rosdep definition for [gscam]
+
+```shell
 git clone https://github.com/ros-drivers/gscam.git
 ```
 
-The Deliverator package also depends on gazebo_ros_control, which may not be available for your current ROS version. Per [this answer](http://answers.ros.org/question/235846/did-ros-kinetic-gazebo-ros-control-package-release/), it can be cloned as follows:
+#### Missing resource camera_calibration_parsers
+
+```shell
+git clone https://github.com/ros-perception/image_common.git
+```
+
+#### Unable to locate package ros-kinetic-ackermann-msgs
+
+```shell
+git clone https://github.com/ros-drivers/ackermann_msgs.git
+```
+
+#### Unable to locate package ros-kinetic-joy
+
+```shell
+git clone https://github.com/ros-drivers/joystick_drivers.git
+```
+
+#### Missing gazebo_ros_control
 
 ```shell
 git clone -b kinetic-devel https://github.com/ros-simulation/gazebo_ros_pkgs.git
@@ -57,10 +110,10 @@ git checkout
 cd ..
 ```
 
-The Gazebo model uses plugins from [hector_gazebo_plugins](http://wiki.ros.org/hector_gazebo_plugins):
+#### Missing hector_gazebo
 
 ```shell
-git clone -b jade-devel https://github.com/tu-darmstadt-ros-pkg/hector_gazebo.git
+git clone -b kinetic-devel https://github.com/tu-darmstadt-ros-pkg/hector_gazebo.git
 cd hector_gazebo
 git config core.sparsecheckout true
 echo hector_gazebo_plugins/ > .git/info/sparse-checkout
@@ -68,35 +121,16 @@ git checkout
 cd ..
 ```
 
-### 4. Clone Repository
-
-Clone the deliverator repository into your catkin workspace.
-
-```shell
-git clone https://github.com/juztamau5/deliverator.git
-```
-
-### 5. Install ROS Dependencies
-
-Installing dependencies from the catkin workspace folder should now work:
-
-```shell
-rosdep install --from-path . --ignore-src -y
-```
-
-gscam may not fully list all dependencies. gscam may fail at runtime if the following package isn't installed:
-
-```shell
-sudo apt-get install gstreamer0.10-plugins-good
-```
-
 ### 6. Compilation
 
 To compile run `catkin_make` from the catkin workspace folder.
 
-_Note:_ If you are unfamiliar with catkin, please know that you must run `source <catkin_ws>/devel/setup.sh` before ROS will be able to locate the deliverator packages. This line can be added to your `~/.bashrc` file.
+```shell
+cd ~/deliverator_ws
+catkin_make
+```
 
-### 6. Test Setup in Simulation
+### 7. Test Setup in Simulation
 
 To test that your setup process was successful, run the simulator with the following command:
 
