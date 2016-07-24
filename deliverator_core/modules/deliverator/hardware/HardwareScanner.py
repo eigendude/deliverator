@@ -38,11 +38,13 @@ class HardwareScanner:
             if deviceName.startswith('video'):
                 devicePath = os.path.join('/dev', deviceName)
                 devices.append(DeviceV4L(deviceName, devicePath))
+                break
 
         # Scan for joysticks
         for deviceName in os.listdir('/dev/input'):
-            if deviceName.startswith('js'):
+            if deviceName.startswith('js0'): # TODO: detect 360 controllers attached to receiver
                 devicePath = os.path.join('/dev/input', deviceName)
                 devices.append(DeviceJoystick(deviceName, devicePath))
+                break
 
         return devices
