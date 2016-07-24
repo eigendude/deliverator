@@ -29,5 +29,5 @@ DRIVER_PACKAGE = 'deliverator_input'
 JOYSTICK_LAUNCHFILE = 'joystick.launch'
 
 class DeviceJoystick(Device):
-    def __init__(self, name):
-        super(Device, self).__init__(name, DRIVER_PACKAGE, JOYSTICK_LAUNCHFILE)
+    def __init__(self, name, path):
+        super(Device, self).__init__(name, path, DRIVER_PACKAGE, JOYSTICK_LAUNCHFILE)
