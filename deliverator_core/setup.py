@@ -30,7 +30,8 @@ from catkin_pkg.python_setup import generate_distutils_setup
 d = generate_distutils_setup(
   packages=['deliverator',
             'deliverator.diagnostics',
-            'deliverator.hardware'],
+            'deliverator.hardware',
+            'deliverator.networking'],
   package_dir={'': 'modules'},
 )
 
