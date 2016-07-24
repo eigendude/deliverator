@@ -146,3 +146,11 @@ time ./raspbian-install-ros-kinetic.sh
 ```
 
 As mentioned before, this takes around 8.5 hours on the Raspberry Pi 2 and generates 3.7 GB worth of files. It really sucks when this script breaks and has to be restarted, so if you run into a problem please open an [issue](https://github.com/juztamau5/deliverator/issues) so I can update the script and the wiki.
+
+### 7.3.5 Updating .bashrc
+
+The environment is made aware of ROS by sourcing `/opt/ros/kinetic/setup.bash`. Add the following line to your `.bashrc`:
+
+```shell
+source /opt/ros/kinetic/setup.bash
+```
