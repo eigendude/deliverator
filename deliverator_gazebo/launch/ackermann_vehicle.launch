@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <!-- ackermann_vehicle.launch
 
 Use Gazebo to simulate a vehicle with Ackermann steering.
@@ -35,13 +34,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-
 <launch>
   <!-- Robot-specific arguments -->
   <arg name="NAMESPACE" default="deliverator"/>
   <arg name="DESCRIPTION_PACKAGE" default="deliverator_description"/>
   <arg name="GAZEBO_PACKAGE" default="deliverator_gazebo"/>
-  <arg name="CONTROLLER_PACKAGE" default="deliverator_controller"/>
 
   <arg name="world_name" default="worlds/empty.world"/>
   <arg name="cmd_timeout" default="0.5"/>
@@ -54,6 +51,7 @@ limitations under the License.
   <arg name="pitch" default="0.0"/>
   <arg name="yaw" default="0.0"/>
 
+  <!-- Launch nodes used by both RViz and Gazebo -->
   <include file="$(eval find(DESCRIPTION_PACKAGE) + '/launch/ackermann_vehicle.launch')">
     <arg name="NAMESPACE" value="$(arg NAMESPACE)"/>
   </include>
@@ -83,8 +81,4 @@ limitations under the License.
       <rosparam file="$(eval find(GAZEBO_PACKAGE) + '/config/em_3905_ackermann_ctrlr_params.yaml')" command="load"/>
     </node>
   </group>
-  <include file="$(eval find(CONTROLLER_PACKAGE) + '/launch/controller.launch')">
-    <arg name="NAMESPACE" value="$(arg NAMESPACE)"/>
-    <arg name="CONTROLLER_PACKAGE" value="$(arg CONTROLLER_PACKAGE)"/>
-  </include>
 </launch>
