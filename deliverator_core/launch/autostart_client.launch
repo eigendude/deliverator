@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Robot-specific arguments -->
+  <arg name="NAMESPACE" default="deliverator"/>
+  <arg name="CORE_PACKAGE" default="deliverator_core"/>
+
+  <!-- Launch nodes used by both RViz and Gazebo -->
+  <include file="$(eval find(CORE_PACKAGE) + '/launch/core.launch')"/>
+
+  <group ns="$(arg NAMESPACE)">
+    <!--<node pkg="$(arg CORE_PACKAGE)" type="network_client" name="network_client" output="screen"/>-->
+  </group>
+
+</launch>
