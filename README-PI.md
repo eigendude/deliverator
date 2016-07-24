@@ -88,7 +88,17 @@ Installing from source takes about 8.5 hours (when run by a script) and uses 3.7
 
 Before running the script, you should ensure that your **swap is big enough** and that your **sudo timeout is long enough**.
 
-### 7.3.1 Increasing swap
+### 7.3.1 Upgrading packages
+
+Before installing ROS, it is recommended that you upgrade your packages from the debian repository:
+
+```shell
+sudo apt-get update
+sudo apt-get upgrade -y
+sudo shutdown -r now
+```
+
+### 7.3.2 Increasing swap
 
 Raspbian ships with a 100MB swap file. Compiling ROS with `-j4` on the Raspberry Pi 2 exceeds this limited space.
 
@@ -103,7 +113,7 @@ sudo swapon /var/swap
 
 This will enlarge the swap file to 8GB. Swapping to the microSD is slow, so you may want to put the swap file on external storage. I connected a SSD to a spare SATA-to-USB3 adapter and got 260 Mbps read/write over the RPi's USB controller.
 
-### 7.3.2 Extending sudo timeout
+### 7.3.3 Extending sudo timeout
 
 The script takes several hours to complete, so to avoid interruptions it is recommended that you disable sudo timeouts until the script is finished:
 
@@ -121,16 +131,6 @@ After the script is complete, you can set the timeout to something more reasonab
 
 ```
 Defaults  timestamp_timeout=60
-```
-
-### 7.3.3 Upgrading packages
-
-Before installing ROS, it is recommended that you upgrade your packages from the debian repository:
-
-```shell
-sudo apt-get update
-sudo apt-get upgrade -y
-sudo shutdown -r now
 ```
 
 ### 7.3.4 Performing the install
