@@ -27,7 +27,7 @@ import rospkg
 
 import os
 
-class Device:
+class Device(object):
     def __init__(self, name, path , packageName, launchfile):
         self._name = name
         self._path = path

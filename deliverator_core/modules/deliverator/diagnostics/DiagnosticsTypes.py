@@ -26,13 +26,13 @@
 # Members are initialized with invalid values. Node must verify that detected
 # values are valid (e.g. positive or not None).
 
-class Battery:
+class Battery(object):
     def __init__(self):
         self.percentage = -1.0
         self.voltage = -1.0 # Volts
         self.charging = None
 
-class PowerSupply:
+class PowerSupply(object):
     def __init__(self):
         self.percentage = -1.0
         self.VIN = -1.0 # Volts
@@ -41,12 +41,12 @@ class PowerSupply:
         self.V12 = -1.0 # Volts
         self.temperature = -1.0 # Celsius
 
-class Temperature:
+class Temperature(object):
     def __init__(self):
         self.cpuTemp = -1.0 # Celsius
         self.fanSpeed = -1.0 # RPM
 
-class Network:
+class Network(object):
     def __init__(self):
         self.wirelessLinkQuality = -1.0
         self.wirelessMaxQuality = -1.0
