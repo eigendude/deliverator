@@ -30,4 +30,4 @@ V4L_LAUNCHFILE = 'gscam.launch'
 
 class DeviceV4L(Device):
     def __init__(self, name, path):
-        super(Device, self).__init__(name, path, DRIVER_PACKAGE, V4L_LAUNCHFILE)
+        super(DeviceV4L, self).__init__(name, path, DRIVER_PACKAGE, V4L_LAUNCHFILE)
