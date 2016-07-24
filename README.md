@@ -7,13 +7,13 @@ Image credit: https://www.artstation.com/artwork/cosa-nostra-pizza-delivery-vehi
 ## Setup Instructions
 
 ### Contents
-1. [Set up Raspberry Pis with ROS](#0-set-up-raspberry-pis-with-ros)
-2. [Create catkin workspace](#1-create-catkin-workspace)
-3. [Download dependencies](#2-download-dependencies)
-4. [Clone repository](#3-clone-repository)
-5. [Install ROS Dependencies](#4-install-ros-dependencies)
-6. [Compilation](#5-compilation)
-7. [Test Setup in Simulation](#6-test-setup-in-simulation)
+1. [Set up Raspberry Pis with ROS](#1-set-up-raspberry-pis-with-ros)
+2. [Create catkin workspace](#2-create-catkin-workspace)
+3. [Download dependencies](#3-download-dependencies)
+4. [Clone repository](#4-clone-repository)
+5. [Install ROS Dependencies](#5-install-ros-dependencies)
+6. [Compilation](#6-compilation)
+7. [Test Setup in Simulation](#7-test-setup-in-simulation)
 
 ### 1. Set up Raspberry Pis with ROS
 
