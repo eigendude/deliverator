@@ -25,9 +25,9 @@
 
 from Device import Device
 
-DRIVER_PACKAGE = 'deliverator_vision'
-V4L_LAUNCHFILE = 'gscam.launch'
+DRIVER_PACKAGE = 'deliverator_drivers'
+LAUNCHFILE = 'gscam.launch'
 
 class DeviceV4L(Device):
     def __init__(self, name, path):
-        super(DeviceV4L, self).__init__(name, path, DRIVER_PACKAGE, V4L_LAUNCHFILE)
+        super(DeviceV4L, self).__init__(name, path, DRIVER_PACKAGE, LAUNCHFILE)
