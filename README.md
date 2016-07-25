@@ -8,18 +8,25 @@ Image credit: https://www.artstation.com/artwork/cosa-nostra-pizza-delivery-vehi
 
 ### Contents
 1. [Set up Raspberry Pis with ROS](#1-set-up-raspberry-pis-with-ros)
-2. [Create catkin workspace](#2-create-catkin-workspace)
-3. [Clone repository](#3-clone-repository)
-4. [Configure which packages to use](#4-configure-which-packages-to-use)
-5. [Download dependencies](#5-download-dependencies)
-6. [Compilation](#6-compilation)
-7. [Test Setup in Simulation](#7-test-setup-in-simulation)
+2. [Set up networking on the master node](#2-set-up-networking-on-the-master-node)
+3. [Create catkin workspace](#3-create-catkin-workspace)
+4. [Clone repository](#4-clone-repository)
+5. [Configure which packages to use](#5-configure-which-packages-to-use)
+6. [Download dependencies](#6-download-dependencies)
+7. [Compilation](#7-compilation)
+8. [Test Setup in Simulation](#8-test-setup-in-simulation)
 
 ### 1. Set up Raspberry Pis with ROS
 
 If installing on a Raspberry Pi, see [README-PI.md](README-PI.md) for instructions on installing Rasbian and compiling ROS from source.
 
-### 2. Create catkin workspace
+### 2. Set up networking on the master node
+
+If running a setup with multiple ROS nodes, select a node as master to host an internal LAN and the network services it requires.
+
+Instructions for this can be found in [README-NETWORKING.md](README-NETWORKING.md).
+
+### 3. Create catkin workspace
 
 If you aren't cloning to an existing [catkin workspace](http://wiki.ros.org/catkin/Tutorials/create_a_workspace), you should create one for this project now:
 
@@ -46,7 +53,7 @@ cd ~/deliverator_ws/src
 git clone https://github.com/juztamau5/deliverator.git
 ```
 
-### 4. Configure which packages to use
+### 5. Configure which packages to use
 
 Lightweight nodes (such as the RPi Zero) can disable packages to avoid heavy dependencies (such as Gazebo).
 
@@ -65,7 +72,7 @@ Packages can also be blacklisted by adding a `CATKIN_IGNORE` file to their folde
 touch deliverator_gazebo/CATKIN_IGNORE
 ```
 
-### 5. Download dependencies
+### 6. Download dependencies
 
 Dependencies are installed using `rosdep`.
 
@@ -121,7 +128,7 @@ git checkout
 cd ..
 ```
 
-### 6. Compilation
+### 7. Compilation
 
 To compile run `catkin_make` from the catkin workspace folder.
 
@@ -130,7 +137,7 @@ cd ~/deliverator_ws
 catkin_make
 ```
 
-### 7. Test Setup in Simulation
+### 8. Test Setup in Simulation
 
 To test that your setup process was successful, run the simulator with the following command:
 
