@@ -10,7 +10,8 @@ catkin_install_python(PROGRAMS nodes/power_on
 )
 
 install(PROGRAMS
-        autostart.sh
+        autostart_client.sh
+        autostart_server.sh
         setup_env.sh
         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
