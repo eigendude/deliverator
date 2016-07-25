@@ -1,8 +1,8 @@
-# 7. Setting up the Raspberry Pi
+# Setting up the Raspberry Pi
 
 The Raspberry Pis in this project use Raspbian based on Debian Jessie. If you're using Raspbian, these tips might come in handy.
 
-## 7.1 Rename default user
+## 1. Rename default user
 
 Log in to the Raspberry Pi (password is "raspberry"):
 
@@ -57,7 +57,7 @@ Finally, erase the line `pi ALL=(ALL) NOPASSWD: ALL` from the sudoers file using
 sudo visudo
 ```
 
-## 7.2 Set timezone
+## 2. Set timezone
 
 First, check the current timezone:
 
@@ -71,7 +71,7 @@ To change the timezone, use:
 sudo dpkg-reconfigure tzdata
 ```
 
-## 7.3 Install ROS from source
+## 3. Install ROS from source
 
 First, check if ROS can be installed from the package manager. This will save you a lot of time and space.
 
@@ -88,7 +88,7 @@ Installing from source takes about 8.5 hours (when run by a script) and uses 3.7
 
 Before running the script, you should ensure that your **swap is big enough** and that your **sudo timeout is long enough**.
 
-### 7.3.1 Upgrading packages
+### 3.1. Upgrading packages
 
 Before installing ROS, it is recommended that you upgrade your packages from the debian repository:
 
@@ -98,7 +98,7 @@ sudo apt-get upgrade -y
 sudo shutdown -r now
 ```
 
-### 7.3.2 Increasing swap
+### 3.2. Increasing swap
 
 Raspbian ships with a 100MB swap file. Compiling ROS with `-j4` on the Raspberry Pi 2 exceeds this limited space.
 
@@ -113,7 +113,7 @@ sudo swapon /var/swap
 
 This will enlarge the swap file to 8GB. Swapping to the microSD is slow, so you may want to put the swap file on external storage. I connected a SSD to a spare SATA-to-USB3 adapter and got 260 Mbps read/write over the RPi's USB controller.
 
-### 7.3.3 Extending sudo timeout
+### 3.3. Extending sudo timeout
 
 The script takes several hours to complete, so to avoid interruptions it is recommended that you disable sudo timeouts until the script is finished:
 
@@ -133,7 +133,7 @@ After the script is complete, you can set the timeout to something more reasonab
 Defaults  timestamp_timeout=60
 ```
 
-### 7.3.4 Performing the install
+### 3.4. Performing the install
 
 A script has been added to the `deliverator_util` package to perform the entire install. It follows the instructions on the [Installing ROS Kinetic on the Raspberry Pi](http://wiki.ros.org/ROSberryPi/Installing%20ROS%20Kinetic%20on%20the%20Raspberry%20Pi) documentation article, so if the script breaks the offending line will be explained in the article.
 
@@ -147,7 +147,7 @@ time ./raspbian-install-ros-kinetic.sh
 
 As mentioned before, this takes around 8.5 hours on the Raspberry Pi 2 and generates 3.7 GB worth of files. It really sucks when this script breaks and has to be restarted, so if you run into a problem please open an [issue](https://github.com/juztamau5/deliverator/issues) so I can update the script and the wiki.
 
-### 7.3.5 Updating .bashrc
+### 3.5. Updating .bashrc
 
 The environment is made aware of ROS by sourcing `/opt/ros/kinetic/setup.bash`. Add the following line to your `.bashrc`:
 
