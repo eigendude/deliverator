@@ -38,6 +38,7 @@
 
   <run_depend>rospy</run_depend>
   <run_depend>rospack</run_depend>
+  <run_depend>python-netifaces</run_depend>
   <!--<run_depend>libsensors4-dev</run_depend>--> <!-- TODO: Install lm-sensors manually -->
   <!--<run_depend>diagnostic_updater</run_depend>-->
 </package>

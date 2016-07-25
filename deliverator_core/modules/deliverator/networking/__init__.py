@@ -29,7 +29,6 @@ from DHCP                 import DHCP
 from Diagnostics          import Diagnostics
 from Firewall             import Firewall
 from Interface            import Interface
-from Interface3G          import Interface3G
 from InterfaceCallbacks   import InterfaceCallbacks
 from InterfaceEthernet    import InterfaceEthernet
 from InterfaceScanner     import InterfaceScanner

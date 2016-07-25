@@ -24,16 +24,53 @@
 #
 ################################################################################
 
-from Interface3G import Interface3G
 from InterfaceEthernet import InterfaceEthernet
 from InterfaceWiFi import InterfaceWiFi
+
+import netifaces
+
+BRIDGE_NAME_TRUSTED = 'br_trusted'
+BRIDGE_NAME_UNTRUSTED = 'br_untrusted'
 
 class InterfaceScanner:
     def __init__(self, callbacks):
         self._callbacks = callbacks
+        self._interfaces = { }
 
-    def run(self):
-        # TODO: Scan for interfaces
-        self._callbacks.addInterface(Interface3G('3G'))
-        self._callbacks.addInterface(InterfaceEthernet('eth0'))
-        self._callbacks.addInterface(InterfaceWiFi('wlan0'))
+    def runScan(self):
+        interfaces = netifaces.interfaces()
+
+        # Check for removed interfaces
+        oldInterfaces = self._interfaces[:]
+        for iface in oldInterfaces:
+            if iface.name() in interfaces:
+                continue
+            self._callbacks.interfaceRemoved(iface)
+            self._interfaces.pop(iface.name())
+
+        # Check for added interfaces
+        for iface in interfaces:
+            if iface in ['lo', BRIDGE_NAME_TRUSTED, BRIDGE_NAME_UNTRUSTED]:
+                continue
+            if iface in self._interfaces:
+                continue
+            newInterface = self._createInterface(iface)
+            self._interfaces[iface] = newInterface
+            self._callbacks.interfaceAdded(newInterface)
+
+    @staticmethod
+    def _createInterface(name):
+        addresses = netifaces.ifaddresses(name)
+
+        hasIP = False
+        if netifaces.AF_INET in addresses:
+            for address in addresses[netifaces.AF_INET]:
+                if address['addr'] == '0.0.0.0':
+                    continue
+                if address['addr'].startswith('169.254'):
+                    continue
+                hasIP = True
+                break
+
+        # TODO: Check for WiFi
+        return InterfaceEthernet(name, hasIP)
