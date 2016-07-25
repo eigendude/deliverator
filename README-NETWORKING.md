@@ -48,6 +48,12 @@ The interface names `tap0`, `br_trusted` and `br_untrusted` are used by the robo
 
 ### 1.2. Enabling DHCP on the bidges
 
+Install ISC DHCP:
+
+```
+sudo apt-get install isc-dhcp-server
+```
+
 To enable DHCP on both bridges, add the following to `/etc/dhcp/dhcpd.conf`:
 
 ```
@@ -63,8 +69,6 @@ subnet 10.11.12.0 netmask 255.255.255.0 {
   option broadcast-address 10.11.12.255;
 }
 ```
-
-If you change the IP addresses in `/etc/network/interfaces`, the IP addresses should be changed here as well.
 
 Next, add this to `/etc/default/isc-dhcp-server`:
 
