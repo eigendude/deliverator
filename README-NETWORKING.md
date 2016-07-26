@@ -1,16 +1,18 @@
 # Setting up networking
 
-The robot's internal LAN can run in two modes: trusted and untrusted. Untrusted mode causes all nodes to firewall themselves from the network and communicate via OpenVPN. The untrusted threat model assumes an untrustworthy agent with access to the network but not the hardware (sensible when running a WiFi access point).
+The robot's internal LAN can run in two modes:
+
+**trusted** - data flows directly between the nodes on the network
+
+**untrusted** - data is encrypted and routed through the node running roscore, firewall is enabled
 
 The robot defaults to a trusted network for performance reasons. Eventually, the robot will be able to switch between the two threat models at runtime.
 
-## 1. Setting up the master node
+## 1. Setting up the node running roscore
 
-The master node is responsible for hosting both networks and providing network services (DHCP, OpenVPN, possibly NetBIOS name resolution, possibly DSN).
+Trusted and untrusted networks are implemented using linux network bridges. Each bridge acts like a router/switch - clients can connect and receive DHCP leases, and packets are switched between the clients. It's like having two virtual routers that exist only in software.
 
-Each network is implemented as a Linux network bridge. The network bridge acts like a router/switch: clients can connect and receive DHCP leases, and packets are switched between the clients. It's like having two virtual routers that exist only in software.
-
-In general, most networking is handled by scripts and ROS nodes. The required manual labor is outlined below.
+In general, this stuff is set up by a bunch of shell scripts and configuration files in the [utils package](deliverator_utils). If something breaks, this README can be helpful documentation.
 
 ### 1.1. Creating the network bridges
 
