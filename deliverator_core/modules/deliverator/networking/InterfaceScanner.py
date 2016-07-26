@@ -29,8 +29,9 @@ from InterfaceWiFi import InterfaceWiFi
 
 import netifaces
 
-BRIDGE_NAME_TRUSTED = 'br_trusted'
-BRIDGE_NAME_UNTRUSTED = 'br_untrusted'
+# Underscore in interface name breaks UFW, so use a dash
+BRIDGE_NAME_TRUSTED = 'br-trusted'
+BRIDGE_NAME_UNTRUSTED = 'br-untrusted'
 
 class InterfaceScanner:
     def __init__(self, callbacks):

@@ -25,14 +25,14 @@ iface tap0 inet static
         up ip link set dev tap0 up
         post-down ip link del dev tap0
 
-auto br_untrusted
-iface br_untrusted inet static
+auto br-untrusted
+iface br-untrusted inet static
         address 10.9.8.1
         netmask 255.255.255.0
         bridge_ports none
 
-auto br_trusted
-iface br_trusted inet static
+auto br-trusted
+iface br-trusted inet static
         address 10.11.12.1
         netmask 255.255.255.0
         bridge_ports tap0
@@ -46,7 +46,7 @@ The keyword `bridge_ports` defines the interfaces as bridges. For this extension
 sudo apt-get install bridge-utils
 ```
 
-The interface names `tap0`, `br_trusted` and `br_untrusted` are used by the robot. The IP addresses are arbitrary and can be freely changed (adjust the DHCP instructions below accordingly).
+The interface names `tap0`, `br-trusted` and `br-untrusted` are used by the robot. The IP addresses are arbitrary and can be freely changed (adjust the DHCP instructions below accordingly).
 
 ### 1.2. Enabling DHCP on the bidges
 
@@ -75,7 +75,7 @@ subnet 10.11.12.0 netmask 255.255.255.0 {
 Next, add this to `/etc/default/isc-dhcp-server`:
 
 ```
-INTERFACES="br_trusted br_untrusted"
+INTERFACES="br-trusted br-untrusted"
 ```
 
 The DHCP server keeps its current set of leases in `/var/lib/dhcp/dhcpd.leases`. This isn't scanned currently, but I'm writing this down for future reference.
