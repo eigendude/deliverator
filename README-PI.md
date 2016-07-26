@@ -155,4 +155,4 @@ The environment is made aware of ROS by sourcing `/opt/ros/kinetic/setup.bash`. 
 source /opt/ros/kinetic/setup.bash
 ```
 
-## 4. Continue setting up the robot with the instructions in [README.md](README.md).
+Now, see the README for [setting up networking on the master node](README-NETWORKING.md).
