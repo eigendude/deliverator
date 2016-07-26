@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Add to /etc/rc.local:
-#     su <username> -c "<path_to_deliverator_util>/autostart_server.sh"
+#     su <username> -c "<path_to_deliverator_util>/autostart_server.sh" &
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
