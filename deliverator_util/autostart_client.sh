@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Add to /etc/rc.local:
-#su <username> -c "<path_to_deliverator_util>/autostart_client.sh"
+#     su <username> -c "<path_to_deliverator_util>/autostart_client.sh"
 
 source setup_env.sh
 
