@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# Set to false to run roscore on the untrusted network
+# Choose which network to run roscore on:
+#  - trusted - add firewall_enable.sh to rc.local
+#  - untrusted - add firewall_disable.sh to rc.local
 USE_TRUSTED_NETWORK=true
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
