@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set to false to run roscore on the untrusted network
-USE_TRUSTED_NETWORK=false
+USE_TRUSTED_NETWORK=true
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
