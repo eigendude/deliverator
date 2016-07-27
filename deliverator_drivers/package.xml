@@ -22,7 +22,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 <package>
-  <name>deliverator_vision</name>
+  <name>deliverator_drivers</name>
   <version>0.1.0</version>
   <description>This package contains ROS files for a node with hardware attached.</description>
   <maintainer email="juztamau5@gmail.com">juztamau5</maintainer>
