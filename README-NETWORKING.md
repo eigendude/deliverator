@@ -8,13 +8,23 @@ The robot's internal LAN can run in two modes:
 
 The robot defaults to a trusted network for performance reasons. Eventually, the robot will be able to switch between the two threat models at runtime.
 
-## 1. Setting up the node running roscore
+## 1. Setting user capabilities
+
+To control the wireless adapter, the process needs the linux capability `CAP_SYS_ADMIN`. Instructions on adding this capability will be written eventually.
+
+Until `libnl-3-dev` is installed by rosdep, install it manually:
+
+```shell
+sudo apt-get install libnl-3-dev
+```
+
+## 2. Setting up the node running roscore
 
 Trusted and untrusted networks are implemented using linux network bridges. Each bridge acts like a router/switch - clients can connect and receive DHCP leases, and packets are switched between the clients. It's like having two virtual routers that exist only in software.
 
 In general, this stuff is set up by a bunch of shell scripts and configuration files in the [utils package](deliverator_utils). If something breaks, this README can be helpful documentation.
 
-### 1.1. Creating the network bridges
+### 2.1. Creating the network bridges
 
 First, add the following to `/etc/network/interfaces`:
 
@@ -48,7 +58,7 @@ sudo apt-get install bridge-utils
 
 The interface names `tap0`, `br-trusted` and `br-untrusted` are used by the robot. The IP addresses are arbitrary and can be freely changed (adjust the DHCP instructions below accordingly).
 
-### 1.2. Enabling DHCP on the bidges
+### 2.2. Enabling DHCP on the bidges
 
 Install ISC DHCP:
 
@@ -80,7 +90,7 @@ INTERFACES="br-trusted br-untrusted"
 
 The DHCP server keeps its current set of leases in `/var/lib/dhcp/dhcpd.leases`. This isn't scanned currently, but I'm writing this down for future reference.
 
-### 1.3. Setting up OpenVPN
+### 2.3. Setting up OpenVPN
 
 Setting up OpenVPN can be a pain, so I've provided a setup script: [setup_openvpn.sh](deliverator_util/setup_openvpn.sh). Run it from the `deliverator_util` directory. It follows the instructions below, so if something goes wrong the explanation can be found in this README.
 
@@ -173,7 +183,7 @@ If debugging is required, you can monitor the log using:
 sudo tail --follow=name /etc/openvpn/openvpn.log
 ```
 
-## 2. Setting up the clients
+## 3. Setting up the clients
 
 Transfer the keys to the clients.
 

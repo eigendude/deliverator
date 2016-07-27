@@ -9,7 +9,7 @@
   <include file="$(eval find(CORE_PACKAGE) + '/launch/core.launch')"/>
 
   <group ns="$(arg NAMESPACE)">
-    <!--<node pkg="$(arg CORE_PACKAGE)" type="network_server" name="network_server" output="screen"/>-->
+    <node pkg="$(arg CORE_PACKAGE)" type="network_server" name="network_server" output="screen"/>
   </group>
 
 </launch>

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 ################################################################################
 #
 #      Copyright (C) 2016 juztamau5
@@ -24,8 +23,11 @@
 #
 ################################################################################
 
-from Interface import Interface
+from Device import Device
 
-class InterfaceEthernet(Interface):
-    def __init__(self, name):
-        super(InterfaceEthernet, self).__init(name)
+DRIVER_PACKAGE = 'deliverator_drivers'
+LAUNCHFILE = 'wifi.launch'
+
+class DeviceWiFi(Device):
+    def __init__(self, name, path):
+        super(DeviceWiFi, self).__init__(name, path, DRIVER_PACKAGE, LAUNCHFILE)

@@ -24,6 +24,8 @@
 #
 ################################################################################
 
+import netifaces
+
 class Interface(object):
     def __init__(self, name):
         self._name = name
@@ -31,11 +33,22 @@ class Interface(object):
     def name(self):
         return self._name
 
-    def hasWired(self):
+    def isWireless(self):
         return False
 
-    def hasWireless(self):
-        return False
+    def getAddress(self):
+        addresses = netifaces.ifaddresses(self._name)
 
-    def isExternal(self):
-        return False
+        if netifaces.AF_INET in addresses:
+            for address in addresses[netifaces.AF_INET]:
+                # Skip invalid addresses
+                if address['addr'] == '0.0.0.0':
+                    continue
+
+                # Skip link-local addresses
+                if address['addr'].startswith('169.254'):
+                    continue
+
+                return address['addr']
+
+        return None

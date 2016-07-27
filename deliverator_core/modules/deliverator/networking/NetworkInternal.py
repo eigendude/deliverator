@@ -29,9 +29,6 @@ from Network import Network
 class NetworkInternal(Network):
     """
     @brief Abstraction of a network that is running locally on the robot
-
-    Several services are run on the local network, including DHCP and
-    safety measures for untrusted networks.
     """
     def __init__(self, callbacks, trusted):
         """
@@ -52,11 +49,3 @@ class NetworkInternal(Network):
     def deinitialize(self):
         # TODO
         pass
-
-    def addInterface(self, iface):
-        super(Network, self).addInterface(iface)
-        # TODO: Bridge iface to network
-
-    def removeInterface(self, iface):
-        # TODO: Unbridge iface from network
-        super(Network, self).removeInterface(iface)

@@ -24,8 +24,10 @@
 #
 ################################################################################
 
+from InterfaceBridge import InterfaceBridge
 from InterfaceEthernet import InterfaceEthernet
-from InterfaceWiFi import InterfaceWiFi
+from InterfaceTap import InterfaceTap
+from InterfaceWireless import InterfaceWireless
 
 import netifaces
 
@@ -33,45 +35,44 @@ import netifaces
 BRIDGE_NAME_TRUSTED = 'br-trusted'
 BRIDGE_NAME_UNTRUSTED = 'br-untrusted'
 
+# Prefix for tap devices, e.g. 'tap' for tap0
+TAP_NAME_PREFIX = 'tap'
+
 class InterfaceScanner:
     def __init__(self, callbacks):
         self._callbacks = callbacks
         self._interfaces = { }
 
     def runScan(self):
-        interfaces = netifaces.interfaces()
+        scanResults = netifaces.interfaces()
 
         # Check for removed interfaces
-        oldInterfaces = self._interfaces[:]
-        for iface in oldInterfaces:
-            if iface.name() in interfaces:
-                continue
-            self._callbacks.interfaceRemoved(iface)
-            self._interfaces.pop(iface.name())
+        interfaces = self._interfaces[:]
+        for ifaceName in interfaces:
+            if ifaceName not in scanResults:
+                self._callbacks.interfaceRemoved(interfaces[ifaceName])
+                self._interfaces.pop(ifaceName)
 
         # Check for added interfaces
-        for iface in interfaces:
-            if iface in ['lo', BRIDGE_NAME_TRUSTED, BRIDGE_NAME_UNTRUSTED]:
+        for ifaceName in scanResults:
+            # Skip loopback interface
+            if ifaceName == 'lo':
                 continue
-            if iface in self._interfaces:
-                continue
-            newInterface = self._createInterface(iface)
-            self._interfaces[iface] = newInterface
-            self._callbacks.interfaceAdded(newInterface)
 
-    @staticmethod
-    def _createInterface(name):
-        addresses = netifaces.ifaddresses(name)
+            # Skip tap device
+            if ifaceName.startswith('TAP_NAME_PREFIX'):
+                continue 
 
-        hasIP = False
-        if netifaces.AF_INET in addresses:
-            for address in addresses[netifaces.AF_INET]:
-                if address['addr'] == '0.0.0.0':
-                    continue
-                if address['addr'].startswith('169.254'):
-                    continue
-                hasIP = True
-                break
+            # Handle bridges
+            if ifaceName in [BRIDGE_NAME_TRUSTED, BRIDGE_NAME_UNTRUSTED]:
+                iface = InterfaceBridge(ifaceName)
+            else:
+                isWireless = False # TODO
+                if isWireless:
+                    iface = InterfaceWireless(ifaceName)
+                else:
+                    iface = InterfaceEthernet(ifaceName)
 
-        # TODO: Check for WiFi
-        return InterfaceEthernet(name, hasIP)
+            if iface:
+                self._interfaces[iface.name()] = iface
+                self._callbacks.interfaceAdded(iface)

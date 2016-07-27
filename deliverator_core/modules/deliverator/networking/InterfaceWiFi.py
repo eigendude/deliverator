@@ -30,5 +30,5 @@ class InterfaceWiFi(Interface):
     def __init__(self, name):
         super(InterfaceWiFi, self).__init(name)
 
-    def hasWireless(self):
+    def isWireless(self):
         return True

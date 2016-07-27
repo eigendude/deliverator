@@ -21,22 +21,6 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 #
-################################################################################
+###########################################################################
 
-
-from AutoDiscovery        import AutoDiscovery
-from DHCP                 import DHCP
-from Diagnostics          import Diagnostics
-from Firewall             import Firewall
-from Interface            import Interface
-from InterfaceCallbacks   import InterfaceCallbacks
-from InterfaceEthernet    import InterfaceEthernet
-from InterfaceScanner     import InterfaceScanner
-from InterfaceWiFi        import InterfaceWiFi
-from Localization         import Localization
-from Network              import Network
-from NetworkCallbacks     import NetworkCallbacks
-from NetworkExternal      import NetworkExternal
-from NetworkInternal      import NetworkInternal
-from OpenVPN              import OpenVPN
-from SSH                  import SSH
+from Server import Server

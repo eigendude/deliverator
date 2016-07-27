@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Robot-specific arguments -->
+  <arg name="NAMESPACE" default="deliverator"/>
+  <arg name="DRIVER_PACKAGE" default="deliverator_drivers"/>
+
+  <group ns="$(arg NAMESPACE)">
+    <node pkg="$(arg DRIVER_PACKAGE)" type="wifi_manager" name="wifi_manager" output="screen"/>
+  </group>
+
+</launch>

@@ -26,6 +26,6 @@
 
 from Interface import Interface
 
-class InterfaceEthernet(Interface):
+class InterfaceBridge(Interface):
     def __init__(self, name):
-        super(InterfaceEthernet, self).__init(name)
+        super(InterfaceBridge, self).__init(name)
