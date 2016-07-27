@@ -161,8 +161,6 @@ cd /etc/openvpn
 sudo wget https://raw.github.com/juztamau5/deliverator/master/deliverator_util/openvpn/server.conf
 ```
 
-TODO: Add 'explicit-exit-notify' to client config files
-
 Finally, start the server:
 
 ```shell
@@ -174,3 +172,30 @@ If debugging is required, you can monitor the log using:
 ```shell
 sudo tail --follow=name /etc/openvpn/openvpn.log
 ```
+
+## 2. Setting up the clients
+
+Transfer the keys to the clients.
+
+On the clients, you will need to place the following things into `/etc/openvpn`:
+
+* [`client.template.conf`](deliverator_util/openvpn/client.template.conf), the OpenVPN configuration file
+* [`dhcp.sh`](deliverator_util/openvpn/dhcp.sh), a utility script used by the configuration file
+* `ca.crt`, the CA certificate
+* `<clientname>.crt`, the client's certificate
+* `<clientname>.key`, the client's private key
+
+Restrict the permissions for the keys:
+
+```shell
+cd /etc/openvpn
+sudo chmod 600 ca.cert <username>.crt <username>.key
+```
+
+The script `openvpn_client` will attempt to connect to OpenVPN servers at all network gateways simultaneously:
+
+```shell
+sudo ./openvpn_client
+```
+
+Connecting to all OpenVPN servers at once is a poor choice of things to do. I'll have to fix this in the future.
