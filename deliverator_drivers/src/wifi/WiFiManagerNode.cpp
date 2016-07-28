@@ -34,8 +34,8 @@ using namespace deliverator;
 #define NODE_NAME                  "wifi_manager"
 #define TOPIC_NAME                 "wifi_status"
 #define CHECK_IS_WIRELESS_SERVICE  "check_is_wireless"
-#define START_SCAN_SERVICE         "start_scan"
-#define END_SCAN_SERVICE           "end_scan"
+#define START_SCAN_SERVICE         "start_wifi_scan"
+#define END_SCAN_SERVICE           "end_wifi_scan"
 
 WiFiManager g_manager;
 

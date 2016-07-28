@@ -32,8 +32,8 @@ from deliverator_msgs.srv import EndScan
 from deliverator_msgs.srv import StartScan
 
 WIFI_SERVICE       = 'check_is_wireless'
-START_SCAN_SERVICE = 'start_scan'
-END_SCAN_SERVICE   = 'end_scan'
+START_SCAN_SERVICE = 'start_wifi_scan'
+END_SCAN_SERVICE   = 'end_wifi_scan'
 
 class InterfaceWiFi(Interface):
     def __init__(self, name):

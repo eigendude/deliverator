@@ -38,10 +38,8 @@ namespace deliverator
 
     void Set80211Id(int id) { m_nl80211_id = id; }
 
-
     bool IsValid() const { return m_socket != nullptr; }
     bool Is80211IdValid() const { return m_nl80211_id >= 0; }
-
 
   private:
     struct nl_sock* m_socket;
