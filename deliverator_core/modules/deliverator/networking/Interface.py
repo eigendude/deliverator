@@ -36,6 +36,12 @@ class Interface(object):
     def isWireless(self):
         return False
 
+    def initialize(self):
+        return True
+
+    def deinitialize(self):
+        pass
+
     def getAddress(self):
         addresses = netifaces.ifaddresses(self._name)
 
@@ -52,3 +58,6 @@ class Interface(object):
                 return address['addr']
 
         return None
+
+    def hasGateway(self):
+        return True # TODO

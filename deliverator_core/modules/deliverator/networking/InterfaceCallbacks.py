@@ -25,9 +25,6 @@
 ################################################################################
 
 class InterfaceCallbacks(object):
-    def __init__(self):
-        pass
-
     def interfaceAdded(self, iface):
         """
         @brief A new interface has been discovered

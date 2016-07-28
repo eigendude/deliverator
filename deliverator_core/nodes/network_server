@@ -39,15 +39,22 @@ class NetworkServer():
 
     def initialize(self):
         return self._server.initialize()
+    
+    def deinitialize(self):
+        self._server.deinitialize()
 
 def main():
     rospy.init_node(NODE_NAME, log_level=rospy.DEBUG)
+
     networkServer = NetworkServer()
+
     if networkServer.initialize():
         # TODO
         rate = rospy.Rate(1) # 1hz
         while not rospy.is_shutdown():
-             rate.sleep()
+            rate.sleep()
+
+    networkServer.deinitialize()
 
 if __name__ == '__main__':
     main()

@@ -31,6 +31,12 @@ class Localization:
     def __init__(self):
         self._wifiInterface = None
 
+    def initialize(self):
+        return True
+
+    def deinitialize(self):
+        pass
+
     def setInterface(self, iface):
         """
         @brief Set the wireless adapter's local interface
@@ -41,11 +47,11 @@ class Localization:
             self._wifiInterface = iface
             self._wifiInterface.startPassiveScan()
 
-    def unsetInterface(self):
+    def unsetInterface(self, iface):
         """
         @brief Unset the wireless interface passed to setInterface()
         """
-        if self._wifiInterface:
+        if iface.name() == self._wifiInterface.name():
             self._wifiInterface.stopScan()
             self._wifiInterface = None
 

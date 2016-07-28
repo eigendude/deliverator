@@ -24,20 +24,20 @@
 #
 ################################################################################
 
-from deliverator.networking import InterfaceCallbacks
-from deliverator.networking import InterfaceScanner
-from deliverator.networking import Localization
-from deliverator.networking import NetworkCallbacks
-from deliverator.networking import NetworkExternal
-from deliverator.networking import NetworkInternal
+from InterfaceCallbacks import InterfaceCallbacks
+from InterfaceScanner import InterfaceScanner
+from Localization import Localization
+from NetworkCallbacks import NetworkCallbacks
+from NetworkExternal import NetworkExternal
+from NetworkInternal import NetworkInternal
 
 import rospy
 
-class Server(InterfaceCallbacks, NetworkCallbacks):
+class Server:#(InterfaceCallbacks, NetworkCallbacks): # TODO
     def __init__(self, trusted):
         self._trusted = trusted
-        self._localNetwork = NetworkInternal()
-        self._externalNetwork = NetworkExternal(trusted)
+        self._localNetwork = NetworkInternal(self, trusted)
+        self._externalNetwork = NetworkExternal()
         self._localization = Localization()
 
     def initialize(self):
@@ -51,13 +51,18 @@ class Server(InterfaceCallbacks, NetworkCallbacks):
 
         return True
 
+    def deinitialize(self):
+        self._localization.deinitialize()
+        self._externalNetwork.deinitialize()
+        self._localNetwork.deinitialize()
+
     def interfaceAdded(self, iface):
-        if iface.isExternal():
-            rospy.logdebug('Registering external interface %s' % iface.name())
-            self._externalNetwork.addInterface(iface)
-        elif iface.isWireless():
+        if iface.isWireless():
             rospy.logdebug('Registering wireless interface %s' % iface.name())
             self._localization.setInterface(iface)
+        elif iface.hasGateway():
+            rospy.logdebug('Registering external interface %s' % iface.name())
+            self._externalNetwork.addInterface(iface)
         else:
             rospy.logdebug('Registering wired interface %s' % iface.name())
             self._localNetwork.addInterface(iface)

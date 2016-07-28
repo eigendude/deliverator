@@ -28,9 +28,6 @@ class NetworkCallbacks(object):
     """
     @brief Callbacks for the network layer
     """
-    def __init__(self):
-        pass
-
     def wifiClientConnected(self, client):
         """
         @brief    A WiFi client has connected

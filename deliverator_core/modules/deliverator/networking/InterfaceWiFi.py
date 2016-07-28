@@ -37,7 +37,7 @@ END_SCAN_SERVICE   = 'end_wifi_scan'
 
 class InterfaceWiFi(Interface):
     def __init__(self, name):
-        super(InterfaceWiFi, self).__init(name)
+        super(InterfaceWiFi, self).__init__(name)
 
     def isWireless(self):
         return True
