@@ -34,6 +34,9 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <build_depend>deliverator_msgs</build_depend>
+  <build_depend>roscpp</build_depend>
+
   <!-- Video depends -->
   <run_depend>gscam</run_depend>
   <run_depend>gstreamer0.10-plugins-good</run_depend> <!-- TODO: Fix gscam depends -->

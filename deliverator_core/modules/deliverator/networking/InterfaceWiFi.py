@@ -26,9 +26,29 @@
 
 from Interface import Interface
 
+import rospy
+from deliverator_msgs.srv import CheckIsWireless
+
+WIFI_SERVICE = 'check_is_wireless'
+
 class InterfaceWiFi(Interface):
     def __init__(self, name):
         super(InterfaceWiFi, self).__init(name)
 
     def isWireless(self):
         return True
+
+    @staticmethod
+    def checkIsWireless(interfaceName):
+        result = False
+
+        rospy.wait_for_service(WIFI_SERVICE)
+
+        checkIsWirelessProxy = rospy.ServiceProxy(WIFI_SERVICE, CheckIsWireless)
+
+        try:
+            result = checkIsWirelessProxy(interfaceName)
+        except rospy.ServiceException as ex:
+            rospy.logerror('Service did not process request: ' + str(ex))
+
+        return result

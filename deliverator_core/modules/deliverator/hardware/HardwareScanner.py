@@ -25,7 +25,6 @@
 
 from DeviceJoystick import DeviceJoystick
 from DeviceV4L import DeviceV4L
-from DeviceWiFi import DeviceWiFi
 
 import os
 
@@ -47,7 +46,5 @@ class HardwareScanner:
                 devicePath = os.path.join('/dev/input', deviceName)
                 devices.append(DeviceJoystick(deviceName, devicePath))
                 break
-
-        # TODO: Scan for WiFI devices
 
         return devices

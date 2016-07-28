@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   rospack
   diagnostic_msgs
+  deliverator_msgs
 )
 
 catkin_python_setup()

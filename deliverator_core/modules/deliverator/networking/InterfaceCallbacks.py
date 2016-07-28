@@ -31,11 +31,15 @@ class InterfaceCallbacks(object):
     def interfaceAdded(self, iface):
         """
         @brief A new interface has been discovered
+
+        @param iface  Interface - the object representing this interface
         """
         pass
 
     def interfaceRemoved(self, iface):
         """
         @brief An interface is no longer available
+
+        @param iface  Interface - the object representing this interface
         """
         pass

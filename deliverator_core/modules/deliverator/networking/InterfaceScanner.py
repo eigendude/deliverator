@@ -26,12 +26,11 @@
 
 from InterfaceBridge import InterfaceBridge
 from InterfaceEthernet import InterfaceEthernet
-from InterfaceTap import InterfaceTap
-from InterfaceWireless import InterfaceWireless
+from InterfaceWiFi import InterfaceWiFi
 
 import netifaces
 
-# Underscore in interface name breaks UFW, so use a dash
+# Underscore in interface name breaks UFW firewall, so use a dash
 BRIDGE_NAME_TRUSTED = 'br-trusted'
 BRIDGE_NAME_UNTRUSTED = 'br-untrusted'
 
@@ -46,33 +45,37 @@ class InterfaceScanner:
     def runScan(self):
         scanResults = netifaces.interfaces()
 
-        # Check for removed interfaces
-        interfaces = self._interfaces[:]
-        for ifaceName in interfaces:
-            if ifaceName not in scanResults:
-                self._callbacks.interfaceRemoved(interfaces[ifaceName])
-                self._interfaces.pop(ifaceName)
+        # Check for  interface changes
+        removedInterfaces = [name for name in self._interfaces if name not in scanResults]
+        addedInterfaces = [name for name in scanResults if name not in self._interfaces]
 
-        # Check for added interfaces
-        for ifaceName in scanResults:
+        # Handle removed interfaces
+        for name in removedInterfaces:
+            self._callbacks.interfaceRemoved(self._interface[name])
+            self._interfaces.pop(name)
+
+        # Handle added interfaces
+        for name in addedInterfaces:
+            iface = None
+
             # Skip loopback interface
-            if ifaceName == 'lo':
+            if name == 'lo':
                 continue
 
             # Skip tap device
-            if ifaceName.startswith('TAP_NAME_PREFIX'):
-                continue 
+            if name.startswith(TAP_NAME_PREFIX):
+                continue
 
             # Handle bridges
-            if ifaceName in [BRIDGE_NAME_TRUSTED, BRIDGE_NAME_UNTRUSTED]:
-                iface = InterfaceBridge(ifaceName)
+            if name in [BRIDGE_NAME_TRUSTED, BRIDGE_NAME_UNTRUSTED]:
+                iface = InterfaceBridge(name)
             else:
-                isWireless = False # TODO
-                if isWireless:
-                    iface = InterfaceWireless(ifaceName)
+                # Handle WiFI
+                if InterfaceWiFi.checkIsWireless(name):
+                    iface = InterfaceWiFi(name)
                 else:
-                    iface = InterfaceEthernet(ifaceName)
+                    iface = InterfaceEthernet(name)
 
-            if iface:
+            if iface and iface.initialize():
                 self._interfaces[iface.name()] = iface
                 self._callbacks.interfaceAdded(iface)

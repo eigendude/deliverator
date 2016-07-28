@@ -10,9 +10,13 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
 )
 
-add_message_files(
-  FILES
+add_message_files(FILES
   WheelSpeeds.msg
+  WiFiStatus.msg
+)
+
+add_service_files(FILES
+  CheckIsWireless.srv
 )
 
 generate_messages(

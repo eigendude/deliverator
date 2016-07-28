@@ -1,4 +1,9 @@
-include_directories(include ${catkin_INCLUDE_DIRS})
+find_package(Libnl REQUIRED)
+
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+  ${LIBNL_INCLUDE_DIR}
+)
 
 add_executable(wifi_manager
   LinuxCapabilities.cpp
@@ -8,6 +13,9 @@ add_executable(wifi_manager
   WiFiManagerNode.cpp
 )
 
-target_link_libraries(wifi_manager ${catkin_LIBRARIES})
+target_link_libraries(wifi_manager
+  ${catkin_LIBRARIES}
+  ${LIBNL_LIBRARIES}
+)
 
-add_dependencies(wifi_manager deliverator_msgs)
+add_dependencies(wifi_manager ${catkin_EXPORTED_TARGETS})

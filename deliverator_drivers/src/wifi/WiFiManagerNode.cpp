@@ -22,6 +22,7 @@
 
 #include "ros/ros.h"
 #include "deliverator_msgs/WiFiStatus.h"
+#include "deliverator_msgs/CheckIsWireless.h"
 
 #include <vector>
 
@@ -29,6 +30,16 @@ using namespace deliverator;
 
 #define NODE_NAME "wifi_manager"
 #define TOPIC_NAME "wifi_status"
+#define SERVICE_NAME "check_is_wireless"
+
+WiFiManager g_manager;
+
+bool CheckIsWireless(deliverator_msgs::CheckIsWireless::Request& req,
+                     deliverator_msgs::CheckIsWireless::Response& res)
+{
+  res.is_wireless = g_manager.IsWireless(req.device);
+  return true;
+}
 
 int main(int argc, char* argv[])
 {
@@ -40,8 +51,7 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  WiFiManager manager;
-  if (!manager.Initialize())
+  if (!g_manager.Initialize())
   {
     ROS_ERROR("Failed to initialize WiFi driver");
     return 1;
@@ -49,21 +59,24 @@ int main(int argc, char* argv[])
 
   ros::NodeHandle n;
   ros::Publisher statusPub = n.advertise<deliverator_msgs::WiFiStatus>(TOPIC_NAME, 1);
+  ros::ServiceServer service = n.advertiseService(SERVICE_NAME, CheckIsWireless);
 
   ros::Rate loop_rate(10);
   while (ros::ok())
   {
-    deliverator_msgs::WiFiStatus msg;
-
-    const std::vector<WiFiDevice>& devices = manager.GetDevices();
-    for (auto& device : devices)
+    std::vector<WiFiDevice> devices = g_manager.GetDevices();
+    if (!devices.empty())
     {
-      const std::string& ifaceName = "wlan0"; // TODO
+      deliverator_msgs::WiFiStatus msg;
 
-      msg.data = "hello world"; // TODO
+      for (auto& device : devices)
+      {
+        const std::string& ifaceName = device.Name();
+        msg.data = "hello world"; // TODO
+      }
+
+      statusPub.publish(msg);
     }
-
-    statusPub.publish(msg);
 
     ros::spinOnce();
 

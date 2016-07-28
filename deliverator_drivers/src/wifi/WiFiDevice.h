@@ -18,11 +18,18 @@
  */
 #pragma once
 
+#include <string>
+
 namespace deliverator
 {
   class WiFiDevice
   {
   public:
-    // TODO
+    WiFiDevice(const std::string& name);
+
+    const std::string& Name() const { return m_name; }
+
+  private:
+    std::string m_name;
   };
 }

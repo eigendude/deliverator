@@ -19,19 +19,11 @@
 
 #include "WiFiDeviceScanner.h"
 
-//#include "ros/ros.h"
-
-#include <utility>
-
 using namespace deliverator;
 
 std::vector<WiFiDevice> WiFiDeviceScanner::ScanDevices()
 {
   std::vector<WiFiDevice> devices;
-
-  // TODO
-  WiFiDevice device;
-  devices.emplace_back(std::move(device));
 
   return devices;
 }

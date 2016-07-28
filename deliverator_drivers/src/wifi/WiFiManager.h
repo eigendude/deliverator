@@ -20,6 +20,8 @@
 
 #include "WiFiDevice.h"
 
+#include "deliverator_msgs/WiFiStatus.h"
+
 #include <vector>
 
 namespace deliverator
@@ -32,9 +34,12 @@ namespace deliverator
     bool Initialize();
     void Deinitialize();
 
-    const std::vector<WiFiDevice>& GetDevices() { return m_devices; }
+    bool IsWireless(const std::string& interfaceName) const;
+
+    std::vector<WiFiDevice> GetDevices() const;
 
   private:
     std::vector<WiFiDevice> m_devices;
+    // TODO: Mutex
   };
 }

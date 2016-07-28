@@ -19,14 +19,67 @@
 
 #include "WiFiManager.h"
 
+#include <netlink/genl/ctrl.h>
+#include <netlink/genl/family.h>
+#include <netlink/genl/genl.h>
+#include <netlink/netlink.h>
+
 using namespace deliverator;
+
+struct nl80211_state
+{
+  struct nl_sock* nl_sock;
+  struct nl_cache* nl_cache;
+  struct genl_family* nl80211;
+};
 
 bool WiFiManager::Initialize()
 {
-  return true; // TODO
+  nl80211_state state;
+
+  state.nl_sock = nl_socket_alloc();
+
+  if (state.nl_sock == nullptr)
+  {
+    fprintf(stderr, "Failed to allocate netlink socket.\n");
+    return false;
+  }
+
+  nl_socket_set_buffer_size(state.nl_sock, 8192, 8192);
+
+  if (genl_connect(state.nl_sock) != 0)
+  {
+    fprintf(stderr, "Failed to connect to generic netlink.\n");
+    nl_socket_free(state.nl_sock);
+    return false;
+  }
+
+  if (genl_ctrl_resolve(state.nl_sock, "nl80211") < 0)
+  {
+    fprintf(stderr, "nl80211 not found.\n");
+    nl_socket_free(state.nl_sock);
+    return false;
+  }
+
+  return true;
 }
 
 void WiFiManager::Deinitialize()
 {
   // TODO
+}
+
+bool WiFiManager::IsWireless(const std::string& interfaceName) const
+{
+  for (auto& device : m_devices)
+  {
+    if (device.Name() == interfaceName)
+      return true;
+  }
+  return false;
+}
+
+std::vector<WiFiDevice> WiFiManager::GetDevices() const
+{
+  return m_devices;
 }

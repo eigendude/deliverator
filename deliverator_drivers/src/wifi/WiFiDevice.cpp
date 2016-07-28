@@ -19,12 +19,9 @@
 
 #include "WiFiDevice.h"
 
-//#include "ros/ros.h"
-
 using namespace deliverator;
 
-class WiFiDevice
+WiFiDevice::WiFiDevice(const std::string& name) :
+  m_name(name)
 {
-public:
-  // TODO
-};
+}
