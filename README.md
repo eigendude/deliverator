@@ -121,6 +121,12 @@ git checkout
 cd ..
 ```
 
+#### fatal error: netlink/genl/ctrl.h: No such file or directory
+
+```shell
+sudo apt-get install libnl-3-dev libnl-genl-3-dev
+```
+
 ### 6. Compilation
 
 To compile run `catkin_make` from the catkin workspace folder.
