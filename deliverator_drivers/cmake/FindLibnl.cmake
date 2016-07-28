@@ -6,10 +6,12 @@
 #  LIBNL_INCLUDE_DIR - the include path of the libnl library
 
 find_library(LIBNL_LIBRARY nl-3)
+find_library(LIBNL_GENL_LIBRARY nl-genl-3)
 #find_library(LIBNL_ROUTE_LIBRARY nl-route-3)
 
 set(LIBNL_LIBRARIES
     ${LIBNL_LIBRARY}
+    ${LIBNL_GENL_LIBRARY}
 #    ${LIBNL_ROUTE_LIBRARY}
 )
 

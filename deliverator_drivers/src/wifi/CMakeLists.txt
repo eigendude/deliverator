@@ -16,6 +16,7 @@ add_executable(wifi_manager
 target_link_libraries(wifi_manager
   ${catkin_LIBRARIES}
   ${LIBNL_LIBRARIES}
+  cap
 )
 
 add_dependencies(wifi_manager ${catkin_EXPORTED_TARGETS})
