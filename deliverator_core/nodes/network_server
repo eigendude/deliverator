@@ -45,7 +45,9 @@ def main():
     networkServer = NetworkServer()
     if networkServer.initialize():
         # TODO
-        pass
+        rate = rospy.Rate(1) # 1hz
+        while not rospy.is_shutdown():
+             rate.sleep()
 
 if __name__ == '__main__':
     main()
