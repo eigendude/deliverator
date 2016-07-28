@@ -39,12 +39,15 @@ class Localization:
         """
         if iface and not self._wifiInterface:
             self._wifiInterface = iface
+            self._wifiInterface.startPassiveScan()
 
     def unsetInterface(self):
         """
         @brief Unset the wireless interface passed to setInterface()
         """
-        self._wifiInterface = None
+        if self._wifiInterface:
+            self._wifiInterface.stopScan()
+            self._wifiInterface = None
 
     def getInterface(self):
         """
@@ -53,6 +56,7 @@ class Localization:
         return self._wifiInterface
 
     def enableAccessPointMode(self, params):
+        self._wifiInterface.
         pass # TODO
 
     def disableAccesPointMode(self):

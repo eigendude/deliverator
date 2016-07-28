@@ -55,12 +55,12 @@ class Server(InterfaceCallbacks, NetworkCallbacks):
         if iface.isExternal():
             rospy.logdebug('Registering external interface %s' % iface.name())
             self._externalNetwork.addInterface(iface)
-        elif iface.hasWired():
-            rospy.logdebug('Registering wired interface %s' % iface.name())
-            self._localNetwork.addInterface(iface)
-        elif iface.hasWireless():
+        elif iface.isWireless():
             rospy.logdebug('Registering wireless interface %s' % iface.name())
             self._localization.setInterface(iface)
+        else:
+            rospy.logdebug('Registering wired interface %s' % iface.name())
+            self._localNetwork.addInterface(iface)
 
     def interfaceRemoved(self, iface):
         rospy.logdebug('Unregistering interface %s' % iface.name())

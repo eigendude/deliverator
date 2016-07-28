@@ -28,8 +28,12 @@ from Interface import Interface
 
 import rospy
 from deliverator_msgs.srv import CheckIsWireless
+from deliverator_msgs.srv import EndScan
+from deliverator_msgs.srv import StartScan
 
-WIFI_SERVICE = 'check_is_wireless'
+WIFI_SERVICE       = 'check_is_wireless'
+START_SCAN_SERVICE = 'start_scan'
+END_SCAN_SERVICE   = 'end_scan'
 
 class InterfaceWiFi(Interface):
     def __init__(self, name):
@@ -44,11 +48,36 @@ class InterfaceWiFi(Interface):
 
         rospy.wait_for_service(WIFI_SERVICE)
 
-        checkIsWirelessProxy = rospy.ServiceProxy(WIFI_SERVICE, CheckIsWireless)
+        serviceProxy = rospy.ServiceProxy(WIFI_SERVICE, CheckIsWireless)
 
         try:
-            result = checkIsWirelessProxy(interfaceName)
+            result = serviceProxy(interfaceName)
         except rospy.ServiceException as ex:
             rospy.logerror('Service did not process request: ' + str(ex))
 
         return result
+
+    def startPassiveScan(self):
+        result = False
+
+        rospy.wait_for_service(START_SCAN_SERVICE)
+
+        serviceProxy = rospy.ServiceProxy(START_SCAN_SERVICE, StartScan)
+
+        try:
+            serviceProxy(self.name(), True, [], [])
+            result = True
+        except rospy.ServiceException as ex:
+            rospy.logerror('Service did not process request: ' + str(ex))
+
+        return result
+
+    def endScan(self):
+        rospy.wait_for_service(END_SCAN_SERVICE)
+
+        serviceProxy = rospy.ServiceProxy(END_SCAN_SERVICE, EndScan)
+
+        try:
+            serviceProxy(self.name())
+        except rospy.ServiceException as ex:
+            rospy.logerror('Service did not process request: ' + str(ex))
