@@ -45,9 +45,9 @@ int main(int argc, char* argv[])
 {
   ros::init(argc, argv, NODE_NAME);
 
-  if (!LinuxCapabilities::HasCapability(LinuxCapability::NetworkAdmin))
+  if (!LinuxCapabilities::HasCapability(LinuxCapability::NET_ADMIN))
   {
-    ROS_ERROR("Process does not have capability CAP_SYS_ADMIN");
+    ROS_ERROR("Process does not have capability CAP_NET_ADMIN");
     return 1;
   }
 
