@@ -28,6 +28,7 @@
 #include <netlink/genl/genl.h>
 #include <netlink/attr.h>
 #include <netlink/netlink.h>
+#include <utility>
 
 using namespace deliverator;
 
@@ -62,7 +63,7 @@ bool WiFiManager::Initialize()
   if (genl_connect(m_state.GetSocket()) != 0)
   {
     ROS_ERROR("Failed to connect to generic netlink");
-    m_state.Reset();
+    Deinitialize();
     return false;
   }
 
@@ -70,7 +71,7 @@ bool WiFiManager::Initialize()
   if (!m_state.Is80211IdValid())
   {
     ROS_ERROR("nl80211 not found");
-    m_state.Reset();
+    Deinitialize();
     return false;
   }
 
@@ -80,13 +81,6 @@ bool WiFiManager::Initialize()
 void WiFiManager::Deinitialize()
 {
   m_state.Reset();
-}
-
-std::vector<WiFiDevice> WiFiManager::GetDevices()
-{
-  P8PLATFORM::CLockObject lock(m_mutex);
-
-  return m_devices;
 }
 
 bool WiFiManager::IsWireless(const std::string& interfaceName)
@@ -123,5 +117,53 @@ bool WiFiManager::IsWireless(const std::string& interfaceName)
     return false;
   }
 
+  bIsWireless = true; // TODO
+
   return bIsWireless;
+}
+
+void WiFiManager::StartScan(const std::string& interface, bool passive, const std::vector<uint32_t>& channels, const std::vector<std::string>& ssids)
+{
+  P8PLATFORM::CLockObject lock(m_mutex);
+
+  auto it = m_devices.find(interface);
+  if (it == m_devices.end())
+  {
+    m_devices[interface] = std::make_shared<WiFiDevice>(interface);
+    it = m_devices.find(interface);
+  }
+
+  if (it != m_devices.end())
+    it->second->StartScan(passive, channels, ssids);
+}
+
+void WiFiManager::EndScan(const std::string& interface)
+{
+  P8PLATFORM::CLockObject lock(m_mutex);
+
+  auto it = m_devices.find(interface);
+  if (it != m_devices.end())
+  {
+    it->second->EndScan();
+    m_devices.erase(it);
+  }
+}
+
+bool WiFiManager::GetScanData(deliverator_msgs::WiFiScanData& msg)
+{
+  bool bHasData = false;
+
+  P8PLATFORM::CLockObject lock(m_mutex);
+
+  for (auto it = m_devices.begin(); it != m_devices.end(); ++it)
+  {
+    deliverator_msgs::WiFiInterfaceData interface;
+    if (it->second->GetScanData(interface))
+    {
+      msg.interfaces.emplace_back(std::move(interface));
+      bHasData = true;
+    }
+  }
+
+  return bHasData;
 }

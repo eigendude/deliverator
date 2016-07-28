@@ -16,32 +16,12 @@
  *  <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#include "WiFiDevice.h"
+#include <memory>
 
-using namespace deliverator;
-
-WiFiDevice::WiFiDevice(const std::string& name) :
-  m_name(name)
+namespace deliverator
 {
-}
-
-void WiFiDevice::StartScan(bool passive, const std::vector<uint32_t>& channels, const std::vector<std::string>& ssids)
-{
-  // TODO
-}
-
-void WiFiDevice::EndScan()
-{
-  // TODO
-}
-
-bool WiFiDevice::GetScanData(deliverator_msgs::WiFiInterfaceData& msg)
-{
-  bool bHasData = false;
-
-  msg.name = m_name;
-  bHasData = true; // TODO
-
-  return bHasData;
+  class WiFiDevice;
+  typedef std::shared_ptr<WiFiDevice> WiFiDevicePtr;
 }

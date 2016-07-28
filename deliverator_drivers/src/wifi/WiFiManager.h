@@ -20,10 +20,14 @@
 
 #include "NetlinkState.h"
 #include "WiFiDevice.h"
+#include "WiFiTypes.h"
 
-#include "deliverator_msgs/WiFiStatus.h"
+#include "deliverator_msgs/WiFiScanData.h"
 #include "threads/mutex.h"
 
+#include <map>
+#include <stdint.h>
+#include <string>
 #include <vector>
 
 struct nl80211_state
@@ -43,13 +47,19 @@ namespace deliverator
     bool Initialize();
     void Deinitialize();
 
-    std::vector<WiFiDevice> GetDevices();
-
     bool IsWireless(const std::string& interfaceName);
 
+    void StartScan(const std::string& interface, bool passive, const std::vector<uint32_t>& channels, const std::vector<std::string>& ssids);
+
+    void EndScan(const std::string& interface);
+
+    bool GetScanData(deliverator_msgs::WiFiScanData& msg);
+
   private:
+    typedef std::map<std::string, WiFiDevicePtr> DeviceMap;
+
     NetlinkState m_state;
-    std::vector<WiFiDevice> m_devices;
+    DeviceMap m_devices;
     P8PLATFORM::CMutex m_mutex;
   };
 }

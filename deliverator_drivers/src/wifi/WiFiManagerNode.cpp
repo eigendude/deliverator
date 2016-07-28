@@ -20,17 +20,22 @@
 #include "LinuxCapabilities.h"
 #include "WiFiManager.h"
 
-#include "ros/ros.h"
-#include "deliverator_msgs/WiFiStatus.h"
 #include "deliverator_msgs/CheckIsWireless.h"
+#include "deliverator_msgs/StartScan.h"
+#include "deliverator_msgs/EndScan.h"
+#include "deliverator_msgs/WiFiScanData.h"
+#include "ros/ros.h"
 
+#include <memory>
 #include <vector>
 
 using namespace deliverator;
 
-#define NODE_NAME "wifi_manager"
-#define TOPIC_NAME "wifi_status"
-#define SERVICE_NAME "check_is_wireless"
+#define NODE_NAME                  "wifi_manager"
+#define TOPIC_NAME                 "wifi_status"
+#define CHECK_IS_WIRELESS_SERVICE  "check_is_wireless"
+#define START_SCAN_SERVICE         "start_scan"
+#define END_SCAN_SERVICE           "end_scan"
 
 WiFiManager g_manager;
 
@@ -38,6 +43,22 @@ bool CheckIsWireless(deliverator_msgs::CheckIsWireless::Request& req,
                      deliverator_msgs::CheckIsWireless::Response& res)
 {
   res.is_wireless = g_manager.IsWireless(req.device);
+  return true;
+}
+
+bool StartScan(deliverator_msgs::StartScan::Request& req,
+               deliverator_msgs::StartScan::Response& res)
+{
+  ROS_DEBUG("Starting %sscan on interface %s", req.passive ? "passive " : "", req.interface.c_str());
+  g_manager.StartScan(req.interface, req.passive, req.channels, req.ssids);
+  return true;
+}
+
+bool EndScan(deliverator_msgs::EndScan::Request& req,
+               deliverator_msgs::EndScan::Response& res)
+{
+  ROS_DEBUG("Stopping scan on interface %s", req.interface.c_str());
+  g_manager.EndScan(req.interface);
   return true;
 }
 
@@ -58,25 +79,21 @@ int main(int argc, char* argv[])
   }
 
   ros::NodeHandle n;
-  ros::Publisher statusPub = n.advertise<deliverator_msgs::WiFiStatus>(TOPIC_NAME, 1);
-  ros::ServiceServer service = n.advertiseService(SERVICE_NAME, CheckIsWireless);
+
+  ros::Publisher statusPub = n.advertise<deliverator_msgs::WiFiScanData>(TOPIC_NAME, 1);
+
+  ros::ServiceServer services[] = {
+      n.advertiseService(CHECK_IS_WIRELESS_SERVICE, CheckIsWireless),
+      n.advertiseService(START_SCAN_SERVICE, StartScan),
+      n.advertiseService(END_SCAN_SERVICE, EndScan),
+  };
 
   ros::Rate loop_rate(10);
   while (ros::ok())
   {
-    std::vector<WiFiDevice> devices = g_manager.GetDevices();
-    if (!devices.empty())
-    {
-      deliverator_msgs::WiFiStatus msg;
-
-      for (auto& device : devices)
-      {
-        const std::string& ifaceName = device.Name();
-        msg.data = "hello world"; // TODO
-      }
-
+    deliverator_msgs::WiFiScanData msg;
+    if (g_manager.GetScanData(msg))
       statusPub.publish(msg);
-    }
 
     ros::spinOnce();
 
