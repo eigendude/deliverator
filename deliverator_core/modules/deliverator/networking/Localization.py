@@ -56,7 +56,6 @@ class Localization:
         return self._wifiInterface
 
     def enableAccessPointMode(self, params):
-        self._wifiInterface.
         pass # TODO
 
     def disableAccesPointMode(self):
