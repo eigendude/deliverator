@@ -21,6 +21,7 @@
 #include "WiFiDevice.h"
 
 #include "deliverator_msgs/WiFiStatus.h"
+#include "threads/mutex.h"
 
 #include <vector>
 
@@ -34,12 +35,12 @@ namespace deliverator
     bool Initialize();
     void Deinitialize();
 
-    bool IsWireless(const std::string& interfaceName) const;
+    bool IsWireless(const std::string& interfaceName);
 
-    std::vector<WiFiDevice> GetDevices() const;
+    std::vector<WiFiDevice> GetDevices();
 
   private:
     std::vector<WiFiDevice> m_devices;
-    // TODO: Mutex
+    P8PLATFORM::CMutex m_mutex;
   };
 }

@@ -36,6 +36,7 @@
 
   <build_depend>deliverator_msgs</build_depend>
   <build_depend>roscpp</build_depend>
+  <build_depend>libp8_platform</build_depend>
 
   <!-- Video depends -->
   <run_depend>gscam</run_depend>

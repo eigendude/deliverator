@@ -69,8 +69,10 @@ void WiFiManager::Deinitialize()
   // TODO
 }
 
-bool WiFiManager::IsWireless(const std::string& interfaceName) const
+bool WiFiManager::IsWireless(const std::string& interfaceName)
 {
+  P8PLATFORM::CLockObject lock(m_mutex);
+
   for (auto& device : m_devices)
   {
     if (device.Name() == interfaceName)
@@ -79,7 +81,9 @@ bool WiFiManager::IsWireless(const std::string& interfaceName) const
   return false;
 }
 
-std::vector<WiFiDevice> WiFiManager::GetDevices() const
+std::vector<WiFiDevice> WiFiManager::GetDevices()
 {
+  P8PLATFORM::CLockObject lock(m_mutex);
+
   return m_devices;
 }

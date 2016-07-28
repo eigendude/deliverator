@@ -127,6 +127,12 @@ cd ..
 sudo apt-get install libnl-3-dev libnl-genl-3-dev
 ```
 
+#### Could not find a package configuration file provided by "libp8_platform"
+
+```shell
+git clone --recursive https://github.com/juztamau5/libp8_platform.git
+```
+
 ### 6. Compilation
 
 To compile run `catkin_make` from the catkin workspace folder.
