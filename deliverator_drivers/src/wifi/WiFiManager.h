@@ -25,6 +25,12 @@
 
 #include <vector>
 
+struct nl80211_state
+{
+  struct nl_sock* nl_sock;
+  int nl80211_id;
+};
+
 namespace deliverator
 {
   class WiFiManager
@@ -35,11 +41,12 @@ namespace deliverator
     bool Initialize();
     void Deinitialize();
 
-    bool IsWireless(const std::string& interfaceName);
-
     std::vector<WiFiDevice> GetDevices();
 
+    bool IsWireless(const std::string& interfaceName);
+
   private:
+    nl80211_state m_state;
     std::vector<WiFiDevice> m_devices;
     P8PLATFORM::CMutex m_mutex;
   };

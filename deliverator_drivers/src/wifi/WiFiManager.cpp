@@ -19,6 +19,9 @@
 
 #include "WiFiManager.h"
 
+#include "ros/ros.h"
+
+#include <net/if.h>
 #include <netlink/genl/ctrl.h>
 #include <netlink/genl/family.h>
 #include <netlink/genl/genl.h>
@@ -26,38 +29,33 @@
 
 using namespace deliverator;
 
-struct nl80211_state
-{
-  struct nl_sock* nl_sock;
-  struct nl_cache* nl_cache;
-  struct genl_family* nl80211;
-};
+// Set to 1 to debug netlink
+#define DEBUG_NETLINK  0
 
 bool WiFiManager::Initialize()
 {
-  nl80211_state state;
+  m_state.nl_sock = nl_socket_alloc();
 
-  state.nl_sock = nl_socket_alloc();
-
-  if (state.nl_sock == nullptr)
+  if (m_state.nl_sock == nullptr)
   {
-    fprintf(stderr, "Failed to allocate netlink socket.\n");
+    ROS_ERROR("Failed to allocate netlink socket");
     return false;
   }
 
-  nl_socket_set_buffer_size(state.nl_sock, 8192, 8192);
+  nl_socket_set_buffer_size(m_state.nl_sock, 8192, 8192);
 
-  if (genl_connect(state.nl_sock) != 0)
+  if (genl_connect(m_state.nl_sock) != 0)
   {
-    fprintf(stderr, "Failed to connect to generic netlink.\n");
-    nl_socket_free(state.nl_sock);
+    ROS_ERROR("Failed to connect to generic netlink");
+    nl_socket_free(m_state.nl_sock);
     return false;
   }
 
-  if (genl_ctrl_resolve(state.nl_sock, "nl80211") < 0)
+  m_state.nl80211_id = genl_ctrl_resolve(m_state.nl_sock, "nl80211");
+  if (m_state.nl80211_id < 0)
   {
-    fprintf(stderr, "nl80211 not found.\n");
-    nl_socket_free(state.nl_sock);
+    ROS_ERROR("nl80211 not found");
+    nl_socket_free(m_state.nl_sock);
     return false;
   }
 
@@ -66,19 +64,8 @@ bool WiFiManager::Initialize()
 
 void WiFiManager::Deinitialize()
 {
-  // TODO
-}
-
-bool WiFiManager::IsWireless(const std::string& interfaceName)
-{
-  P8PLATFORM::CLockObject lock(m_mutex);
-
-  for (auto& device : m_devices)
-  {
-    if (device.Name() == interfaceName)
-      return true;
-  }
-  return false;
+  nl_socket_free(m_state.nl_sock);
+  m_state.nl_sock = nullptr;
 }
 
 std::vector<WiFiDevice> WiFiManager::GetDevices()
@@ -86,4 +73,10 @@ std::vector<WiFiDevice> WiFiManager::GetDevices()
   P8PLATFORM::CLockObject lock(m_mutex);
 
   return m_devices;
+}
+
+bool WiFiManager::IsWireless(const std::string& interfaceName)
+{
+  unsigned int devidx = if_nametoindex(interfaceName.c_str());
+  return devidx != 0;
 }
