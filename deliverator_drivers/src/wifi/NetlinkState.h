@@ -18,38 +18,33 @@
  */
 #pragma once
 
-#include "NetlinkState.h"
-#include "WiFiDevice.h"
-
-#include "deliverator_msgs/WiFiStatus.h"
-#include "threads/mutex.h"
-
-#include <vector>
-
-struct nl80211_state
-{
-  struct nl_sock* nl_sock;
-  int nl80211_id;
-};
+struct nl_sock;
 
 namespace deliverator
 {
-  class WiFiManager
+  class NetlinkState
   {
   public:
-    WiFiManager() = default;
-    ~WiFiManager() { Deinitialize(); }
+    NetlinkState();
+    NetlinkState(struct nl_sock* socket);
+    ~NetlinkState() { Reset(); }
 
-    bool Initialize();
-    void Deinitialize();
+    NetlinkState& operator=(NetlinkState&& state);
 
-    std::vector<WiFiDevice> GetDevices();
+    void Reset();
 
-    bool IsWireless(const std::string& interfaceName);
+    struct nl_sock* GetSocket() { return m_socket; }
+    int Get80211Id() const { return m_nl80211_id; }
+
+    void Set80211Id(int id) { m_nl80211_id = id; }
+
+
+    bool IsValid() const { return m_socket != nullptr; }
+    bool Is80211IdValid() const { return m_nl80211_id >= 0; }
+
 
   private:
-    NetlinkState m_state;
-    std::vector<WiFiDevice> m_devices;
-    P8PLATFORM::CMutex m_mutex;
+    struct nl_sock* m_socket;
+    int m_nl80211_id;
   };
 }

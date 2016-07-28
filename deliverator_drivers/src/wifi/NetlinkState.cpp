@@ -16,40 +16,40 @@
  *  <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 #include "NetlinkState.h"
-#include "WiFiDevice.h"
 
-#include "deliverator_msgs/WiFiStatus.h"
-#include "threads/mutex.h"
+#include <netlink/netlink.h>
 
-#include <vector>
+using namespace deliverator;
 
-struct nl80211_state
+NetlinkState::NetlinkState() :
+  m_socket(nullptr),
+  m_nl80211_id(-1)
 {
-  struct nl_sock* nl_sock;
-  int nl80211_id;
-};
+}
 
-namespace deliverator
+NetlinkState::NetlinkState(struct nl_sock* socket) :
+  m_socket(socket),
+  m_nl80211_id(-1)
 {
-  class WiFiManager
+}
+
+NetlinkState& NetlinkState::operator=(NetlinkState&& state)
+{
+  m_socket = state.m_socket;
+  state.m_socket = nullptr;
+
+  m_nl80211_id = state.m_nl80211_id;
+
+  return *this;
+}
+
+void NetlinkState::Reset()
+{
+  if (m_socket != nullptr)
   {
-  public:
-    WiFiManager() = default;
-    ~WiFiManager() { Deinitialize(); }
-
-    bool Initialize();
-    void Deinitialize();
-
-    std::vector<WiFiDevice> GetDevices();
-
-    bool IsWireless(const std::string& interfaceName);
-
-  private:
-    NetlinkState m_state;
-    std::vector<WiFiDevice> m_devices;
-    P8PLATFORM::CMutex m_mutex;
-  };
+    nl_socket_free(m_socket);
+    m_socket = nullptr;
+  }
 }
