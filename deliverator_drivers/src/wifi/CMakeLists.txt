@@ -1,8 +1,10 @@
 find_package(Libnl REQUIRED)
+find_package(CAP REQUIRED)
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
   ${LIBNL_INCLUDE_DIR}
+  ${CAP_INCLUDE_DIRS}
 )
 
 add_executable(wifi_manager
@@ -17,7 +19,7 @@ add_executable(wifi_manager
 target_link_libraries(wifi_manager
   ${catkin_LIBRARIES}
   ${LIBNL_LIBRARIES}
-  cap
+  ${CAP_LIBRARIES}
 )
 
 add_dependencies(wifi_manager ${catkin_EXPORTED_TARGETS})
