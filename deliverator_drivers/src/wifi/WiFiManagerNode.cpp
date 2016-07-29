@@ -43,13 +43,17 @@ bool CheckIsWireless(deliverator_msgs::CheckIsWireless::Request& req,
                      deliverator_msgs::CheckIsWireless::Response& res)
 {
   res.is_wireless = g_manager.IsWireless(req.device);
+  if (res.is_wireless)
+    ROS_INFO("Wireless support detected on interface %s", req.device.c_str());
+  else
+    ROS_INFO("No wireless support on interface %s", req.device.c_str());
   return true;
 }
 
 bool StartScan(deliverator_msgs::StartScan::Request& req,
                deliverator_msgs::StartScan::Response& res)
 {
-  ROS_DEBUG("Starting %sscan on interface %s", req.passive ? "passive " : "", req.interface.c_str());
+  ROS_INFO("Starting %sscan on interface %s", req.passive ? "passive " : "", req.interface.c_str());
   g_manager.StartScan(req.interface, req.passive, req.channels, req.ssids);
   return true;
 }
@@ -57,7 +61,7 @@ bool StartScan(deliverator_msgs::StartScan::Request& req,
 bool EndScan(deliverator_msgs::EndScan::Request& req,
                deliverator_msgs::EndScan::Response& res)
 {
-  ROS_DEBUG("Stopping scan on interface %s", req.interface.c_str());
+  ROS_INFO("Stopping scan on interface %s", req.interface.c_str());
   g_manager.EndScan(req.interface);
   return true;
 }

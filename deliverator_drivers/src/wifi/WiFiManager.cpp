@@ -87,7 +87,8 @@ bool WiFiManager::IsWireless(const std::string& interfaceName)
 {
   bool bIsWireless = false;
 
-  bIsWireless = true; // TODO
+  if (!interfaceName.empty())
+    bIsWireless = (interfaceName[0] == 'w'); // TODO
 
   return bIsWireless;
 }

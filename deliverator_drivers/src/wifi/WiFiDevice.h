@@ -59,7 +59,7 @@ namespace deliverator
     inline WiFiDevice& operator=(const WiFiDevice& c);
 
     bool InitMsg(NetlinkMsgPtr& msg);
-    void DeinitMsg(NetlinkMsgPtr& msg);
+    void SendMsg(NetlinkMsgPtr& msg, bool bWait);
 
     int OnStation(struct nl_msg* msg);
     int OnFinish(struct nl_msg* msg);

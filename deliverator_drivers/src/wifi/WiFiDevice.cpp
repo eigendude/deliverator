@@ -52,7 +52,7 @@ void WiFiDevice::TriggerScan(bool passive, const std::vector<uint32_t>& channels
   }
   // TODO: Build freqs msg
 
-  DeinitMsg(msg);
+  SendMsg(msg, false);
 
   m_bIsScanning = true;
 }
@@ -73,7 +73,7 @@ bool WiFiDevice::GetScanData(deliverator_msgs::WiFiInterfaceData& msg)
   // Set up the callbacks
   nl_cb_set(m_callback, NL_CB_VALID, NL_CB_CUSTOM, StationHandler, this);
 
-  DeinitMsg(netlinkMsg);
+  SendMsg(netlinkMsg, true);
 
   msg.name = m_name;
   bHasData = true; // TODO
@@ -150,7 +150,7 @@ bool WiFiDevice::InitMsg(NetlinkMsgPtr& msg)
   return true;
 }
 
-void WiFiDevice::DeinitMsg(NetlinkMsgPtr& msg)
+void WiFiDevice::SendMsg(NetlinkMsgPtr& msg, bool bWait)
 {
   // Set up the callbacks
   nl_socket_set_cb(m_state.GetSocket(), m_sendCallback);
@@ -158,7 +158,7 @@ void WiFiDevice::DeinitMsg(NetlinkMsgPtr& msg)
   // Automatically complete and send the netlink message
   if (nl_send_auto_complete(m_state.GetSocket(), msg.get()) < 0)
   {
-    ROS_ERROR("Failed to finish netlink connection for %s", m_name.c_str());
+    ROS_ERROR("Failed to send netlink message for %s", m_name.c_str());
     return;
   }
 
@@ -168,8 +168,11 @@ void WiFiDevice::DeinitMsg(NetlinkMsgPtr& msg)
   nl_cb_set(m_callback, NL_CB_FINISH, NL_CB_CUSTOM, FinishHandler, this);
 
   // Receive a set of messages from the netlink socket
-  while (this->m_error > 0)
-    nl_recvmsgs(m_state.GetSocket(), m_callback);
+  if (bWait)
+  {
+    while (this->m_error > 0)
+      nl_recvmsgs(m_state.GetSocket(), m_callback);
+  }
 
   nl_cb_put(m_callback);
 
