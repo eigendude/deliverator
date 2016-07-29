@@ -87,36 +87,6 @@ bool WiFiManager::IsWireless(const std::string& interfaceName)
 {
   bool bIsWireless = false;
 
-  const unsigned int interfaceIndex = if_nametoindex(interfaceName.c_str());
-  if (interfaceIndex == 0)
-    return false; // Interface doesn't exist
-
-  // Allocate a new netlink message
-  MessagePtr msg = std::move(MessagePtr(nlmsg_alloc(), FreeMessage));
-  if (!msg)
-  {
-    ROS_ERROR("Failed to allocate netlink message");
-    return false;
-  }
-
-  // Allocate new callback handles
-  nl_cb* cb = nl_cb_alloc(NL_CB_DEFAULT);
-  nl_cb* s_cb = nl_cb_alloc(NL_CB_DEFAULT);
-  if (cb == nullptr || s_cb == nullptr)
-  {
-    ROS_ERROR("Failed to allocate netlink callback handles");
-    return false;
-  }
-
-  // Add generic netlink header to the netlink message
-  genlmsg_put(msg.get(), 0, 0, m_state.Get80211Id(), 0, NLM_F_DUMP, NL80211_CMD_GET_STATION, 0);
-
-  if (nla_put_u32(msg.get(), NL80211_ATTR_IFINDEX, interfaceIndex) != 0)
-  {
-    ROS_ERROR("Building message failed");
-    return false;
-  }
-
   bIsWireless = true; // TODO
 
   return bIsWireless;
@@ -129,12 +99,12 @@ void WiFiManager::StartScan(const std::string& interface, bool passive, const st
   auto it = m_devices.find(interface);
   if (it == m_devices.end())
   {
-    m_devices[interface] = std::make_shared<WiFiDevice>(interface);
+    m_devices[interface] = std::make_shared<WiFiDevice>(interface, m_state);
     it = m_devices.find(interface);
   }
 
   if (it != m_devices.end())
-    it->second->StartScan(passive, channels, ssids);
+    it->second->TriggerScan(passive, channels, ssids);
 }
 
 void WiFiManager::EndScan(const std::string& interface)

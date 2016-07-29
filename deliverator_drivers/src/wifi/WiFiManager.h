@@ -30,12 +30,6 @@
 #include <string>
 #include <vector>
 
-struct nl80211_state
-{
-  struct nl_sock* nl_sock;
-  int nl80211_id;
-};
-
 namespace deliverator
 {
   class WiFiManager

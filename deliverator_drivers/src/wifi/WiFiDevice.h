@@ -25,16 +25,29 @@
 #include <string>
 #include <vector>
 
+struct nl_cb;
+struct nl_msg;
+struct nlmsgerr;
+struct sockaddr_nl;
+
 namespace deliverator
 {
+  class NetlinkState;
+
+  typedef std::shared_ptr<struct nl_msg> NetlinkMsgPtr;
+
   class WiFiDevice
   {
   public:
-    WiFiDevice(const std::string& name);
+    WiFiDevice(const std::string& name, NetlinkState& state);
 
     const std::string& Name() const { return m_name; }
 
-    void StartScan(bool passive, const std::vector<uint32_t>& channels, const std::vector<std::string>& ssids);
+    void TriggerScan(bool passive, const std::vector<uint32_t>& channels, const std::vector<std::string>& ssids);
+
+    bool IsScanning() const { return m_bIsScanning; }
+
+    void WaitForScan() { } // TODO
 
     void EndScan();
 
@@ -42,10 +55,28 @@ namespace deliverator
 
   private:
     // Prevent copy
-    inline WiFiDevice(const WiFiDevice& c) { *this = c; }
-    inline WiFiDevice& operator=(const WiFiDevice& c){ (void)c; return *this; }
+    inline WiFiDevice(const WiFiDevice& c);
+    inline WiFiDevice& operator=(const WiFiDevice& c);
+
+    bool InitMsg(NetlinkMsgPtr& msg);
+    void DeinitMsg(NetlinkMsgPtr& msg);
+
+    int OnStation(struct nl_msg* msg);
+    int OnFinish(struct nl_msg* msg);
+    int OnError(struct sockaddr_nl *nla, struct nlmsgerr *err);
+
+    static int StationHandler(struct nl_msg* msg, void* arg);
+    static int FinishHandler(struct nl_msg* msg, void* arg);
+    static int ErrorHandler(struct sockaddr_nl *nla, struct nlmsgerr *err, void* arg);
+
+    static void FreeMessage(struct nl_msg* msg);
 
     std::string m_name;
+    NetlinkState& m_state;
+    bool m_bIsScanning;
+    struct nl_cb* m_callback;
+    struct nl_cb* m_sendCallback;
+    int m_error; // TODO: Switch to event
     P8PLATFORM::CEvent m_scanFinishedEvent;
   };
 }
