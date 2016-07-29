@@ -38,7 +38,7 @@ class Network(object):
         @brief Initialize the resources of the network
         @return True if the network was initialized successfully, false otherwise
         """
-        return False
+        return True
 
     def deinitialize(self):
         """

@@ -33,7 +33,7 @@ from NetworkInternal import NetworkInternal
 
 import rospy
 
-class Server:#(InterfaceCallbacks, NetworkCallbacks): # TODO
+class Server(InterfaceCallbacks, NetworkCallbacks):
     def __init__(self, trusted):
         self._trusted = trusted
         self._localNetwork = NetworkInternal(self, trusted)

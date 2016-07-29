@@ -33,15 +33,4 @@ class NetworkExternal(Network):
     The network can be accessed by one or more interfaces.
     """
     def __init__(self):
-        super(Network, self).__init__()
-
-    def initialize(self):
-        return True
-
-    def addInterface(self, iface):
-        super(Network, self).addInterface(iface)
-        # TODO
-
-    def removeInterface(self, iface):
-        # TODO
-        super(Network, self).removeInterface(iface)
+        super(NetworkExternal, self).__init__()

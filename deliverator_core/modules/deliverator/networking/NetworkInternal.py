@@ -38,14 +38,3 @@ class NetworkInternal(Network):
         super(Network, self).__init__()
         self._callbacks = callbacks
         self._trusted = trusted
-
-    def isTrusted(self):
-        return self._trusted
-
-    def initialize(self):
-        # TODO
-        return True
-
-    def deinitialize(self):
-        # TODO
-        pass

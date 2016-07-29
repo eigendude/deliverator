@@ -51,9 +51,9 @@ class InterfaceWiFi(Interface):
         serviceProxy = rospy.ServiceProxy(WIFI_SERVICE, CheckIsWireless)
 
         try:
-            result = serviceProxy(interfaceName)
+            result = serviceProxy(interfaceName).is_wireless
         except rospy.ServiceException as ex:
-            rospy.logerror('Service did not process request: ' + str(ex))
+            rospy.logerr('Service did not process request: ' + str(ex))
 
         return result
 
@@ -68,7 +68,7 @@ class InterfaceWiFi(Interface):
             serviceProxy(self.name(), True, [], [])
             result = True
         except rospy.ServiceException as ex:
-            rospy.logerror('Service did not process request: ' + str(ex))
+            rospy.logerr('Service did not process request: ' + str(ex))
 
         return result
 
@@ -80,4 +80,4 @@ class InterfaceWiFi(Interface):
         try:
             serviceProxy(self.name())
         except rospy.ServiceException as ex:
-            rospy.logerror('Service did not process request: ' + str(ex))
+            rospy.logerr('Service did not process request: ' + str(ex))

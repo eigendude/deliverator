@@ -28,4 +28,4 @@ from Interface import Interface
 
 class InterfaceEthernet(Interface):
     def __init__(self, name):
-        super(InterfaceEthernet, self).__init(name)
+        super(InterfaceEthernet, self).__init__(name)
