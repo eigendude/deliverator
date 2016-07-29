@@ -48,9 +48,15 @@ void WiFiDevice::TriggerScan(bool passive, const std::vector<uint32_t>& channels
 
   if (!passive)
   {
-    // TODO: If not passive, build ssids msg
+    if (!AddSsids(msg, ssids))
+      return;
   }
-  // TODO: Build freqs msg
+
+  if (!channels.empty())
+  {
+    if (!AddChannels(msg, channels))
+      return;
+  }
 
   SendMsg(msg, false);
 
@@ -81,37 +87,19 @@ bool WiFiDevice::GetScanData(deliverator_msgs::WiFiInterfaceData& msg)
   return bHasData;
 }
 
-int WiFiDevice::OnStation(struct nl_msg* msg)
+void WiFiDevice::OnStation(const uint8_t mac[6], unsigned int freqMHz, float dBm, uint8_t percent, unsigned int ageMs)
 {
   // TODO
-  return NL_SKIP;
 }
 
-int WiFiDevice::OnFinish(struct nl_msg* msg)
+void WiFiDevice::OnFinish()
 {
   m_error = 0; // TODO
-  return NL_SKIP;
 }
 
-int WiFiDevice::OnError(struct sockaddr_nl *nla, struct nlmsgerr *err)
+void WiFiDevice::OnError(int nlmsgerr)
 {
-  m_error = err->error; // TODO
-  return NL_STOP;
-}
-
-int WiFiDevice::StationHandler(struct nl_msg* msg, void* arg)
-{
-  return static_cast<WiFiDevice*>(arg)->OnStation(msg);
-}
-
-int WiFiDevice::FinishHandler(struct nl_msg* msg, void* arg)
-{
-  return static_cast<WiFiDevice*>(arg)->OnFinish(msg);
-}
-
-int WiFiDevice::ErrorHandler(struct sockaddr_nl *nla, struct nlmsgerr *err, void* arg)
-{
-  return static_cast<WiFiDevice*>(arg)->OnError(nla, err);
+  m_error = nlmsgerr; // TODO
 }
 
 bool WiFiDevice::InitMsg(NetlinkMsgPtr& msg)
@@ -150,6 +138,56 @@ bool WiFiDevice::InitMsg(NetlinkMsgPtr& msg)
   return true;
 }
 
+bool WiFiDevice::AddSsids(NetlinkMsgPtr& msg, const std::vector<std::string>& ssids) const
+{
+  // Build ssids msg
+  NetlinkMsgPtr ssidsMsg = std::move(NetlinkMsgPtr(nlmsg_alloc(), FreeMessage));
+  if (!ssids.empty())
+  {
+    int i = 1;
+    for (auto& ssid : ssids)
+    {
+      if (nla_put(ssidsMsg.get(), i++, ssid.length(), ssid.c_str()) != 0)
+      {
+        ROS_ERROR("Building message failed for %s", m_name.c_str());
+        return false;
+      }
+    }
+  }
+  else
+  {
+    if (nla_put(ssidsMsg.get(), 1, 0, "") != 0)
+    {
+      ROS_ERROR("Building message failed for %s", m_name.c_str());
+      return false;
+    }
+  }
+
+  nla_put_nested(msg.get(), NL80211_ATTR_SCAN_SSIDS, ssidsMsg.get());
+
+  return true;
+}
+
+bool WiFiDevice::AddChannels(NetlinkMsgPtr& msg, const std::vector<uint32_t>& channels) const
+{
+  // Build freqs msg
+  NetlinkMsgPtr freqsMsg = std::move(NetlinkMsgPtr(nlmsg_alloc(), FreeMessage));
+  int i = 1;
+  for (auto& channel : channels)
+  {
+    unsigned int freq = channel; // TODO: Convert to frequency
+    if (nla_put_u32(freqsMsg.get(), i++, freq) != 0)
+    {
+      ROS_ERROR("Building message failed for %s", m_name.c_str());
+      return false;
+    }
+  }
+
+  nla_put_nested(msg.get(), NL80211_ATTR_SCAN_FREQUENCIES, freqsMsg.get());
+
+  return true;
+}
+
 void WiFiDevice::SendMsg(NetlinkMsgPtr& msg, bool bWait)
 {
   // Set up the callbacks
@@ -166,6 +204,7 @@ void WiFiDevice::SendMsg(NetlinkMsgPtr& msg, bool bWait)
 
   nl_cb_err(m_callback, NL_CB_CUSTOM, ErrorHandler, this);
   nl_cb_set(m_callback, NL_CB_FINISH, NL_CB_CUSTOM, FinishHandler, this);
+  nl_cb_set(m_callback, NL_CB_ACK, NL_CB_CUSTOM, AckHandler, this);
 
   // Receive a set of messages from the netlink socket
   if (bWait)
@@ -178,6 +217,111 @@ void WiFiDevice::SendMsg(NetlinkMsgPtr& msg, bool bWait)
 
   m_callback = nullptr;
   m_sendCallback = nullptr;
+}
+
+int WiFiDevice::StationHandler(struct nl_msg* msg, void* arg)
+{
+  WiFiDevice* instance = static_cast<WiFiDevice*>(arg);
+  if (!instance)
+    return NL_STOP;
+
+  struct nlattr* tb[NL80211_ATTR_MAX + 1];
+  struct nlattr* bss[NL80211_BSS_MAX + 1];
+
+  struct genlmsghdr* gnlh = static_cast<struct genlmsghdr*>(nlmsg_data(nlmsg_hdr(msg)));
+
+  // Create attribute index based on stream of attributes.
+  // Iterates over the stream of attributes and stores a pointer to each
+  // attribute in the index array using the attribute type as index to the
+  // array. Attribute with a type greater than the maximum type specified
+  // will be silently ignored in order to maintain backwards compatibility.
+  nla_parse(tb, NL80211_ATTR_MAX, genlmsg_attrdata(gnlh, 0), genlmsg_attrlen(gnlh, 0), nullptr);
+
+  if (!tb[NL80211_ATTR_BSS])
+  {
+    ROS_DEBUG("Error on interface %s: bss info missing!", instance->Name().c_str());
+    return NL_SKIP;
+  }
+
+  static struct nla_policy bss_policy[NL80211_BSS_MAX + 1] = { };
+  bss_policy[NL80211_BSS_TSF].type = NLA_U64;
+  bss_policy[NL80211_BSS_FREQUENCY].type = NLA_U32;
+  bss_policy[NL80211_BSS_BEACON_INTERVAL].type = NLA_U16;
+  bss_policy[NL80211_BSS_CAPABILITY].type = NLA_U16;
+  bss_policy[NL80211_BSS_SIGNAL_MBM].type = NLA_U32;
+  bss_policy[NL80211_BSS_SIGNAL_UNSPEC].type = NLA_U8;
+  bss_policy[NL80211_BSS_STATUS].type = NLA_U32;
+  bss_policy[NL80211_BSS_SEEN_MS_AGO].type = NLA_U32;
+
+  // Create attribute index based on nested attribute.
+  // Feeds the stream of attributes nested into the specified attribute to nla_parse().
+  if (nla_parse_nested(bss, NL80211_BSS_MAX, tb[NL80211_ATTR_BSS], bss_policy) != 0)
+  {
+    ROS_ERROR("Error on interface %s: Failed to parse nested attributes", instance->Name().c_str());
+    return NL_SKIP;
+  }
+
+  // MAC address
+  const uint8_t* macAddress = static_cast<uint8_t*>(nla_data(bss[NL80211_BSS_BSSID]));
+  if (macAddress == nullptr)
+    return NL_SKIP;
+
+  // Frequency (MHz)
+  unsigned int freqMHz = 0;
+  if (bss[NL80211_BSS_FREQUENCY])
+    freqMHz = nla_get_u32(bss[NL80211_BSS_FREQUENCY]);
+
+  // This check is taken from iw
+  if (freqMHz / 1000 > 45)
+  {
+    // TODO
+    //is_dmg = true;
+    return NL_SKIP;
+  }
+
+  // Signal strength (dBm)
+  float dBm = 0.0f;
+  if (bss[NL80211_BSS_SIGNAL_MBM])
+  {
+    int signalStrengthmBm = nla_get_u32(bss[NL80211_BSS_SIGNAL_MBM]);
+    dBm = static_cast<float>(signalStrengthmBm) / 100;
+  }
+
+  // Signal strength in unspecified units (%)
+  uint8_t percent = 0;
+  if (bss[NL80211_BSS_SIGNAL_UNSPEC])
+  {
+    percent = nla_get_u8(bss[NL80211_BSS_SIGNAL_UNSPEC]);
+  }
+
+  // Age of this BSS entry (ms)
+  unsigned int ageMs = 0;
+  if (bss[NL80211_BSS_SEEN_MS_AGO])
+  {
+    ageMs = nla_get_u32(bss[NL80211_BSS_SEEN_MS_AGO]);
+  }
+
+  instance->OnStation(macAddress, freqMHz, dBm, percent, ageMs);
+
+  return NL_SKIP;
+}
+
+int WiFiDevice::FinishHandler(struct nl_msg* msg, void* arg)
+{
+  static_cast<WiFiDevice*>(arg)->OnFinish();
+  return NL_SKIP;
+}
+
+int WiFiDevice::AckHandler(struct nl_msg* msg, void* arg)
+{
+  static_cast<WiFiDevice*>(arg)->OnFinish();
+  return NL_STOP;
+}
+
+int WiFiDevice::ErrorHandler(struct sockaddr_nl* nla, struct nlmsgerr* err, void* arg)
+{
+  static_cast<WiFiDevice*>(arg)->OnError(err->error);
+  return NL_STOP;
 }
 
 void WiFiDevice::FreeMessage(struct nl_msg* msg)

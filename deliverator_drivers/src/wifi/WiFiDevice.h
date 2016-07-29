@@ -21,7 +21,9 @@
 #include "deliverator_msgs/WiFiInterfaceData.h"
 #include "threads/mutex.h"
 
+#include <atomic>
 #include <memory>
+#include <stdint.h>
 #include <string>
 #include <vector>
 
@@ -29,6 +31,8 @@ struct nl_cb;
 struct nl_msg;
 struct nlmsgerr;
 struct sockaddr_nl;
+
+#define ETH_ADDRESS_LEN  6
 
 namespace deliverator
 {
@@ -59,15 +63,18 @@ namespace deliverator
     inline WiFiDevice& operator=(const WiFiDevice& c);
 
     bool InitMsg(NetlinkMsgPtr& msg);
+    bool AddSsids(NetlinkMsgPtr& msg, const std::vector<std::string>& ssids) const;
+    bool AddChannels(NetlinkMsgPtr& msg, const std::vector<uint32_t>& channels) const;
     void SendMsg(NetlinkMsgPtr& msg, bool bWait);
 
-    int OnStation(struct nl_msg* msg);
-    int OnFinish(struct nl_msg* msg);
-    int OnError(struct sockaddr_nl *nla, struct nlmsgerr *err);
+    void OnStation(const uint8_t mac[ETH_ADDRESS_LEN], unsigned int freqMHz, float dBm, uint8_t percent, unsigned int ageMs);
+    void OnFinish();
+    void OnError(int nlmsgerr);
 
     static int StationHandler(struct nl_msg* msg, void* arg);
     static int FinishHandler(struct nl_msg* msg, void* arg);
-    static int ErrorHandler(struct sockaddr_nl *nla, struct nlmsgerr *err, void* arg);
+    static int AckHandler(struct nl_msg* msg, void* arg);
+    static int ErrorHandler(struct sockaddr_nl* nla, struct nlmsgerr* err, void* arg);
 
     static void FreeMessage(struct nl_msg* msg);
 
@@ -76,7 +83,7 @@ namespace deliverator
     bool m_bIsScanning;
     struct nl_cb* m_callback;
     struct nl_cb* m_sendCallback;
-    int m_error; // TODO: Switch to event
+    std::atomic<int> m_error; // TODO: Switch to event
     P8PLATFORM::CEvent m_scanFinishedEvent;
   };
 }
