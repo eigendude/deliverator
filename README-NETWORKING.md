@@ -10,24 +10,13 @@ The robot defaults to a trusted network for performance reasons. Eventually, the
 
 ## 1. Setting user capabilities
 
-To control the wireless adapter, the process needs the linux capability `CAP_SYS_ADMIN`. This capability should be applied to the compiled `wifi_manager` node:
+To control the wireless adapter, the process needs the linux capability `CAP_SYS_ADMIN`.
+
+Normally, we could add this capability to the wifi_manager node via `sudo setcap cap_net_admin+ep wifi_manager`. However, the default user doesn't allow the process to inherit this capability. To fix this, runs this and log in again:
 
 ```shell
-cd ~/deliverator_ws/devel/lib/deliverator_drivers
-sudo setcap cap_net_admin+ep wifi_manager
-```
-
-Until `libnl-3-dev` is installed by rosdep, install it manually:
-
-```shell
-sudo apt-get install libnl-3-dev
-```
-
-Grant wifi_manager node suid permission for network administration. When run, runtime wifi_manager drops all permissions except for `CAP_NET_ADMIN`.
-
-```shell
-cd ~/deliverator_ws/devel/lib/deliverator_drivers
-sudo chmod u+s wifi_manager
+sudo sh -c 'echo "cap_net_admin `whoami`" > /etc/security/capability.conf'
+sudo sh -c 'echo "none *"                 >> /etc/security/capability.conf
 ```
 
 ## 2. Setting up the node running roscore
