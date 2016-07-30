@@ -67,7 +67,7 @@ namespace deliverator
     bool InitMsg(NetlinkMsgPtr& msg);
     bool AddSsids(NetlinkMsgPtr& msg, const std::vector<std::string>& ssids) const;
     bool AddChannels(NetlinkMsgPtr& msg, const std::vector<uint32_t>& channels) const;
-    void SendMsg(NetlinkMsgPtr& msg, bool bWait);
+    void SendMsg(NetlinkMsgPtr& msg);
 
     void OnStation(const MacAddress& mac, const std::string& ssid, unsigned int channel, float dBm, uint8_t percent, unsigned int ageMs);
     void OnFinish();

@@ -66,7 +66,7 @@ void WiFiDevice::TriggerScan(bool passive, const std::vector<uint32_t>& channels
       return;
   }
 
-  SendMsg(msg, false);
+  SendMsg(msg);
 
   m_bIsScanning = true;
 }
@@ -87,16 +87,17 @@ bool WiFiDevice::GetScanData(deliverator_msgs::WiFiInterfaceData& msg)
   // Set up the callbacks
   nl_cb_set(m_callback, NL_CB_VALID, NL_CB_CUSTOM, StationHandler, this);
 
-  SendMsg(netlinkMsg, true);
+  SendMsg(netlinkMsg);
 
   msg.name = m_name;
+
+  bHasData = true; // TODO
 
   {
     P8PLATFORM::CLockObject lock(m_mutex);
 
     if (!m_stations.empty())
     {
-      bHasData = true;
       for (auto it = m_stations.begin(); it != m_stations.end(); ++it)
       {
         deliverator_msgs::WiFiStationData stationMsg;
@@ -222,7 +223,7 @@ bool WiFiDevice::AddChannels(NetlinkMsgPtr& msg, const std::vector<uint32_t>& ch
   return true;
 }
 
-void WiFiDevice::SendMsg(NetlinkMsgPtr& msg, bool bWait)
+void WiFiDevice::SendMsg(NetlinkMsgPtr& msg)
 {
   // Set up the callbacks
   nl_socket_set_cb(m_state.GetSocket(), m_sendCallback);
@@ -241,11 +242,8 @@ void WiFiDevice::SendMsg(NetlinkMsgPtr& msg, bool bWait)
   nl_cb_set(m_callback, NL_CB_ACK, NL_CB_CUSTOM, AckHandler, this);
 
   // Receive a set of messages from the netlink socket
-  if (bWait)
-  {
-    while (this->m_error > 0)
-      nl_recvmsgs(m_state.GetSocket(), m_callback);
-  }
+  while (this->m_error > 0)
+    nl_recvmsgs(m_state.GetSocket(), m_callback);
 
   nl_cb_put(m_callback);
 
