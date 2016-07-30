@@ -79,6 +79,7 @@ namespace deliverator
     static int FinishHandler(struct nl_msg* msg, void* arg);
     static int AckHandler(struct nl_msg* msg, void* arg);
     static int ErrorHandler(struct sockaddr_nl* nla, struct nlmsgerr* err, void* arg);
+    static int ValidHandler(struct nl_msg* msg, void* arg);
 
     static void FreeMessage(struct nl_msg* msg);
 

@@ -161,7 +161,8 @@ bool WiFiDevice::InitMsg(NetlinkMsgPtr& msg, nl80211_commands command)
   }
 
   // Add generic netlink header to the netlink message
-  genlmsg_put(msg.get(), 0, 0, m_state.Get80211Id(), 0, NLM_F_DUMP, command, 0);
+  int netlinkMsgFlags = (command == NL80211_CMD_GET_SCAN ? NLM_F_DUMP : 0);
+  genlmsg_put(msg.get(), 0, 0, m_state.Get80211Id(), 0, netlinkMsgFlags, command, 0);
 
   // Add 32 bit integer attribute to the netlink message
   if (nla_put_u32(msg.get(), NL80211_ATTR_IFINDEX, interfaceIndex) != 0)
@@ -231,6 +232,12 @@ bool WiFiDevice::AddChannels(NetlinkMsgPtr& msg, const std::vector<uint32_t>& ch
 
 void WiFiDevice::SendMsg(NetlinkMsgPtr& msg)
 {
+  if (m_callback == nullptr || m_sendCallback == nullptr)
+  {
+    ROS_ERROR("Failed to initialize netlink message for %s", m_name.c_str());
+    return;
+  }
+
   // Set up the callbacks
   nl_socket_set_cb(m_state.GetSocket(), m_sendCallback);
 
@@ -246,12 +253,14 @@ void WiFiDevice::SendMsg(NetlinkMsgPtr& msg)
   nl_cb_err(m_callback, NL_CB_CUSTOM, ErrorHandler, this);
   nl_cb_set(m_callback, NL_CB_FINISH, NL_CB_CUSTOM, FinishHandler, this);
   nl_cb_set(m_callback, NL_CB_ACK, NL_CB_CUSTOM, AckHandler, this);
+  nl_cb_set(m_callback, NL_CB_VALID, NL_CB_CUSTOM, ValidHandler, nullptr);
 
   // Receive a set of messages from the netlink socket
   while (this->m_error > 0)
     nl_recvmsgs(m_state.GetSocket(), m_callback);
 
   nl_cb_put(m_callback);
+  nl_cb_put(m_sendCallback);
 
   m_callback = nullptr;
   m_sendCallback = nullptr;
@@ -377,20 +386,31 @@ int WiFiDevice::StationHandler(struct nl_msg* msg, void* arg)
 
 int WiFiDevice::FinishHandler(struct nl_msg* msg, void* arg)
 {
-  static_cast<WiFiDevice*>(arg)->OnFinish();
+  if (arg)
+    static_cast<WiFiDevice*>(arg)->OnFinish();
+
   return NL_SKIP;
 }
 
 int WiFiDevice::AckHandler(struct nl_msg* msg, void* arg)
 {
-  static_cast<WiFiDevice*>(arg)->OnFinish();
+  if (arg)
+    static_cast<WiFiDevice*>(arg)->OnFinish();
+
   return NL_STOP;
 }
 
 int WiFiDevice::ErrorHandler(struct sockaddr_nl* nla, struct nlmsgerr* err, void* arg)
 {
-  static_cast<WiFiDevice*>(arg)->OnError(err->error);
+  if (arg)
+    static_cast<WiFiDevice*>(arg)->OnError(err->error);
+
   return NL_STOP;
+}
+
+int WiFiDevice::ValidHandler(struct nl_msg* msg, void* arg)
+{
+  return NL_OK;
 }
 
 void WiFiDevice::FreeMessage(struct nl_msg* msg)
