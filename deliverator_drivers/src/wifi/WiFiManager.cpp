@@ -97,15 +97,8 @@ void WiFiManager::StartScan(const std::string& interface, bool passive, const st
 {
   P8PLATFORM::CLockObject lock(m_mutex);
 
-  auto it = m_devices.find(interface);
-  if (it == m_devices.end())
-  {
+  if (m_devices.find(interface) == m_devices.end())
     m_devices[interface] = std::make_shared<WiFiDevice>(interface, m_state);
-    it = m_devices.find(interface);
-  }
-
-  if (it != m_devices.end())
-    it->second->TriggerScan(passive, channels, ssids);
 }
 
 void WiFiManager::EndScan(const std::string& interface)
@@ -114,10 +107,7 @@ void WiFiManager::EndScan(const std::string& interface)
 
   auto it = m_devices.find(interface);
   if (it != m_devices.end())
-  {
-    it->second->EndScan();
     m_devices.erase(it);
-  }
 }
 
 bool WiFiManager::GetScanData(deliverator_msgs::WiFiScanData& msg)
@@ -128,6 +118,11 @@ bool WiFiManager::GetScanData(deliverator_msgs::WiFiScanData& msg)
 
   for (auto it = m_devices.begin(); it != m_devices.end(); ++it)
   {
+    // TODO: Scan parameters
+    it->second->TriggerScan(true, std::vector<uint32_t>(), std::vector<std::string>());
+
+    it->second->WaitForScan();
+
     deliverator_msgs::WiFiInterfaceData interface;
     if (it->second->GetScanData(interface))
     {

@@ -19,6 +19,7 @@
 
 #include "WiFiDevice.h"
 #include "NetlinkState.h"
+#include "WiFiUtils.h"
 
 #include "deliverator_msgs/WiFiChannelData.h"
 #include "deliverator_msgs/WiFiStationData.h"
@@ -41,7 +42,7 @@ using namespace deliverator;
 WiFiDevice::WiFiDevice(const std::string& name, NetlinkState& state) :
   m_name(name),
   m_state(state),
-  m_bIsScanning(false),
+  m_scanner(state),
   m_callback(nullptr),
   m_sendCallback(nullptr),
   m_error(0)
@@ -67,13 +68,12 @@ void WiFiDevice::TriggerScan(bool passive, const std::vector<uint32_t>& channels
   }
 
   SendMsg(msg);
-
-  m_bIsScanning = true;
 }
 
-void WiFiDevice::EndScan()
+void WiFiDevice::WaitForScan()
 {
-  m_bIsScanning = false;
+  if (!m_scanner.ListenEvents())
+    ROS_ERROR("Scan aborted!");
 }
 
 bool WiFiDevice::GetScanData(deliverator_msgs::WiFiInterfaceData& msg)
@@ -208,7 +208,13 @@ bool WiFiDevice::AddChannels(NetlinkMsgPtr& msg, const std::vector<uint32_t>& ch
   int i = 1;
   for (auto& channel : channels)
   {
-    unsigned int freq = channel; // TODO: Convert to frequency
+    unsigned int freq = WiFiUtils::ChannelToFrequencyMHz(channel);
+    if (freq == 0)
+    {
+      ROS_ERROR("Invalid channel for %s: %u", m_name.c_str(), channel);
+      continue;
+    }
+
     if (nla_put_u32(freqsMsg.get(), i++, freq) != 0)
     {
       ROS_ERROR("Building message failed for %s", m_name.c_str());
@@ -358,7 +364,11 @@ int WiFiDevice::StationHandler(struct nl_msg* msg, void* arg)
     }
   }
 
-  instance->OnStation(mac, ssid, freqMHz, dBm, percent, ageMs);
+  unsigned int channel = WiFiUtils::FrequencyMHzToChannel(freqMHz);
+  if (channel == 0)
+    ROS_ERROR("Invalid frequency for %s: %u MHz", instance->Name().c_str(), freqMHz);
+
+  instance->OnStation(mac, ssid, channel, dBm, percent, ageMs);
 
   return NL_SKIP;
 }

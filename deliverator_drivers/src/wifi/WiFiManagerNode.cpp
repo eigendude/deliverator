@@ -92,12 +92,19 @@ int main(int argc, char* argv[])
       n.advertiseService(END_SCAN_SERVICE, EndScan),
   };
 
-  ros::Rate loop_rate(10);
+  ros::Rate loop_rate(1); // 1 Hz
   while (ros::ok())
   {
+    ros::Time scanStart = ros::Time::now();
+
     deliverator_msgs::WiFiScanData msg;
     if (g_manager.GetScanData(msg))
+    {
+      ros::Time scanEnd = ros::Time::now();
+      ROS_INFO("Scan took %f ms", (scanEnd.toSec() - scanStart.toSec()) * 1000);
+
       statusPub.publish(msg);
+    }
 
     ros::spinOnce();
 

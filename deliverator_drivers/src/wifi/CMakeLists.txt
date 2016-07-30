@@ -11,9 +11,11 @@ add_executable(wifi_manager
   LinuxCapabilities.cpp
   NetlinkState.cpp
   WiFiDevice.cpp
+  WiFiDeviceScanner.cpp
   WiFiManager.cpp
   WiFiManagerNode.cpp
   WiFiStation.cpp
+  WiFiUtils.cpp
 )
 
 target_link_libraries(wifi_manager

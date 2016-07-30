@@ -19,6 +19,7 @@
 #pragma once
 
 #include "WiFiStation.h"
+#include "WiFiDeviceScanner.h"
 
 #include "deliverator_msgs/WiFiInterfaceData.h"
 #include "threads/mutex.h"
@@ -52,11 +53,11 @@ namespace deliverator
 
     void TriggerScan(bool passive, const std::vector<uint32_t>& channels, const std::vector<std::string>& ssids);
 
-    bool IsScanning() const { return m_bIsScanning; }
-
-    void WaitForScan() { } // TODO
-
-    void EndScan();
+    /*!
+     * WARNING: A race condition may exist (see WiFiDeviceScanner.h). Call this
+     * function immediately after TriggerScan();
+     */
+    void WaitForScan();
 
     bool GetScanData(deliverator_msgs::WiFiInterfaceData& msg);
 
@@ -83,7 +84,7 @@ namespace deliverator
 
     std::string m_name;
     NetlinkState& m_state;
-    bool m_bIsScanning;
+    WiFiDeviceScanner m_scanner;
     struct nl_cb* m_callback;
     struct nl_cb* m_sendCallback;
     std::atomic<int> m_error; // TODO: Switch to event
