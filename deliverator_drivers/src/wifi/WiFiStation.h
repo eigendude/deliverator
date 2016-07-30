@@ -48,7 +48,7 @@ namespace deliverator
     // Station measurements
     float SignalStrengthdBm() const { return m_dBm; }
     uint8_t SignalStrengthPercent() const { return m_percent; }
-    const ros::Time& Timestamp() const { return m_timestamp; }
+    unsigned int AgeMs() const { return m_ageMs; }
 
     // Update station measurements
     void UpdateIdentifiers(const std::string& ssid, unsigned int channel);
@@ -64,6 +64,6 @@ namespace deliverator
 
     float m_dBm;
     uint8_t m_percent;
-    ros::Time m_timestamp;
+    unsigned int m_ageMs;
   };
 }

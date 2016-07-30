@@ -25,7 +25,7 @@ WiFiStation::WiFiStation() :
   m_channel(0),
   m_dBm(0.0f),
   m_percent(0),
-  m_timestamp(ros::Time::now())
+  m_ageMs(0)
 {
 }
 
@@ -40,7 +40,7 @@ WiFiStation::WiFiStation(const MacAddress& mac,
   m_channel(channel),
   m_dBm(dBm),
   m_percent(percent),
-  m_timestamp(ros::Time::now() - ros::Duration(ageMs / 1000.0))
+  m_ageMs(ageMs)
 {
 }
 
@@ -54,7 +54,7 @@ void WiFiStation::UpdateMeasurements(float dBm, uint8_t percent, unsigned int ag
 {
   m_dBm = dBm;
   m_percent = percent;
-  m_timestamp = ros::Time::now() - ros::Duration(ageMs / 1000.0);
+  m_ageMs = ageMs;
 }
 
 void WiFiStation::GetStationData(deliverator_msgs::WiFiStationData& msg) const
@@ -64,5 +64,5 @@ void WiFiStation::GetStationData(deliverator_msgs::WiFiStationData& msg) const
   msg.channel = m_channel;
   msg.dbm = m_dBm;
   msg.percent = m_percent;
-  msg.timestamp = m_timestamp;
+  msg.age_ms = m_ageMs;
 }

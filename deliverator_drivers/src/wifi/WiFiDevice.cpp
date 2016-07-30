@@ -103,6 +103,8 @@ bool WiFiDevice::GetScanData(deliverator_msgs::WiFiInterfaceData& msg)
     }
 
     bHasData = true;
+
+    m_stations.clear();
   }
 
   return bHasData;

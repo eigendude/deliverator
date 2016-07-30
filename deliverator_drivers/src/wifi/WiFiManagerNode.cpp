@@ -53,7 +53,7 @@ bool CheckIsWireless(deliverator_msgs::CheckIsWireless::Request& req,
 bool StartScan(deliverator_msgs::StartScan::Request& req,
                deliverator_msgs::StartScan::Response& res)
 {
-  ROS_INFO("Starting %sscan on interface %s", req.passive ? "passive " : "", req.interface.c_str());
+  ROS_INFO("Starting scan on interface %s", req.interface.c_str());
   g_manager.StartScan(req.interface, req.passive, req.channels, req.ssids);
   return true;
 }

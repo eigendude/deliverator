@@ -3,4 +3,4 @@ string ssid
 uint32 channel
 float32 dbm
 uint8 percent
-time timestamp
+uint32 age_ms

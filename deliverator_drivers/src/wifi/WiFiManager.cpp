@@ -119,9 +119,9 @@ bool WiFiManager::GetScanData(deliverator_msgs::WiFiScanData& msg)
   for (auto it = m_devices.begin(); it != m_devices.end(); ++it)
   {
     // TODO: Scan parameters
-    it->second->TriggerScan(true, std::vector<uint32_t>(), std::vector<std::string>());
+    it->second->TriggerScan(false, std::vector<uint32_t>(), std::vector<std::string>());
 
-    it->second->WaitForScan();
+    //it->second->WaitForScan();
 
     deliverator_msgs::WiFiInterfaceData interface;
     if (it->second->GetScanData(interface))
