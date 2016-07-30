@@ -19,9 +19,14 @@
 #pragma once
 
 #include <memory>
+#include <stdint.h>
+
+#define ETH_ADDRESS_LEN  6
 
 namespace deliverator
 {
   class WiFiDevice;
   typedef std::shared_ptr<WiFiDevice> WiFiDevicePtr;
+
+  typedef std::array<uint8_t, ETH_ADDRESS_LEN> MacAddress;
 }

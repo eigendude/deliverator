@@ -14,6 +14,7 @@ add_executable(wifi_manager
   WiFiDeviceScanner.cpp
   WiFiManager.cpp
   WiFiManagerNode.cpp
+  WiFiStation.cpp
 )
 
 target_link_libraries(wifi_manager

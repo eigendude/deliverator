@@ -18,6 +18,8 @@
  */
 #pragma once
 
+#include "WiFiStation.h"
+
 #include "deliverator_msgs/WiFiInterfaceData.h"
 #include "threads/mutex.h"
 
@@ -67,7 +69,7 @@ namespace deliverator
     bool AddChannels(NetlinkMsgPtr& msg, const std::vector<uint32_t>& channels) const;
     void SendMsg(NetlinkMsgPtr& msg, bool bWait);
 
-    void OnStation(const uint8_t mac[ETH_ADDRESS_LEN], unsigned int freqMHz, float dBm, uint8_t percent, unsigned int ageMs);
+    void OnStation(const MacAddress& mac, const std::string& ssid, unsigned int channel, float dBm, uint8_t percent, unsigned int ageMs);
     void OnFinish();
     void OnError(int nlmsgerr);
 
@@ -85,5 +87,7 @@ namespace deliverator
     struct nl_cb* m_sendCallback;
     std::atomic<int> m_error; // TODO: Switch to event
     P8PLATFORM::CEvent m_scanFinishedEvent;
+    P8PLATFORM::CMutex m_mutex;
+    std::map<MacAddress, WiFiStation> m_stations;
   };
 }

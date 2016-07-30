@@ -20,6 +20,8 @@
 #include "WiFiDevice.h"
 #include "NetlinkState.h"
 
+#include "deliverator_msgs/WiFiChannelData.h"
+#include "deliverator_msgs/WiFiStationData.h"
 #include "ros/ros.h"
 
 #include <linux/nl80211.h>
@@ -29,6 +31,12 @@
 #include <netlink/netlink.h>
 
 using namespace deliverator;
+
+#ifndef ARRAY_SIZE
+#define ARRAY_SIZE(ar)  (sizeof(ar) / sizeof(ar[0]))
+#endif
+
+#define BSS_IE_SSID  0
 
 WiFiDevice::WiFiDevice(const std::string& name, NetlinkState& state) :
   m_name(name),
@@ -82,14 +90,40 @@ bool WiFiDevice::GetScanData(deliverator_msgs::WiFiInterfaceData& msg)
   SendMsg(netlinkMsg, true);
 
   msg.name = m_name;
-  bHasData = true; // TODO
+
+  {
+    P8PLATFORM::CLockObject lock(m_mutex);
+
+    if (!m_stations.empty())
+    {
+      bHasData = true;
+      for (auto it = m_stations.begin(); it != m_stations.end(); ++it)
+      {
+        deliverator_msgs::WiFiStationData stationMsg;
+        it->second.GetStationData(stationMsg);
+        msg.stations.emplace_back(std::move(stationMsg));
+      }
+    }
+  }
 
   return bHasData;
 }
 
-void WiFiDevice::OnStation(const uint8_t mac[6], unsigned int freqMHz, float dBm, uint8_t percent, unsigned int ageMs)
+void WiFiDevice::OnStation(const MacAddress& mac, const std::string& ssid, unsigned int channel, float dBm, uint8_t percent, unsigned int ageMs)
 {
-  // TODO
+  P8PLATFORM::CLockObject lock(m_mutex);
+
+  auto it = m_stations.find(mac);
+  if (it != m_stations.end())
+  {
+    WiFiStation& station = it->second;
+    station.UpdateIdentifiers(ssid, channel);
+    station.UpdateMeasurements(dBm, percent, ageMs);
+  }
+  else
+  {
+    m_stations[mac] = WiFiStation(mac, ssid, channel, dBm, percent, ageMs);
+  }
 }
 
 void WiFiDevice::OnFinish()
@@ -225,6 +259,8 @@ int WiFiDevice::StationHandler(struct nl_msg* msg, void* arg)
   if (!instance)
     return NL_STOP;
 
+  WiFiStation station;
+
   struct nlattr* tb[NL80211_ATTR_MAX + 1];
   struct nlattr* bss[NL80211_BSS_MAX + 1];
 
@@ -239,7 +275,7 @@ int WiFiDevice::StationHandler(struct nl_msg* msg, void* arg)
 
   if (!tb[NL80211_ATTR_BSS])
   {
-    ROS_DEBUG("Error on interface %s: bss info missing!", instance->Name().c_str());
+    ROS_DEBUG("Error on interface %s: BSS info missing!", instance->Name().c_str());
     return NL_SKIP;
   }
 
@@ -262,9 +298,13 @@ int WiFiDevice::StationHandler(struct nl_msg* msg, void* arg)
   }
 
   // MAC address
-  const uint8_t* macAddress = static_cast<uint8_t*>(nla_data(bss[NL80211_BSS_BSSID]));
-  if (macAddress == nullptr)
+  const uint8_t* macAddressBytes = static_cast<uint8_t*>(nla_data(bss[NL80211_BSS_BSSID]));
+  if (macAddressBytes == nullptr)
     return NL_SKIP;
+
+  MacAddress mac;
+  for (unsigned int i = 0; i < ETH_ADDRESS_LEN; i++)
+    mac[i] = macAddressBytes[i];
 
   // Frequency (MHz)
   unsigned int freqMHz = 0;
@@ -301,7 +341,28 @@ int WiFiDevice::StationHandler(struct nl_msg* msg, void* arg)
     ageMs = nla_get_u32(bss[NL80211_BSS_SEEN_MS_AGO]);
   }
 
-  instance->OnStation(macAddress, freqMHz, dBm, percent, ageMs);
+  // SSID
+  std::string ssid;
+  if (bss[NL80211_BSS_INFORMATION_ELEMENTS])
+  {
+    unsigned char* ie = static_cast<unsigned char*>(nla_data(bss[NL80211_BSS_INFORMATION_ELEMENTS]));
+    int ielen = nla_len(bss[NL80211_BSS_INFORMATION_ELEMENTS]);
+
+    while (ielen >= 2 && ielen >= ie[1])
+    {
+      if (ie[0] == BSS_IE_SSID)
+      {
+        uint8_t len = ie[1];
+        const uint8_t* data = ie + 2;
+        ssid.assign(reinterpret_cast<const char*>(data), len);
+        break;
+      }
+      ielen -= ie[1] + 2;
+      ie += ie[1] + 2;
+    }
+  }
+
+  instance->OnStation(mac, ssid, freqMHz, dBm, percent, ageMs);
 
   return NL_SKIP;
 }

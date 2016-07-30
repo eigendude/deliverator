@@ -1,2 +1,2 @@
 string name
-WiFiChannelData[] channels
+WiFiStationData[] stations
