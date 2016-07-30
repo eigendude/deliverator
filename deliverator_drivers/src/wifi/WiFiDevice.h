@@ -24,6 +24,7 @@
 #include "threads/mutex.h"
 
 #include <atomic>
+#include <linux/nl80211.h>
 #include <memory>
 #include <stdint.h>
 #include <string>
@@ -64,7 +65,7 @@ namespace deliverator
     inline WiFiDevice(const WiFiDevice& c);
     inline WiFiDevice& operator=(const WiFiDevice& c);
 
-    bool InitMsg(NetlinkMsgPtr& msg);
+    bool InitMsg(NetlinkMsgPtr& msg, nl80211_commands command);
     bool AddSsids(NetlinkMsgPtr& msg, const std::vector<std::string>& ssids) const;
     bool AddChannels(NetlinkMsgPtr& msg, const std::vector<uint32_t>& channels) const;
     void SendMsg(NetlinkMsgPtr& msg);

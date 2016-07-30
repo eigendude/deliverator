@@ -51,7 +51,7 @@ WiFiDevice::WiFiDevice(const std::string& name, NetlinkState& state) :
 void WiFiDevice::TriggerScan(bool passive, const std::vector<uint32_t>& channels, const std::vector<std::string>& ssids)
 {
   NetlinkMsgPtr msg;
-  if (!InitMsg(msg))
+  if (!InitMsg(msg, NL80211_CMD_TRIGGER_SCAN))
     return;
 
   if (!passive)
@@ -81,7 +81,7 @@ bool WiFiDevice::GetScanData(deliverator_msgs::WiFiInterfaceData& msg)
   bool bHasData = false;
 
   NetlinkMsgPtr netlinkMsg;
-  if (!InitMsg(netlinkMsg))
+  if (!InitMsg(netlinkMsg, NL80211_CMD_GET_SCAN))
     return false;
 
   // Set up the callbacks
@@ -89,22 +89,20 @@ bool WiFiDevice::GetScanData(deliverator_msgs::WiFiInterfaceData& msg)
 
   SendMsg(netlinkMsg);
 
-  msg.name = m_name;
+  P8PLATFORM::CLockObject lock(m_mutex);
 
-  bHasData = true; // TODO
-
+  if (!m_stations.empty())
   {
-    P8PLATFORM::CLockObject lock(m_mutex);
+    msg.name = m_name;
 
-    if (!m_stations.empty())
+    for (auto it = m_stations.begin(); it != m_stations.end(); ++it)
     {
-      for (auto it = m_stations.begin(); it != m_stations.end(); ++it)
-      {
-        deliverator_msgs::WiFiStationData stationMsg;
-        it->second.GetStationData(stationMsg);
-        msg.stations.emplace_back(std::move(stationMsg));
-      }
+      deliverator_msgs::WiFiStationData stationMsg;
+      it->second.GetStationData(stationMsg);
+      msg.stations.emplace_back(std::move(stationMsg));
     }
+
+    bHasData = true;
   }
 
   return bHasData;
@@ -129,15 +127,15 @@ void WiFiDevice::OnStation(const MacAddress& mac, const std::string& ssid, unsig
 
 void WiFiDevice::OnFinish()
 {
-  m_error = 0; // TODO
+  m_error = 0;
 }
 
 void WiFiDevice::OnError(int nlmsgerr)
 {
-  m_error = nlmsgerr; // TODO
+  m_error = nlmsgerr;
 }
 
-bool WiFiDevice::InitMsg(NetlinkMsgPtr& msg)
+bool WiFiDevice::InitMsg(NetlinkMsgPtr& msg, nl80211_commands command)
 {
   const unsigned int interfaceIndex = if_nametoindex(m_name.c_str());
   if (interfaceIndex == 0)
@@ -161,7 +159,7 @@ bool WiFiDevice::InitMsg(NetlinkMsgPtr& msg)
   }
 
   // Add generic netlink header to the netlink message
-  genlmsg_put(msg.get(), 0, 0, m_state.Get80211Id(), 0, NLM_F_DUMP, NL80211_CMD_GET_STATION, 0);
+  genlmsg_put(msg.get(), 0, 0, m_state.Get80211Id(), 0, NLM_F_DUMP, command, 0);
 
   // Add 32 bit integer attribute to the netlink message
   if (nla_put_u32(msg.get(), NL80211_ATTR_IFINDEX, interfaceIndex) != 0)
