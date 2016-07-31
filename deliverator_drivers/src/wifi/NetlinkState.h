@@ -34,15 +34,15 @@ namespace deliverator
     void Reset();
 
     struct nl_sock* GetSocket() { return m_socket; }
-    int Get80211Id() const { return m_nl80211_id; }
+    int GetDriverId() const { return m_driverId; }
 
-    void Set80211Id(int id) { m_nl80211_id = id; }
+    void SetDriverId(int id) { m_driverId = id; }
 
     bool IsValid() const { return m_socket != nullptr; }
-    bool Is80211IdValid() const { return m_nl80211_id >= 0; }
+    bool IsDriverIdValid() const { return m_driverId >= 0; }
 
   private:
     struct nl_sock* m_socket;
-    int m_nl80211_id;
+    int m_driverId;
   };
 }

@@ -141,7 +141,10 @@ bool WiFiDevice::InitMsg(NetlinkMsgPtr& msg, nl80211_commands command)
 {
   const unsigned int interfaceIndex = if_nametoindex(m_name.c_str());
   if (interfaceIndex == 0)
-    return false; // Interface doesn't exist
+  {
+    ROS_ERROR("Interface %s doesn't exist", m_name.c_str());
+    return false;
+  }
 
   // Allocate a new netlink message
   msg = std::move(NetlinkMsgPtr(nlmsg_alloc(), FreeMessage));
@@ -162,9 +165,9 @@ bool WiFiDevice::InitMsg(NetlinkMsgPtr& msg, nl80211_commands command)
 
   // Add generic netlink header to the netlink message
   int netlinkMsgFlags = (command == NL80211_CMD_GET_SCAN ? NLM_F_DUMP : 0);
-  genlmsg_put(msg.get(), 0, 0, m_state.Get80211Id(), 0, netlinkMsgFlags, command, 0);
+  genlmsg_put(msg.get(), 0, 0, m_state.GetDriverId(), 0, netlinkMsgFlags, command, 0);
 
-  // Add 32 bit integer attribute to the netlink message
+  // Add 32 bit integer attribute (which interface to use) to the netlink message
   if (nla_put_u32(msg.get(), NL80211_ATTR_IFINDEX, interfaceIndex) != 0)
   {
     ROS_ERROR("Building message failed for %s", m_name.c_str());
@@ -192,6 +195,7 @@ bool WiFiDevice::AddSsids(NetlinkMsgPtr& msg, const std::vector<std::string>& ss
   }
   else
   {
+    // Scan all SSIDs
     if (nla_put(ssidsMsg.get(), 1, 0, "") != 0)
     {
       ROS_ERROR("Building message failed for %s", m_name.c_str());
@@ -256,7 +260,7 @@ void WiFiDevice::SendMsg(NetlinkMsgPtr& msg)
   nl_cb_set(m_callback, NL_CB_VALID, NL_CB_CUSTOM, ValidHandler, nullptr);
 
   // Receive a set of messages from the netlink socket
-  while (this->m_error > 0)
+  while (m_error > 0)
     nl_recvmsgs(m_state.GetSocket(), m_callback);
 
   nl_cb_put(m_callback);

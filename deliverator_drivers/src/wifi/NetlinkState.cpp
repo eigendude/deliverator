@@ -25,13 +25,13 @@ using namespace deliverator;
 
 NetlinkState::NetlinkState() :
   m_socket(nullptr),
-  m_nl80211_id(-1)
+  m_driverId(-1)
 {
 }
 
 NetlinkState::NetlinkState(struct nl_sock* socket) :
   m_socket(socket),
-  m_nl80211_id(-1)
+  m_driverId(-1)
 {
 }
 
@@ -40,7 +40,7 @@ NetlinkState& NetlinkState::operator=(NetlinkState&& state)
   m_socket = state.m_socket;
   state.m_socket = nullptr;
 
-  m_nl80211_id = state.m_nl80211_id;
+  m_driverId = state.m_driverId;
 
   return *this;
 }

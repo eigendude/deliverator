@@ -36,6 +36,9 @@ using namespace deliverator;
 // Providing a value of 0 assumes a good default value
 #define NETLINK_SOCKET_BUFFER_SIZE  8192
 
+// nl80811 driver name
+#define DRIVER_NAME  "nl80211"
+
 namespace deliverator
 {
   void FreeMessage(struct nl_msg* msg)
@@ -60,6 +63,7 @@ bool WiFiManager::Initialize()
   nl_socket_set_buffer_size(m_state.GetSocket(), NETLINK_SOCKET_BUFFER_SIZE,
                                                  NETLINK_SOCKET_BUFFER_SIZE);
 
+  // Create file descriptor and bind socket
   if (genl_connect(m_state.GetSocket()) != 0)
   {
     ROS_ERROR("Failed to connect to generic netlink");
@@ -67,10 +71,10 @@ bool WiFiManager::Initialize()
     return false;
   }
 
-  m_state.Set80211Id(genl_ctrl_resolve(m_state.GetSocket(), "nl80211"));
-  if (!m_state.Is80211IdValid())
+  m_state.SetDriverId(genl_ctrl_resolve(m_state.GetSocket(), DRIVER_NAME));
+  if (!m_state.IsDriverIdValid())
   {
-    ROS_ERROR("nl80211 not found");
+    ROS_ERROR("%s not found", DRIVER_NAME);
     Deinitialize();
     return false;
   }
