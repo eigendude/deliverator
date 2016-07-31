@@ -18,8 +18,16 @@
  */
 #pragma once
 
+struct nl_cb;
+struct nl_msg;
+struct _cap_struct;
+
 namespace deliverator
 {
+  void FreeCallback(struct nl_cb* msg);
+  void FreeMessage(struct nl_msg* msg);
+  void FreeCapability(struct _cap_struct* caps);
+
   class WiFiUtils
   {
   public:

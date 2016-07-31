@@ -18,27 +18,17 @@
  */
 
 #include "LinuxCapabilities.h"
+#include "WiFiTypes.h"
+#include "WiFiUtils.h"
 
 #include "ros/ros.h"
 
 #include <errno.h>
 #include <memory>
 #include <sys/capability.h>
-#include <sys/types.h>
 #include <unistd.h>
 
 using namespace deliverator;
-
-namespace deliverator
-{
-  void FreeCapability(cap_t caps)
-  {
-    if (caps)
-      cap_free(caps);
-  }
-
-  typedef std::unique_ptr<struct _cap_struct, void(*)(cap_t)> CapabilitiesPtr;
-}
 
 bool LinuxCapabilities::HasCapability(LinuxCapability cap)
 {
@@ -46,16 +36,10 @@ bool LinuxCapabilities::HasCapability(LinuxCapability cap)
 
   cap_value_t capValue = TranslateCapability(cap);
 
-  CapabilitiesPtr capabilities = CapabilitiesPtr(cap_get_pid(getpid()), FreeCapability);
+  CapabilitiesPtr capabilities(cap_get_proc(), FreeCapability);
   if (!capabilities)
   {
     ROS_ERROR("Failed to get capabilities of current process (cap = %d, errno = %d)", capValue, errno);
-    return false;
-  }
-
-  if (cap_set_flag(capabilities.get(), CAP_EFFECTIVE, 1, &capValue, CAP_SET) != 0)
-  {
-    ROS_ERROR("Failed to set capabilities of current process (cap = %d, errno = %d)", capValue, errno);
     return false;
   }
 

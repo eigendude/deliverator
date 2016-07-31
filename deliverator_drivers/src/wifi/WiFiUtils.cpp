@@ -19,6 +19,10 @@
 
 #include "WiFiUtils.h"
 
+#include <netlink/msg.h>
+#include <netlink/netlink.h>
+#include <sys/capability.h>
+
 using namespace deliverator;
 
 #ifndef ARRAY_SIZE
@@ -70,6 +74,24 @@ namespace deliverator
     { 161, 5805 },
     { 165, 5825 },
   };
+
+  void FreeCallback(struct nl_cb* callback)
+  {
+    if (callback)
+      nl_cb_put(callback);
+  }
+
+  void FreeMessage(struct nl_msg* msg)
+  {
+    if (msg)
+      nlmsg_free(msg);
+  }
+
+  void FreeCapability(cap_t caps)
+  {
+    if (caps)
+      cap_free(caps);
+  }
 }
 
 unsigned int WiFiUtils::ChannelToFrequencyMHz(unsigned int channel)

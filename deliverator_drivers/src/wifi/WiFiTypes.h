@@ -23,10 +23,18 @@
 
 #define ETH_ADDRESS_LEN  6
 
+struct _cap_struct;
+struct nl_cb;
+struct nl_msg;
+
 namespace deliverator
 {
   class WiFiDevice;
   typedef std::shared_ptr<WiFiDevice> WiFiDevicePtr;
 
   typedef std::array<uint8_t, ETH_ADDRESS_LEN> MacAddress;
+
+  typedef std::shared_ptr<struct _cap_struct> CapabilitiesPtr;
+  typedef std::shared_ptr<struct nl_cb> NetlinkCallbackPtr;
+  typedef std::shared_ptr<struct nl_msg> NetlinkMsgPtr;
 }

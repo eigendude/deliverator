@@ -18,13 +18,11 @@
  */
 #pragma once
 
-#include "WiFiStation.h"
-#include "WiFiDeviceScanner.h"
+#include "WiFiTypes.h"
 
 #include "deliverator_msgs/WiFiInterfaceData.h"
-#include "threads/mutex.h"
+#include "deliverator_msgs/WiFiStationData.h"
 
-#include <atomic>
 #include <linux/nl80211.h>
 #include <memory>
 #include <stdint.h>
@@ -42,8 +40,6 @@ namespace deliverator
 {
   class NetlinkState;
 
-  typedef std::shared_ptr<struct nl_msg> NetlinkMsgPtr;
-
   class WiFiDevice
   {
   public:
@@ -51,13 +47,7 @@ namespace deliverator
 
     const std::string& Name() const { return m_name; }
 
-    void TriggerScan(bool passive, const std::vector<uint32_t>& channels, const std::vector<std::string>& ssids);
-
-    /*!
-     * WARNING: A race condition may exist (see WiFiDeviceScanner.h). Call this
-     * function immediately after TriggerScan();
-     */
-    void WaitForScan();
+    bool TriggerScan(bool passive, const std::vector<uint32_t>& channels, const std::vector<std::string>& ssids);
 
     bool GetScanData(deliverator_msgs::WiFiInterfaceData& msg);
 
@@ -69,28 +59,25 @@ namespace deliverator
     bool InitMsg(NetlinkMsgPtr& msg, nl80211_commands command);
     bool AddSsids(NetlinkMsgPtr& msg, const std::vector<std::string>& ssids) const;
     bool AddChannels(NetlinkMsgPtr& msg, const std::vector<uint32_t>& channels) const;
-    void SendMsg(NetlinkMsgPtr& msg);
+    bool SendMsg(NetlinkMsgPtr& msg);
 
     void OnStation(const MacAddress& mac, const std::string& ssid, unsigned int channel, float dBm, uint8_t percent, unsigned int ageMs);
     void OnFinish();
-    void OnError(int nlmsgerr);
+    void OnError(int error);
 
     static int StationHandler(struct nl_msg* msg, void* arg);
     static int FinishHandler(struct nl_msg* msg, void* arg);
     static int AckHandler(struct nl_msg* msg, void* arg);
     static int ErrorHandler(struct sockaddr_nl* nla, struct nlmsgerr* err, void* arg);
-    static int ValidHandler(struct nl_msg* msg, void* arg);
-
-    static void FreeMessage(struct nl_msg* msg);
 
     std::string m_name;
     NetlinkState& m_state;
-    WiFiDeviceScanner m_scanner;
-    struct nl_cb* m_callback;
-    struct nl_cb* m_sendCallback;
-    std::atomic<int> m_error; // TODO: Switch to event
-    P8PLATFORM::CEvent m_scanFinishedEvent;
-    P8PLATFORM::CMutex m_mutex;
-    std::map<MacAddress, WiFiStation> m_stations;
+
+    NetlinkCallbackPtr m_callback;
+    NetlinkCallbackPtr m_sendCallback;
+    bool m_bError;
+    bool m_bFinished;
+
+    std::vector<deliverator_msgs::WiFiStationData> m_stations;
   };
 }

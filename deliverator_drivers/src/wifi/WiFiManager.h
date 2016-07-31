@@ -47,6 +47,8 @@ namespace deliverator
 
     void EndScan(const std::string& interface);
 
+    void TriggerScans();
+
     bool GetScanData(deliverator_msgs::WiFiScanData& msg);
 
   private:
@@ -54,6 +56,8 @@ namespace deliverator
 
     NetlinkState m_state;
     DeviceMap m_devices;
-    P8PLATFORM::CMutex m_mutex;
+
+    P8PLATFORM::CMutex m_stateMutex;
+    P8PLATFORM::CMutex m_deviceMutex;
   };
 }

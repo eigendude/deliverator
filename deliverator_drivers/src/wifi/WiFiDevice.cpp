@@ -30,6 +30,7 @@
 #include <netlink/genl/genl.h>
 #include <netlink/attr.h>
 #include <netlink/netlink.h>
+#include <string.h>
 
 using namespace deliverator;
 
@@ -42,69 +43,52 @@ using namespace deliverator;
 WiFiDevice::WiFiDevice(const std::string& name, NetlinkState& state) :
   m_name(name),
   m_state(state),
-  m_scanner(state),
-  m_callback(nullptr),
-  m_sendCallback(nullptr),
-  m_error(0)
+  m_bError(false),
+  m_bFinished(false)
 {
 }
 
-void WiFiDevice::TriggerScan(bool passive, const std::vector<uint32_t>& channels, const std::vector<std::string>& ssids)
+bool WiFiDevice::TriggerScan(bool passive, const std::vector<uint32_t>& channels, const std::vector<std::string>& ssids)
 {
   NetlinkMsgPtr msg;
   if (!InitMsg(msg, NL80211_CMD_TRIGGER_SCAN))
-    return;
+    return false;
 
   if (!passive)
   {
     if (!AddSsids(msg, ssids))
-      return;
+      return false;
   }
 
   if (!channels.empty())
   {
     if (!AddChannels(msg, channels))
-      return;
+      return false;
   }
 
-  SendMsg(msg);
-}
-
-void WiFiDevice::WaitForScan()
-{
-  if (!m_scanner.ListenEvents())
-    ROS_ERROR("Scan aborted!");
+  return SendMsg(msg);
 }
 
 bool WiFiDevice::GetScanData(deliverator_msgs::WiFiInterfaceData& msg)
 {
   bool bHasData = false;
 
+  msg.name = m_name;
+
   NetlinkMsgPtr netlinkMsg;
   if (!InitMsg(netlinkMsg, NL80211_CMD_GET_SCAN))
     return false;
 
   // Set up the callbacks
-  nl_cb_set(m_callback, NL_CB_VALID, NL_CB_CUSTOM, StationHandler, this);
+  nl_cb_set(m_callback.get(), NL_CB_VALID, NL_CB_CUSTOM, StationHandler, this);
 
-  SendMsg(netlinkMsg);
-
-  P8PLATFORM::CLockObject lock(m_mutex);
+  if (!SendMsg(netlinkMsg))
+    return false;
 
   if (!m_stations.empty())
   {
-    msg.name = m_name;
-
-    for (auto it = m_stations.begin(); it != m_stations.end(); ++it)
-    {
-      deliverator_msgs::WiFiStationData stationMsg;
-      it->second.GetStationData(stationMsg);
-      msg.stations.emplace_back(std::move(stationMsg));
-    }
-
     bHasData = true;
-
-    m_stations.clear();
+    msg.stations = std::move(m_stations);
   }
 
   return bHasData;
@@ -112,29 +96,52 @@ bool WiFiDevice::GetScanData(deliverator_msgs::WiFiInterfaceData& msg)
 
 void WiFiDevice::OnStation(const MacAddress& mac, const std::string& ssid, unsigned int channel, float dBm, uint8_t percent, unsigned int ageMs)
 {
-  P8PLATFORM::CLockObject lock(m_mutex);
+  deliverator_msgs::WiFiStationData station;
 
-  auto it = m_stations.find(mac);
-  if (it != m_stations.end())
-  {
-    WiFiStation& station = it->second;
-    station.UpdateIdentifiers(ssid, channel);
-    station.UpdateMeasurements(dBm, percent, ageMs);
-  }
-  else
-  {
-    m_stations[mac] = WiFiStation(mac, ssid, channel, dBm, percent, ageMs);
-  }
+  station.mac_address.assign(mac.begin(), mac.end());
+  station.ssid = ssid;
+  station.channel = channel;
+  station.dbm = dBm;
+  station.percent = percent;
+  station.age_ms = ageMs;
+
+  m_stations.emplace_back(std::move(station));
 }
 
 void WiFiDevice::OnFinish()
 {
-  m_error = 0;
+  m_bFinished = true;
 }
 
-void WiFiDevice::OnError(int nlmsgerr)
+void WiFiDevice::OnError(int error)
 {
-  m_error = nlmsgerr;
+  m_bError = true;
+  m_bFinished = true;
+
+  if (error < 0)
+  {
+    switch (-error)
+    {
+    case EPERM:
+    {
+      ROS_ERROR("Permission error on %s, closing interface", m_name.c_str());
+      break;
+    }
+    case ENODEV:
+    {
+      ROS_ERROR("802.11 netlink interface not available for %s", m_name.c_str());
+      break;
+    }
+    case EBUSY:
+    {
+      // Device or resource is busy, error might be temporary
+      m_bError = false;
+      break;
+    }
+    default:
+      ROS_ERROR("Error listening to netlink reply: %s (%d)", strerror(-error), error);
+    }
+  }
 }
 
 bool WiFiDevice::InitMsg(NetlinkMsgPtr& msg, nl80211_commands command)
@@ -155,9 +162,9 @@ bool WiFiDevice::InitMsg(NetlinkMsgPtr& msg, nl80211_commands command)
   }
 
   // Allocate new callback handles
-  m_callback = nl_cb_alloc(NL_CB_DEFAULT);
-  m_sendCallback = nl_cb_alloc(NL_CB_DEFAULT);
-  if (m_callback == nullptr || m_sendCallback == nullptr)
+  m_callback = std::move(NetlinkCallbackPtr(nl_cb_alloc(NL_CB_DEFAULT), FreeCallback));
+  m_sendCallback = std::move(NetlinkCallbackPtr(nl_cb_alloc(NL_CB_DEFAULT), FreeCallback));
+  if (!m_callback || !m_sendCallback)
   {
     ROS_ERROR("Failed to allocate netlink callback handles for %s", m_name.c_str());
     return false;
@@ -180,7 +187,10 @@ bool WiFiDevice::InitMsg(NetlinkMsgPtr& msg, nl80211_commands command)
 bool WiFiDevice::AddSsids(NetlinkMsgPtr& msg, const std::vector<std::string>& ssids) const
 {
   // Build ssids msg
-  NetlinkMsgPtr ssidsMsg = std::move(NetlinkMsgPtr(nlmsg_alloc(), FreeMessage));
+  NetlinkMsgPtr ssidsMsg(nlmsg_alloc(), FreeMessage);
+  if (!ssidsMsg)
+    return false;
+
   if (!ssids.empty())
   {
     int i = 1;
@@ -211,7 +221,10 @@ bool WiFiDevice::AddSsids(NetlinkMsgPtr& msg, const std::vector<std::string>& ss
 bool WiFiDevice::AddChannels(NetlinkMsgPtr& msg, const std::vector<uint32_t>& channels) const
 {
   // Build freqs msg
-  NetlinkMsgPtr freqsMsg = std::move(NetlinkMsgPtr(nlmsg_alloc(), FreeMessage));
+  NetlinkMsgPtr freqsMsg(nlmsg_alloc(), FreeMessage);
+  if (!freqsMsg)
+    return false;
+
   int i = 1;
   for (auto& channel : channels)
   {
@@ -234,40 +247,42 @@ bool WiFiDevice::AddChannels(NetlinkMsgPtr& msg, const std::vector<uint32_t>& ch
   return true;
 }
 
-void WiFiDevice::SendMsg(NetlinkMsgPtr& msg)
+bool WiFiDevice::SendMsg(NetlinkMsgPtr& msg)
 {
-  if (m_callback == nullptr || m_sendCallback == nullptr)
+  if (!m_callback || !m_sendCallback)
   {
     ROS_ERROR("Failed to initialize netlink message for %s", m_name.c_str());
-    return;
+    return false;
   }
 
   // Set up the callbacks
-  nl_socket_set_cb(m_state.GetSocket(), m_sendCallback);
+  nl_socket_set_cb(m_state.GetSocket(), m_sendCallback.get());
 
   // Automatically complete and send the netlink message
-  if (nl_send_auto_complete(m_state.GetSocket(), msg.get()) < 0)
+  int ret = nl_send_auto_complete(m_state.GetSocket(), msg.get());
+  if (ret < 0)
   {
     ROS_ERROR("Failed to send netlink message for %s", m_name.c_str());
-    return;
+    return false;
   }
 
-  m_error = 1;
+  //ROS_INFO("Sent %d bytes to the kernel", ret);
 
-  nl_cb_err(m_callback, NL_CB_CUSTOM, ErrorHandler, this);
-  nl_cb_set(m_callback, NL_CB_FINISH, NL_CB_CUSTOM, FinishHandler, this);
-  nl_cb_set(m_callback, NL_CB_ACK, NL_CB_CUSTOM, AckHandler, this);
-  nl_cb_set(m_callback, NL_CB_VALID, NL_CB_CUSTOM, ValidHandler, nullptr);
+  m_bError = false;
+  m_bFinished = false;
+
+  nl_cb_err(m_callback.get(), NL_CB_CUSTOM, ErrorHandler, this);
+  nl_cb_set(m_callback.get(), NL_CB_FINISH, NL_CB_CUSTOM, FinishHandler, this);
+  nl_cb_set(m_callback.get(), NL_CB_ACK, NL_CB_CUSTOM, AckHandler, this);
 
   // Receive a set of messages from the netlink socket
-  while (m_error > 0)
-    nl_recvmsgs(m_state.GetSocket(), m_callback);
+  while (!m_bFinished)
+    nl_recvmsgs(m_state.GetSocket(), m_callback.get());
 
-  nl_cb_put(m_callback);
-  nl_cb_put(m_sendCallback);
+  m_callback.reset();
+  m_sendCallback.reset();
 
-  m_callback = nullptr;
-  m_sendCallback = nullptr;
+  return !m_bError;
 }
 
 int WiFiDevice::StationHandler(struct nl_msg* msg, void* arg)
@@ -275,8 +290,6 @@ int WiFiDevice::StationHandler(struct nl_msg* msg, void* arg)
   WiFiDevice* instance = static_cast<WiFiDevice*>(arg);
   if (!instance)
     return NL_STOP;
-
-  WiFiStation station;
 
   struct nlattr* tb[NL80211_ATTR_MAX + 1];
   struct nlattr* bss[NL80211_BSS_MAX + 1];
@@ -410,15 +423,4 @@ int WiFiDevice::ErrorHandler(struct sockaddr_nl* nla, struct nlmsgerr* err, void
     static_cast<WiFiDevice*>(arg)->OnError(err->error);
 
   return NL_STOP;
-}
-
-int WiFiDevice::ValidHandler(struct nl_msg* msg, void* arg)
-{
-  return NL_OK;
-}
-
-void WiFiDevice::FreeMessage(struct nl_msg* msg)
-{
-  if (msg)
-    nlmsg_free(msg);
 }

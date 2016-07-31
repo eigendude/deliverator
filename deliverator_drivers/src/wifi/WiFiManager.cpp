@@ -39,19 +39,10 @@ using namespace deliverator;
 // nl80811 driver name
 #define DRIVER_NAME  "nl80211"
 
-namespace deliverator
-{
-  void FreeMessage(struct nl_msg* msg)
-  {
-    if (msg)
-      nlmsg_free(msg);
-  }
-
-  typedef std::unique_ptr<struct nl_msg, void(*)(struct nl_msg*)> MessagePtr;
-}
-
 bool WiFiManager::Initialize()
 {
+  P8PLATFORM::CLockObject lock(m_stateMutex);
+
   // Allocate a new socket
   m_state = std::move(NetlinkState(nl_socket_alloc()));
   if (!m_state.IsValid())
@@ -84,6 +75,8 @@ bool WiFiManager::Initialize()
 
 void WiFiManager::Deinitialize()
 {
+  P8PLATFORM::CLockObject lock(m_stateMutex);
+
   m_state.Reset();
 }
 
@@ -99,34 +92,63 @@ bool WiFiManager::IsWireless(const std::string& interfaceName)
 
 void WiFiManager::StartScan(const std::string& interface, bool passive, const std::vector<uint32_t>& channels, const std::vector<std::string>& ssids)
 {
-  P8PLATFORM::CLockObject lock(m_mutex);
+  P8PLATFORM::CLockObject lock(m_deviceMutex);
 
   if (m_devices.find(interface) == m_devices.end())
     m_devices[interface] = std::make_shared<WiFiDevice>(interface, m_state);
+  else
+    ROS_WARN("Tried to start scan on %s, but it was already scanning!", interface.c_str());
 }
 
 void WiFiManager::EndScan(const std::string& interface)
 {
-  P8PLATFORM::CLockObject lock(m_mutex);
+  P8PLATFORM::CLockObject lock(m_deviceMutex);
 
   auto it = m_devices.find(interface);
   if (it != m_devices.end())
     m_devices.erase(it);
 }
 
+void WiFiManager::TriggerScans()
+{
+  DeviceMap devices;
+  {
+    P8PLATFORM::CLockObject lock(m_deviceMutex);
+    devices = m_devices;
+  }
+
+  P8PLATFORM::CLockObject lock(m_stateMutex);
+
+  for (auto it = devices.begin(); it != devices.end(); ++it)
+  {
+    // TODO: Scan parameters
+    bool bPassive = false;
+    std::vector<uint32_t> channels;
+    std::vector<std::string> ssids;
+
+    if (!it->second->TriggerScan(bPassive, channels, ssids))
+    {
+      const std::string& interfaceName = it->first;
+      ROS_WARN("Failed to trigger scan on %s, closing interface", interfaceName.c_str());
+      EndScan(interfaceName);
+    }
+  }
+}
+
 bool WiFiManager::GetScanData(deliverator_msgs::WiFiScanData& msg)
 {
   bool bHasData = false;
 
-  P8PLATFORM::CLockObject lock(m_mutex);
-
-  for (auto it = m_devices.begin(); it != m_devices.end(); ++it)
+  DeviceMap devices;
   {
-    // TODO: Scan parameters
-    it->second->TriggerScan(false, std::vector<uint32_t>(), std::vector<std::string>());
+    P8PLATFORM::CLockObject lock(m_deviceMutex);
+    devices = m_devices;
+  }
 
-    //it->second->WaitForScan();
+  P8PLATFORM::CLockObject lock(m_stateMutex);
 
+  for (auto it = devices.begin(); it != devices.end(); ++it)
+  {
     deliverator_msgs::WiFiInterfaceData interface;
     if (it->second->GetScanData(interface))
     {

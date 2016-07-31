@@ -55,6 +55,7 @@ bool StartScan(deliverator_msgs::StartScan::Request& req,
 {
   ROS_INFO("Starting scan on interface %s", req.interface.c_str());
   g_manager.StartScan(req.interface, req.passive, req.channels, req.ssids);
+
   return true;
 }
 
@@ -92,19 +93,14 @@ int main(int argc, char* argv[])
       n.advertiseService(END_SCAN_SERVICE, EndScan),
   };
 
-  ros::Rate loop_rate(1); // 1 Hz
+  ros::Rate loop_rate(10); // Hz
   while (ros::ok())
   {
-    ros::Time scanStart = ros::Time::now();
+    g_manager.TriggerScans();
 
     deliverator_msgs::WiFiScanData msg;
     if (g_manager.GetScanData(msg))
-    {
-      ros::Time scanEnd = ros::Time::now();
-      ROS_INFO("Scan took %f ms", (scanEnd.toSec() - scanStart.toSec()) * 1000);
-
       statusPub.publish(msg);
-    }
 
     ros::spinOnce();
 
