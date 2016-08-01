@@ -98,7 +98,8 @@ class WiFiManager:
     def getInterfaces(self):
         return self._scanInterfaces
 
-    def getScan(self, interface):
+    @staticmethod
+    def getScan(interface):
         scanMsg = WiFiScanData()
 
         scanStart = rospy.Time.now()
@@ -169,13 +170,11 @@ def main():
 
     pub = rospy.Publisher(TOPIC_NAME, WiFiScanData, queue_size=1)
 
-    rate = rospy.Rate(1) # Hz
     while not rospy.is_shutdown():
-        msg = wifiManager.getScan()
-        if msg:
-            pub.publish(msg)
-
-        rate.sleep()
+        for interface in wifiManager.getInterfaces():
+            msg = WiFiManager.getScan(interface)
+            if msg:
+                pub.publish(msg)
 
 if __name__ == '__main__':
     main()
