@@ -6,7 +6,16 @@
   <arg name="DRIVER_PACKAGE" default="deliverator_drivers"/>
 
   <group ns="$(arg NAMESPACE)">
-    <node pkg="$(arg DRIVER_PACKAGE)" type="wifi_manager" name="wifi_manager" output="screen"/>
+    <!-- Launch C++ version -->
+    <node pkg="$(arg DRIVER_PACKAGE)" type="wifi_manager" name="wifi_manager" output="screen">
+        <remap from="wifi_status" to="wifi_status_cpp"/>
+        <remap from="check_is_wireless" to="check_is_wireless_cpp"/>
+        <remap from="start_wifi_scan" to="start_wifi_scan_cpp"/>
+        <remap from="end_wifi_scan" to="end_wifi_scan_cpp"/>
+    </node>
+
+    <!-- Launch Python version -->
+    <node pkg="$(arg DRIVER_PACKAGE)" type="wifi_manager_py" name="wifi_manager_py" output="screen"/>
   </group>
 
 </launch>
