@@ -69,11 +69,9 @@ bool WiFiDevice::TriggerScan(bool passive, const std::vector<uint32_t>& channels
   return SendMsg(msg);
 }
 
-bool WiFiDevice::GetScanData(deliverator_msgs::WiFiInterfaceData& msg)
+bool WiFiDevice::GetScanData(deliverator_msgs::WiFiScanData& msg)
 {
   bool bHasData = false;
-
-  msg.name = m_name;
 
   NetlinkMsgPtr netlinkMsg;
   if (!InitMsg(netlinkMsg, NL80211_CMD_GET_SCAN))
@@ -88,13 +86,15 @@ bool WiFiDevice::GetScanData(deliverator_msgs::WiFiInterfaceData& msg)
   if (!m_stations.empty())
   {
     bHasData = true;
+    msg.interface = m_name;
     msg.stations = std::move(m_stations);
+    // TODO: Scan duration
   }
 
   return bHasData;
 }
 
-void WiFiDevice::OnStation(const MacAddress& mac, const std::string& ssid, unsigned int channel, float dBm, uint8_t percent, unsigned int ageMs)
+void WiFiDevice::OnStation(const MacAddress& mac, const std::string& ssid, unsigned int channel, float dBm, unsigned int ageMs)
 {
   deliverator_msgs::WiFiStationData station;
 
@@ -102,7 +102,6 @@ void WiFiDevice::OnStation(const MacAddress& mac, const std::string& ssid, unsig
   station.ssid = ssid;
   station.channel = channel;
   station.dbm = dBm;
-  station.percent = percent;
   station.age_ms = ageMs;
 
   m_stations.emplace_back(std::move(station));
@@ -357,13 +356,6 @@ int WiFiDevice::StationHandler(struct nl_msg* msg, void* arg)
     dBm = static_cast<float>(signalStrengthmBm) / 100;
   }
 
-  // Signal strength in unspecified units (%)
-  uint8_t percent = 0;
-  if (bss[NL80211_BSS_SIGNAL_UNSPEC])
-  {
-    percent = nla_get_u8(bss[NL80211_BSS_SIGNAL_UNSPEC]);
-  }
-
   // Age of this BSS entry (ms)
   unsigned int ageMs = 0;
   if (bss[NL80211_BSS_SEEN_MS_AGO])
@@ -396,7 +388,7 @@ int WiFiDevice::StationHandler(struct nl_msg* msg, void* arg)
   if (channel == 0)
     ROS_ERROR("Invalid frequency for %s: %u MHz", instance->Name().c_str(), freqMHz);
 
-  instance->OnStation(mac, ssid, channel, dBm, percent, ageMs);
+  instance->OnStation(mac, ssid, channel, dBm, ageMs);
 
   return NL_SKIP;
 }

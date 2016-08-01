@@ -1,2 +1,4 @@
 Header header
-WiFiInterfaceData[] interfaces
+string interface
+WiFiStationData[] stations
+float32 scan_duration # seconds

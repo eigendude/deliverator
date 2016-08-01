@@ -23,6 +23,7 @@
 #include "WiFiTypes.h"
 
 #include "deliverator_msgs/WiFiScanData.h"
+#include "ros/ros.h"
 #include "threads/mutex.h"
 
 #include <map>
@@ -49,7 +50,7 @@ namespace deliverator
 
     void TriggerScans();
 
-    bool GetScanData(deliverator_msgs::WiFiScanData& msg);
+    void PublishScanData(ros::Publisher& scanPub);
 
   private:
     typedef std::map<std::string, WiFiDevicePtr> DeviceMap;

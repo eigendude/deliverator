@@ -20,7 +20,7 @@
 
 #include "WiFiTypes.h"
 
-#include "deliverator_msgs/WiFiInterfaceData.h"
+#include "deliverator_msgs/WiFiScanData.h"
 #include "deliverator_msgs/WiFiStationData.h"
 
 #include <linux/nl80211.h>
@@ -49,7 +49,7 @@ namespace deliverator
 
     bool TriggerScan(bool passive, const std::vector<uint32_t>& channels, const std::vector<std::string>& ssids);
 
-    bool GetScanData(deliverator_msgs::WiFiInterfaceData& msg);
+    bool GetScanData(deliverator_msgs::WiFiScanData& msg);
 
   private:
     // Prevent copy
@@ -61,7 +61,7 @@ namespace deliverator
     bool AddChannels(NetlinkMsgPtr& msg, const std::vector<uint32_t>& channels) const;
     bool SendMsg(NetlinkMsgPtr& msg);
 
-    void OnStation(const MacAddress& mac, const std::string& ssid, unsigned int channel, float dBm, uint8_t percent, unsigned int ageMs);
+    void OnStation(const MacAddress& mac, const std::string& ssid, unsigned int channel, float dBm, unsigned int ageMs);
     void OnFinish();
     void OnError(int error);
 

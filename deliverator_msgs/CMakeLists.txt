@@ -12,7 +12,6 @@ find_package(catkin REQUIRED COMPONENTS
 
 add_message_files(FILES
   WheelSpeeds.msg
-  WiFiInterfaceData.msg
   WiFiScanData.msg
   WiFiStationData.msg
 )

@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
 
   ros::NodeHandle n;
 
-  ros::Publisher statusPub = n.advertise<deliverator_msgs::WiFiScanData>(TOPIC_NAME, 1);
+  ros::Publisher scanPub = n.advertise<deliverator_msgs::WiFiScanData>(TOPIC_NAME, 1);
 
   ros::ServiceServer services[] = {
       n.advertiseService(CHECK_IS_WIRELESS_SERVICE, CheckIsWireless),
@@ -98,9 +98,7 @@ int main(int argc, char* argv[])
   {
     g_manager.TriggerScans();
 
-    deliverator_msgs::WiFiScanData msg;
-    if (g_manager.GetScanData(msg))
-      statusPub.publish(msg);
+    g_manager.PublishScanData(scanPub);
 
     ros::spinOnce();
 

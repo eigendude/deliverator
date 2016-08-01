@@ -19,8 +19,6 @@
 
 #include "WiFiManager.h"
 
-#include "ros/ros.h"
-
 #include <linux/nl80211.h>
 #include <net/if.h>
 #include <netlink/genl/ctrl.h>
@@ -135,10 +133,8 @@ void WiFiManager::TriggerScans()
   }
 }
 
-bool WiFiManager::GetScanData(deliverator_msgs::WiFiScanData& msg)
+void WiFiManager::PublishScanData(ros::Publisher& scanPub)
 {
-  bool bHasData = false;
-
   DeviceMap devices;
   {
     P8PLATFORM::CLockObject lock(m_deviceMutex);
@@ -149,13 +145,12 @@ bool WiFiManager::GetScanData(deliverator_msgs::WiFiScanData& msg)
 
   for (auto it = devices.begin(); it != devices.end(); ++it)
   {
-    deliverator_msgs::WiFiInterfaceData interface;
-    if (it->second->GetScanData(interface))
+    deliverator_msgs::WiFiScanData scanMsg;
+    if (it->second->GetScanData(scanMsg))
     {
-      msg.interfaces.emplace_back(std::move(interface));
-      bHasData = true;
+      lock.Unlock();
+      scanPub.publish(scanMsg);
+      lock.Lock();
     }
   }
-
-  return bHasData;
 }

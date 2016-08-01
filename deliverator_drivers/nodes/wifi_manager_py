@@ -95,68 +95,63 @@ class WiFiManager:
         if req.interface in self._scanInterfaces:
             self._scanInterfaces.remove(req.interface)
 
-    def getScan(self):
+    def getInterfaces(self):
+        return self._scanInterfaces
+
+    def getScan(self, interface):
         scanMsg = WiFiScanData()
 
-        for interface in self._scanInterfaces:
-            interfaceMsg = WiFiInterfaceData()
-            #interfaceMsg.stations = [] # TODO: necessary?
+        scanStart = rospy.Time.now()
+        proc = subprocess.Popen(['iw', 'dev', interface, 'scan'], stdout=subprocess.PIPE)
+        stdout, stderr =  proc.communicate()
+        scanDuration = (rospy.Time.now() - scanStart).to_sec()
 
-            scanStart = rospy.Time.now()
-            proc = subprocess.Popen(['iw', 'dev', interface, 'scan'], stdout=subprocess.PIPE)
-            stdout, stderr =  proc.communicate()
-            scanDuration = rospy.Time.now() - scanStart
+        lines = stdout.decode('utf-8').split('\n')
 
-            lines = stdout.decode('utf-8').split('\n')
+        networks = []
+        matchers = []
 
-            networks = []
-            matchers = []
+        # catch the line 'BSS XX:YY:ZZ:AA:BB:CC(on wlan0)'
+        matchers.append(line_matcher(r'^BSS (([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2}))', handle_new_network))
 
-            # catch the line 'BSS XX:YY:ZZ:AA:BB:CC(on wlan0)'
-            matchers.append(line_matcher(r'^BSS (([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2}))', handle_new_network))
+        # catch the line 'SSID: network name'
+        matchers.append(line_matcher(r'\s+SSID: (.+)', handle_ssid))
 
-            # catch the line 'SSID: network name'
-            matchers.append(line_matcher(r'\s+SSID: (.+)', handle_ssid))
+        # catch the line 'freq: 2412'
+        matchers.append(line_matcher(r'\s+freq: (\d+)', handle_freq))
 
-            # catch the line 'freq: 2412'
-            matchers.append(line_matcher(r'\s+freq: (\d+)', handle_freq))
+        # catch the line 'signal: -71.00 dBm'
+        matchers.append(line_matcher(r'\s+signal: -([^ ]+) dBm', handle_signal))
 
-            # catch the line 'signal: -71.00 dBm'
-            matchers.append(line_matcher(r'\s+signal: -([^ ]+) dBm', handle_signal))
+        # catch the line 'signal: -71.00 dBm'
+        matchers.append(line_matcher(r'\s+last seen: (\d+) ms ago', handle_last_seen))
 
-            # catch the line 'signal: -71.00 dBm'
-            matchers.append(line_matcher(r'\s+last seen: (\d+) ms ago', handle_last_seen))
+        # catch any other line that looks like this:
+        # Key:value
+        matchers.append(line_matcher(r'\s+([^:]+): (.+)', handle_unknown))
 
-            # catch any other line that looks like this:
-            # Key:value
-            matchers.append(line_matcher(r'\s+([^:]+): (.+)', handle_unknown))
+        # read each line of output, testing against the matches above
+        # in that order (so that the key:value matcher will be tried last)
+        for line in lines:
+            for m in matchers:
+                result = m.regexp.match(line)
+                if result:
+                    m.handler(line, result, networks)
+                    break
 
-            # read each line of output, testing against the matches above
-            # in that order (so that the key:value matcher will be tried last)
-            for line in lines:
-                for m in matchers:
-                    result = m.regexp.match(line)
-                    if result:
-                        m.handler(line, result, networks)
-                        break
+        for network in networks:
+            stationMsg = WiFiStationData()
+            stationMsg.mac_address = network['Address']
+            stationMsg.ssid = network['SSID'].encode('ascii', 'ignore')
+            stationMsg.channel = network['channel']
+            stationMsg.dbm = network['signal']
+            stationMsg.age_ms = network['last_seen']
+            scanMsg.stations.append(stationMsg)
 
-            for network in networks:
-                stationMsg = WiFiStationData()
-                stationMsg.mac_address = network['Address']
-                stationMsg.ssid = network['SSID'].encode('ascii', 'ignore')
-                stationMsg.channel = network['channel']
-                stationMsg.dbm = network['signal']
-                stationMsg.age_ms = network['last_seen']
-                interfaceMsg.stations.append(stationMsg)
-
-            if len(interfaceMsg.stations) > 0:
-                interfaceMsg.name = interface
-                #interfaceMsg.scan_duration = scanDuration # TODO
-                scanMsg.interfaces.append(interfaceMsg)
-
-        if (len(scanMsg.interfaces) > 0):
-            # TODO: Move header into WiFiInterfaceData and remove WiFiScanData
+        if len(scanMsg.stations) > 0:
             scanMsg.header.stamp = rospy.Time.now()
+            scanMsg.interface = interface
+            scanMsg.scan_duration = scanDuration
             return scanMsg
 
         return None
