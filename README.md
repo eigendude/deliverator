@@ -133,6 +133,12 @@ sudo apt-get install libnl-3-dev libnl-genl-3-dev
 git clone --recursive https://github.com/juztamau5/libp8_platform.git
 ```
 
+#### Could NOT find CAP (missing: CAP_LIBRARY CAP_INCLUDE_DIR)
+
+```shell
+sudo apt-get install libcap-dev
+```
+
 ### 6. Compilation
 
 To compile run `catkin_make` from the catkin workspace folder.
