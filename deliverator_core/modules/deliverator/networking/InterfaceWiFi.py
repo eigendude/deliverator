@@ -46,7 +46,7 @@ class InterfaceWiFi(Interface):
     def checkIsWireless(interfaceName):
         result = False
 
-        rospy.wait_for_service(WIFI_SERVICE)
+        #rospy.wait_for_service(WIFI_SERVICE)
 
         serviceProxy = rospy.ServiceProxy(WIFI_SERVICE, CheckIsWireless)
 
@@ -60,7 +60,7 @@ class InterfaceWiFi(Interface):
     def startPassiveScan(self):
         result = False
 
-        rospy.wait_for_service(START_SCAN_SERVICE)
+        #rospy.wait_for_service(TART_SCAN_SERVICE)
 
         serviceProxy = rospy.ServiceProxy(START_SCAN_SERVICE, StartScan)
 
@@ -73,7 +73,7 @@ class InterfaceWiFi(Interface):
         return result
 
     def endScan(self):
-        rospy.wait_for_service(END_SCAN_SERVICE)
+        #rospy.wait_for_service(END_SCAN_SERVICE)
 
         serviceProxy = rospy.ServiceProxy(END_SCAN_SERVICE, EndScan)
 
