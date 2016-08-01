@@ -21,7 +21,6 @@
 #include "NetlinkState.h"
 #include "WiFiUtils.h"
 
-#include "deliverator_msgs/WiFiChannelData.h"
 #include "deliverator_msgs/WiFiStationData.h"
 #include "ros/ros.h"
 
