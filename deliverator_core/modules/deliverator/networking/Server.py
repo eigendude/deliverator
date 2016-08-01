@@ -58,31 +58,31 @@ class Server(InterfaceCallbacks, NetworkCallbacks):
 
     def interfaceAdded(self, iface):
         if iface.isWireless():
-            rospy.logdebug('Registering wireless interface %s' % iface.name())
+            rospy.loginfo('Registering wireless interface %s' % iface.name())
             self._localization.setInterface(iface)
         elif iface.hasGateway():
-            rospy.logdebug('Registering external interface %s' % iface.name())
+            rospy.loginfo('Registering external interface %s' % iface.name())
             self._externalNetwork.addInterface(iface)
         else:
-            rospy.logdebug('Registering wired interface %s' % iface.name())
+            rospy.loginfo('Registering wired interface %s' % iface.name())
             self._localNetwork.addInterface(iface)
 
     def interfaceRemoved(self, iface):
-        rospy.logdebug('Unregistering interface %s' % iface.name())
+        rospy.loginfo('Unregistering interface %s' % iface.name())
         self._externalNetwork.removeInterface(iface)
         self._localNetwork.removeInterface(iface)
         self._localization.unsetInterface(iface)
 
     def enableAccessPoint(self):
         params = { 'name': 'Deliverator', 'channel': 11 } # TODO
-        rospy.logdebug('Enabling wireless AP "%s" (channel %d)' % (params['name'], params['channel']))
+        rospy.loginfo('Enabling wireless AP "%s" (channel %d)' % (params['name'], params['channel']))
         if self._localization.enableAccessPointMode(params):
             iface = self._localization.getInterface()
             iface.enableAccessPoint(self)
             self._localNetwork.addInterface(iface)
 
     def disableAccessPoint(self):
-        rospy.logdebug('Disabling wireless AP')
+        rospy.loginfo('Disabling wireless AP')
         iface = self._localization.getInterface()
         self._localNetwork.removeInterface(iface)
         iface.disableAccessPoint()
@@ -95,11 +95,11 @@ class Server(InterfaceCallbacks, NetworkCallbacks):
         self._localization.disableTargetMode(client)
 
     def wifiConnect(self, params):
-        rospy.logdebug('Connecting to WiFi network "%s" (channel %d)' % (params['name'], params['channel']))
+        rospy.loginfo('Connecting to WiFi network "%s" (channel %d)' % (params['name'], params['channel']))
         if self._localization.targetNetwork(params):
             self._externalNetwork.addInterface(self._localization.getInterface())
 
     def wifiDisconnect(self):
-        rospy.logdebug('Disconnecting from WiFi network')
+        rospy.loginfo('Disconnecting from WiFi network')
         self._externalNetwork.removeInterface(self._localization.getInterface())
         self._localization.untargetNetwork()
