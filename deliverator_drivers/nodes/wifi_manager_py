@@ -24,7 +24,6 @@
 #
 ################################################################################
 
-from deliverator_msgs.msg import WiFiInterfaceData
 from deliverator_msgs.msg import WiFiScanData
 from deliverator_msgs.msg import WiFiStationData
 from deliverator_msgs.srv import CheckIsWireless
