@@ -36,7 +36,7 @@ class Process:
         self._pgid = os.getpgid(popen.pid)
 
     def kill(self):
-        if not self.popen:
+        if not self._popen:
             return # Already killed
 
         try:
@@ -44,28 +44,28 @@ class Process:
             timeout = time.time() + TIMEOUT_SIGINT
             os.killpg(self._pgid, signal.SIGINT)
 
-            retcode = self.popen.poll()
+            retcode = self._popen.poll()
             while time.time() < timeout and retcode is None:
                 time.sleep(0.1)
-                retcode = self.popen.poll()
+                retcode = self._popen.poll()
 
             # Escalate non-responsive process
             if retcode is None:
                 timeout = time.time() + TIMEOUT_SIGTERM
                 os.killpg(self._pgid, signal.SIGTERM)
 
-                retcode = self.popen.poll()
+                retcode = self._popen.poll()
                 while time.time() < timeout and retcode is None:
                     time.sleep(0.2)
-                    retcode = self.popen.poll()
+                    retcode = self._popen.poll()
 
                 if retcode is None:
                     os.killpg(self._pgid, signal.SIGKILL)
 
                     # Don't block on SIGKILL, because this results in more
                     # orphaned processes overall
-                    #self.popen.wait()
+                    #self._popen.wait()
                     #os.wait()
 
         finally:
-            self.popen = None
+            self._popen = None
