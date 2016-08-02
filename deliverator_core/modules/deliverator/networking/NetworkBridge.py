@@ -35,7 +35,7 @@ class NetworkBridge:
         return True
 
     def deinitialize(self):
-        pass
+        self.removeInterface(self._bridge) # Removes all interfaces
 
     def addInterface(self, iface):
         if iface:
