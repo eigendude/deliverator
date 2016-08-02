@@ -40,7 +40,7 @@ class Interface(object):
     def name(self):
         return self._name
 
-    def Type(self):
+    def type(self):
         return InterfaceType.UNKNOWN
 
     def initialize(self):
