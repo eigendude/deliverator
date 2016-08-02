@@ -32,7 +32,6 @@ from deliverator_msgs.srv import EndScan
 import rospy
 import std_msgs.msg
 
-import array
 import re
 import subprocess
 
@@ -50,18 +49,13 @@ class line_matcher:
 
 
 def handle_new_network(line, result, networks):
-    # group(1) is the mac address
-    #mac_address = result.group(1) # TODO
     networks.append({})
-    networks[-1]['Address'] = [ 1, 2, 3, 4, 5, 6 ]
-
-def handle_interface(line, result, networks):
-    # group(1) is the interface name
-    networks[-1]['Device'] = result.group(1)
+    # group(1) is the mac address
+    networks[-1]['Address'] = [int(b, 16) for b in result.group(1).split(':')]
 
 def handle_ssid(line, result, networks):
     # group(1) is the ssid name
-    networks[-1]['SSID'] = result.group(1)
+    networks[-1]['SSID'] = result.group(1).encode('ascii', 'ignore')
 
 def handle_freq(line, result, networks):
     # group(1) is the frequency in MHz
@@ -99,8 +93,6 @@ class WiFiManager:
 
     @staticmethod
     def getScan(interface):
-        scanMsg = WiFiScanData()
-
         scanStart = rospy.Time.now()
         proc = subprocess.Popen(['iw', 'dev', interface, 'scan'], stdout=subprocess.PIPE)
         stdout, stderr =  proc.communicate()
@@ -139,19 +131,21 @@ class WiFiManager:
                     m.handler(line, result, networks)
                     break
 
-        for network in networks:
-            stationMsg = WiFiStationData()
-            stationMsg.mac_address = network['Address']
-            stationMsg.ssid = network['SSID'].encode('ascii', 'ignore')
-            stationMsg.channel = network['channel']
-            stationMsg.dbm = network['signal']
-            stationMsg.age_ms = network['last_seen']
-            scanMsg.stations.append(stationMsg)
-
-        if len(scanMsg.stations) > 0:
+        if networks:
+            scanMsg = WiFiScanData()
             scanMsg.header.stamp = rospy.Time.now()
             scanMsg.interface = interface
             scanMsg.scan_duration = scanDuration
+
+            for network in networks:
+                stationMsg = WiFiStationData()
+                stationMsg.mac_address = network['Address']
+                stationMsg.ssid = network['SSID']
+                stationMsg.channel = network['channel']
+                stationMsg.dbm = network['signal']
+                stationMsg.age_ms = network['last_seen']
+                scanMsg.stations.append(stationMsg)
+
             return scanMsg
 
         return None
