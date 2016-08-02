@@ -35,6 +35,9 @@ import subprocess
 BRIDGE_TRUSTED = 'br-trusted'
 BRIDGE_UNTRUSTED = 'br-untrusted'
 
+IP_BINARY_PATH    = '/bin/ip'
+LOG_CAP_NET_ADMIN = True
+
 class InterfaceBridge(Interface):
     def __init__(self, trusted):
         super(InterfaceBridge, self).__init__(BRIDGE_TRUSTED if trusted else BRIDGE_UNTRUSTED)
@@ -44,8 +47,27 @@ class InterfaceBridge(Interface):
         return InterfaceType.BRIDGE
 
     def initialize(self):
-        # TODO: Check if ip has CAP_NET_ADMIN capability
-        return True
+        global LOG_CAP_NET_ADMIN
+
+        # Check if ip has CAP_NET_ADMIN capability
+        proc = subprocess.Popen(['getcap', IP_BINARY_PATH], stdout=subprocess.PIPE)
+        stdout, stderr = proc.communicate()
+
+        hasNetAdminCapability = False
+
+        if 'cap_net_admin+ep' in stdout:
+            hasNetAdminCapability = True
+        elif LOG_CAP_NET_ADMIN:
+            print('')
+            print('*******************************************************')
+            print('Error: This process requires CAT_NET_ADMIN on ip:')
+            print('')
+            print('sudo setcap cap_net_admin+ep %s' % IP_BINARY_PATH)
+            print('*******************************************************')
+            print('')
+            LOG_CAP_NET_ADMIN = False
+
+        return hasNetAdminCapability
 
     def isTrusted(self):
         return self._trusted
@@ -60,8 +82,8 @@ class InterfaceBridge(Interface):
 
     def addInterface(self, interface):
         rospy.loginfo('Adding [%s] to bridge [%s]' % (interface.name(), self.name()))
-        subprocess.Popen(['ip', 'link', 'set', interface, 'master', self.name()])
+        subprocess.Popen([IP_BINARY_PATH, 'link', 'set', interface, 'master', self.name()])
 
     def removeInterface(self, interface):
         rospy.loginfo('Removing [%s] from bridge [%s]' % (interface.name(), self.name()))
-        subprocess.Popen(['ip', 'link', 'set', interface, 'nomaster'])
+        subprocess.Popen([IP_BINARY_PATH, 'link', 'set', interface, 'nomaster'])
