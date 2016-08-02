@@ -25,7 +25,11 @@
 ################################################################################
 
 from Interface import Interface
+from Interface import InterfaceType
 
 class InterfaceEthernet(Interface):
     def __init__(self, name):
         super(InterfaceEthernet, self).__init__(name)
+
+    def Type(self):
+        return InterfaceType.ETHERNET

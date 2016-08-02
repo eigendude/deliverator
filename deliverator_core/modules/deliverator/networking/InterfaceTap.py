@@ -24,17 +24,19 @@
 #
 ################################################################################
 
-from Network import Network
+from Interface import Interface
+from Interface import InterfaceType
 
-class NetworkInternal(Network):
-    """
-    @brief Abstraction of a network that is running locally on the robot
-    """
-    def __init__(self, callbacks, trusted):
-        """
-        @param callbacks    NetworkCallbacks - callbacks invoked for network events
-        @param trusted      bool - set to False to enable encryption and other network safety measures
-        """
-        super(Network, self).__init__()
-        self._callbacks = callbacks
-        self._trusted = trusted
+# Prefix for tap devices, e.g. 'tap' for tap0
+TAP_NAME_PREFIX = 'tap'
+
+class InterfaceTap(Interface):
+    def __init__(self, name):
+        super(InterfaceTap, self).__init__(name)
+
+    def type(self):
+        return InterfaceType.TAP
+
+    @staticmethod
+    def isTap(name):
+        return name.startswith(TAP_NAME_PREFIX)

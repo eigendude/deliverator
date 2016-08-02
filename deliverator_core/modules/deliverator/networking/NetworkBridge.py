@@ -24,42 +24,47 @@
 #
 ################################################################################
 
-class Network(object):
-    """
-    @brief Abstraction of a computer network
+from Interface import InterfaceType
 
-    The network can be accessed by one or more local interfaces.
-    """
+class NetworkBridge:
     def __init__(self):
-        self._interfaces = { }
+        self._bridge = None
+        self._interfaces = []
 
     def initialize(self):
-        """
-        @brief Initialize the resources of the network
-        @return True if the network was initialized successfully, false otherwise
-        """
         return True
 
     def deinitialize(self):
-        """
-        @brief Deinitialize the resources of the network
-        """
         pass
 
     def addInterface(self, iface):
-        """
-        @brief Add an interface through which a node can communicate
+        if iface:
+            if iface.type() == InterfaceType.BRIDGE and not self._bridge:
+                self._bridge = iface
 
-        @param iface    Interface - an interface through which two nodes can communicate
-        """
-        if iface and iface.name() not in self._interfaces:
-            self._interfaces[iface.name()] = iface
+                # Bridge interfaces
+                for interface in self._interfaces:
+                    self._bridge.addInterface(interface)
+
+            elif iface.name() not in [i.name() for i in self._interfaces]:
+                self._interfaces.append(iface)
+
+                # Bridge interface
+                if self._bridge:
+                    self._bridge.addInterface(iface)
 
     def removeInterface(self, iface):
-        """
-        @brief Remove an interface
+        if iface:
+            if iface.name() == self._bridge.name():
+                # Remove interfaces
+                for interface in self._interfaces:
+                    self._bridge.removeInterface(interface)
 
-        @param iface    Interface - the interface to remove
-        """
-        if iface and iface.name() in self._interfaces:
-            self._interfaces.pop(iface.name())
+                self._bridge = None
+
+            elif iface.name() in [i.name() for i in self._interfaces]:
+                # Remove interface
+                if self._bridge:
+                    self._bridge.removeInterface(iface)
+
+                self._interfaces = [i for i in self._interfaces if i.name() != iface.name()]

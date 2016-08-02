@@ -25,6 +25,7 @@
 ################################################################################
 
 from Interface import Interface
+from Interface import InterfaceType
 
 import rospy
 from deliverator_msgs.srv import CheckIsWireless
@@ -39,8 +40,8 @@ class InterfaceWiFi(Interface):
     def __init__(self, name):
         super(InterfaceWiFi, self).__init__(name)
 
-    def isWireless(self):
-        return True
+    def Type(self):
+        return InterfaceType.WIFI
 
     @staticmethod
     def checkIsWireless(interfaceName):

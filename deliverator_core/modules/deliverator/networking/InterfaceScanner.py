@@ -26,16 +26,10 @@
 
 from InterfaceBridge import InterfaceBridge
 from InterfaceEthernet import InterfaceEthernet
+from InterfaceTap import InterfaceTap
 from InterfaceWiFi import InterfaceWiFi
 
 import netifaces
-
-# Underscore in interface name breaks UFW firewall, so use a dash
-BRIDGE_NAME_TRUSTED = 'br-trusted'
-BRIDGE_NAME_UNTRUSTED = 'br-untrusted'
-
-# Prefix for tap devices, e.g. 'tap' for tap0
-TAP_NAME_PREFIX = 'tap'
 
 class InterfaceScanner:
     def __init__(self, callbacks):
@@ -51,8 +45,10 @@ class InterfaceScanner:
 
         # Handle removed interfaces
         for name in removedInterfaces:
-            self._callbacks.interfaceRemoved(self._interface[name])
+            interface = self._interface[name]
+            self._callbacks.interfaceRemoved(interface)
             self._interfaces.pop(name)
+            interface.deinitialize()
 
         # Handle added interfaces
         for name in addedInterfaces:
@@ -63,18 +59,20 @@ class InterfaceScanner:
                 continue
 
             # Skip tap device
-            if name.startswith(TAP_NAME_PREFIX):
-                continue
+            elif InterfaceTap.isTap(name):
+                iface = InterfaceTap(name)
 
             # Handle bridges
-            if name in [BRIDGE_NAME_TRUSTED, BRIDGE_NAME_UNTRUSTED]:
-                iface = InterfaceBridge(name)
+            elif InterfaceBridge.checkIsTrusted(name):
+                iface = InterfaceBridge(True)
+            elif InterfaceBridge.checkIsUntrusted(name):
+                iface = InterfaceBridge(False)
+
+            # Handle WiFI
+            elif InterfaceWiFi.checkIsWireless(name):
+                iface = InterfaceWiFi(name)
             else:
-                # Handle WiFI
-                if InterfaceWiFi.checkIsWireless(name):
-                    iface = InterfaceWiFi(name)
-                else:
-                    iface = InterfaceEthernet(name)
+                iface = InterfaceEthernet(name)
 
             if iface and iface.initialize():
                 self._interfaces[iface.name()] = iface

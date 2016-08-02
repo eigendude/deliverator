@@ -24,26 +24,25 @@
 #
 ################################################################################
 
+from Interface import InterfaceType
 from InterfaceCallbacks import InterfaceCallbacks
 from InterfaceScanner import InterfaceScanner
 from Localization import Localization
+from NetworkBridge import NetworkBridge
 from NetworkCallbacks import NetworkCallbacks
-from NetworkExternal import NetworkExternal
-from NetworkInternal import NetworkInternal
+#from NetworkTrusted import NetworkTrusted
+#from NetworkUntrusted import NetworkUntrusted
 
 import rospy
 
 class Server(InterfaceCallbacks, NetworkCallbacks):
-    def __init__(self, trusted):
-        self._trusted = trusted
-        self._localNetwork = NetworkInternal(self, trusted)
-        self._externalNetwork = NetworkExternal()
+    def __init__(self):
+        self._trustedNetwork = NetworkBridge()
+        self._untrustedNetwork = NetworkBridge()
         self._localization = Localization()
 
     def initialize(self):
-        if not self._localNetwork.initialize() or \
-           not self._externalNetwork.initialize() or \
-           not self._localization.initialize():
+        if not self._localization.initialize():
             return False
 
         self._interfaceScanner = InterfaceScanner(self)
@@ -53,25 +52,54 @@ class Server(InterfaceCallbacks, NetworkCallbacks):
 
     def deinitialize(self):
         self._localization.deinitialize()
-        self._externalNetwork.deinitialize()
-        self._localNetwork.deinitialize()
+        self._untrustedNetwork.deinitialize()
+        self._trustedNetwork.deinitialize()
 
     def interfaceAdded(self, iface):
-        if iface.isWireless():
+        # Handle WiFi interfaces
+        if iface.type() == InterfaceType.WIFI:
             rospy.loginfo('Registering wireless interface %s' % iface.name())
             self._localization.setInterface(iface)
-        elif iface.hasGateway():
-            rospy.loginfo('Registering external interface %s' % iface.name())
-            self._externalNetwork.addInterface(iface)
-        else:
-            rospy.loginfo('Registering wired interface %s' % iface.name())
-            self._localNetwork.addInterface(iface)
+
+        # Handle bridge interfaces
+        elif iface.type() == InterfaceType.BRIDGE:
+            rospy.loginfo('Registering bridge interface %s' % iface.name())
+            if iface.isTrusted():
+                self._trustedNetwork.addInterface(iface)
+            else:
+                self._untrustedNetwork.addInterface(iface)
+
+        # Handle tap interfaces
+        elif iface.type() == InterfaceType.TAP:
+            rospy.loginfo('Registering tap interface %s' % iface.name())
+            self._trustedNetwork.addInterface(iface)
+
+        # Handle ethernet interfaces
+        elif iface.type() == InterfaceType.ETHERNET:
+            rospy.loginfo('Registering ethernet interface %s' % iface.name())
+            self._untrustedNetwork.addInterface(iface)
 
     def interfaceRemoved(self, iface):
         rospy.loginfo('Unregistering interface %s' % iface.name())
-        self._externalNetwork.removeInterface(iface)
-        self._localNetwork.removeInterface(iface)
-        self._localization.unsetInterface(iface)
+
+        # Handle WiFi interfaces
+        if iface.type() == InterfaceType.WIFI:
+            self._localization.unsetInterface(iface)
+
+        # Handle bridge interfaces
+        elif iface.type() == InterfaceType.BRIDGE:
+            if iface.isTrusted():
+                self._trustedNetwork.removeInterface(iface)
+            else:
+                self._untrustedNetwork.removeInterface(iface)
+
+        # Handle tap interfaces
+        elif iface.type() == InterfaceType.TAP:
+            self._trustedNetwork.removeInterface(iface)
+
+        # Handle ethernet interfaces
+        elif iface.type() == InterfaceType.ETHERNET:
+            self._untrustedNetwork.removeInterface(iface)
 
     def enableAccessPoint(self):
         params = { 'name': 'Deliverator', 'channel': 11 } # TODO
@@ -79,12 +107,12 @@ class Server(InterfaceCallbacks, NetworkCallbacks):
         if self._localization.enableAccessPointMode(params):
             iface = self._localization.getInterface()
             iface.enableAccessPoint(self)
-            self._localNetwork.addInterface(iface)
+            self._trustedNetwork.addInterface(iface)
 
     def disableAccessPoint(self):
         rospy.loginfo('Disabling wireless AP')
         iface = self._localization.getInterface()
-        self._localNetwork.removeInterface(iface)
+        self._trustedNetwork.removeInterface(iface)
         iface.disableAccessPoint()
         self._localization.disableAccesPointMode()
 
@@ -97,9 +125,9 @@ class Server(InterfaceCallbacks, NetworkCallbacks):
     def wifiConnect(self, params):
         rospy.loginfo('Connecting to WiFi network "%s" (channel %d)' % (params['name'], params['channel']))
         if self._localization.targetNetwork(params):
-            self._externalNetwork.addInterface(self._localization.getInterface())
+            self._untrustedNetwork.addInterface(self._localization.getInterface())
 
     def wifiDisconnect(self):
         rospy.loginfo('Disconnecting from WiFi network')
-        self._externalNetwork.removeInterface(self._localization.getInterface())
+        self._untrustedNetwork.removeInterface(self._localization.getInterface())
         self._localization.untargetNetwork()

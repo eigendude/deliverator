@@ -26,6 +26,13 @@
 
 import netifaces
 
+class InterfaceType:
+    UNKNOWN = 0
+    WIFI = 1
+    ETHERNET = 2
+    BRIDGE = 3
+    TAP = 4
+
 class Interface(object):
     def __init__(self, name):
         self._name = name
@@ -33,8 +40,8 @@ class Interface(object):
     def name(self):
         return self._name
 
-    def isWireless(self):
-        return False
+    def Type(self):
+        return InterfaceType.UNKNOWN
 
     def initialize(self):
         return True
@@ -59,5 +66,14 @@ class Interface(object):
 
         return None
 
-    def hasGateway(self):
-        return True # TODO
+    def getGateway(self):
+        gateways = netifaces.gateways()
+
+        if netifaces.AF_INET in gateways:
+            for gateway in gateways[netifaces.AF_INET]:
+                interface = gateway[1]
+                if (self._name == interface):
+                    ipAddress = gateway[0]
+                    return ipAddress
+
+        return None

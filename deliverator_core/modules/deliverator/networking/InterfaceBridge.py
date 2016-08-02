@@ -25,7 +25,37 @@
 ################################################################################
 
 from Interface import Interface
+from Interface import InterfaceType
+
+import rospy
+
+# Underscore in interface name breaks UFW firewall, so use a dash
+BRIDGE_TRUSTED = 'br-trusted'
+BRIDGE_UNTRUSTED = 'br-untrusted'
 
 class InterfaceBridge(Interface):
-    def __init__(self, name):
-        super(InterfaceBridge, self).__init__(name)
+    def __init__(self, trusted):
+        super(InterfaceBridge, self).__init__(BRIDGE_TRUSTED if trusted else BRIDGE_UNTRUSTED)
+        self._trusted = trusted
+
+    def type(self):
+        return InterfaceType.BRIDGE
+
+    def isTrusted(self):
+        return self._trusted
+
+    @staticmethod
+    def checkIsTrusted(name):
+        return name == BRIDGE_TRUSTED
+
+    @staticmethod
+    def checkIsUntrusted(name):
+        return name == BRIDGE_UNTRUSTED
+
+    def addInterface(self, interface):
+        rospy.loginfo('Adding interface %s to bridge %s', (interface.name(), self.name()))
+        # TODO
+
+    def removeInterface(self, interface):
+        rospy.loginfo('Removing interface %s from bridge %s', (interface.name(), self.name()))
+        # TODO
