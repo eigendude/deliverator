@@ -38,22 +38,22 @@ class NetworkServer(InterfaceCallbacks, NetworkCallbacks):
         self._trustedNetwork = NetworkBridge()
         self._untrustedNetwork = NetworkBridge()
         self._localization = Localization()
+        self._interfaceScanner = InterfaceScanner(self)
 
     def initialize(self):
         if not self._trustedNetwork.initialize() or \
            not self._untrustedNetwork.initialize() or \
            not self._localization.initialize():
             return False
-
-        self._interfaceScanner = InterfaceScanner(self)
-        self._interfaceScanner.runScan()
-
         return True
 
     def deinitialize(self):
         self._localization.deinitialize()
         self._untrustedNetwork.deinitialize()
         self._trustedNetwork.deinitialize()
+
+    def scanInterfaces(self):
+        self._interfaceScanner.runScan()
 
     def interfaceAdded(self, iface):
         # Handle WiFi interfaces

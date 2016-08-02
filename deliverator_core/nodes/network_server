@@ -36,9 +36,9 @@ def main():
     networkServer = NetworkServer()
 
     if networkServer.initialize():
-        # TODO
-        rate = rospy.Rate(1) # 1hz
+        rate = rospy.Rate(1) # Hz
         while not rospy.is_shutdown():
+            networkServer.scanInterfaces()
             rate.sleep()
 
     networkServer.deinitialize()
