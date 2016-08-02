@@ -82,8 +82,8 @@ class InterfaceBridge(Interface):
 
     def addInterface(self, interface):
         rospy.loginfo('Adding [%s] to bridge [%s]' % (interface.name(), self.name()))
-        subprocess.Popen([IP_BINARY_PATH, 'link', 'set', interface, 'master', self.name()])
+        subprocess.Popen([IP_BINARY_PATH, 'link', 'set', interface.name(), 'master', self.name()])
 
     def removeInterface(self, interface):
         rospy.loginfo('Removing [%s] from bridge [%s]' % (interface.name(), self.name()))
-        subprocess.Popen([IP_BINARY_PATH, 'link', 'set', interface, 'nomaster'])
+        subprocess.Popen([IP_BINARY_PATH, 'link', 'set', interface.name(), 'nomaster'])
