@@ -34,11 +34,15 @@ import rospy
 import re
 import subprocess
 
+# ROS parameters
 NODE_NAME          = 'wifi_manager_py'
 WIFI_SERVICE       = 'check_is_wireless'
 START_SCAN_SERVICE = 'start_wifi_scan'
 END_SCAN_SERVICE   = 'end_wifi_scan'
 TOPIC_NAME         = 'wifi_status'
+
+# Linux parameters
+IW_BINARY_PATH = '/sbin/iw'
 
 class line_matcher:
     def __init__(self, regexp, handler):
@@ -102,7 +106,7 @@ class WiFiInterface:
         scanStart = rospy.Time.now()
 
         # Run scan
-        proc = subprocess.Popen(['iw', 'dev', self._name, 'scan'], stdout=subprocess.PIPE)
+        proc = subprocess.Popen([IW_BINARY_PATH, 'dev', self._name, 'scan'], stdout=subprocess.PIPE)
         stdout, stderr =  proc.communicate()
 
         scanDuration = (rospy.Time.now() - scanStart).to_sec()
@@ -150,8 +154,24 @@ class WiFiManager:
         self._scanInterfaces = [ ]
 
     def initialize(self):
-        # TODO: Check that iw has CAP_NET_ADMIN capability
-        return True
+        # Check if iw has CAP_NET_ADMIN capability
+        proc = subprocess.Popen(['getcap', IW_BINARY_PATH], stdout=subprocess.PIPE)
+        stdout, stderr = proc.communicate()
+
+        hasNetAdminCapability = False
+
+        if 'cap_net_admin+ep' in stdout:
+            hasNetAdminCapability = True
+        else:
+            print('')
+            print('*******************************************************')
+            print('Error: This process requires CAT_NET_ADMIN on iw:')
+            print('')
+            print('sudo setcap cap_net_admin+ep %s' % IW_BINARY_PATH)
+            print('*******************************************************')
+            print('')
+
+        return hasNetAdminCapability
 
     def checkIsWireless(self, req):
         return req.device and req.device[0] == 'w' # TODO
