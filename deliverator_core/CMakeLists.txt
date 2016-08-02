@@ -15,7 +15,6 @@ catkin_package()
 catkin_install_python(PROGRAMS
     nodes/device_manager
     nodes/diagnostics
-    nodes/network_client
     nodes/network_server
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
