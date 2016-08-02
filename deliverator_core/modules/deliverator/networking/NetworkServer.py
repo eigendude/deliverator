@@ -40,7 +40,9 @@ class NetworkServer(InterfaceCallbacks, NetworkCallbacks):
         self._localization = Localization()
 
     def initialize(self):
-        if not self._localization.initialize():
+        if not self._trustedNetwork.initialize() or \
+           not self._untrustedNetwork.initialize() or \
+           not self._localization.initialize():
             return False
 
         self._interfaceScanner = InterfaceScanner(self)
