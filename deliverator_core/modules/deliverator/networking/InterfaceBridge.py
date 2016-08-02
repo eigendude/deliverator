@@ -53,9 +53,9 @@ class InterfaceBridge(Interface):
         return name == BRIDGE_UNTRUSTED
 
     def addInterface(self, interface):
-        rospy.loginfo('Adding interface %s to bridge %s' % (interface.name(), self.name()))
+        rospy.loginfo('Adding [%s] to bridge [%s]' % (interface.name(), self.name()))
         # TODO
 
     def removeInterface(self, interface):
-        rospy.loginfo('Removing interface %s from bridge %s' % (interface.name(), self.name()))
+        rospy.loginfo('Removing [%s] from bridge [%s]' % (interface.name(), self.name()))
         # TODO

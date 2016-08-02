@@ -56,12 +56,12 @@ class NetworkServer(InterfaceCallbacks, NetworkCallbacks):
     def interfaceAdded(self, iface):
         # Handle WiFi interfaces
         if iface.type() == InterfaceType.WIFI:
-            rospy.loginfo('Registering wireless interface %s' % iface.name())
+            rospy.loginfo('Registering wireless [%s]' % iface.name())
             self._localization.setInterface(iface)
 
         # Handle bridge interfaces
         elif iface.type() == InterfaceType.BRIDGE:
-            rospy.loginfo('Registering bridge interface %s' % iface.name())
+            rospy.loginfo('Registering bridge [%s]' % iface.name())
             if iface.isTrusted():
                 self._trustedNetwork.addInterface(iface)
             else:
@@ -69,16 +69,20 @@ class NetworkServer(InterfaceCallbacks, NetworkCallbacks):
 
         # Handle tap interfaces
         elif iface.type() == InterfaceType.TAP:
-            rospy.loginfo('Registering tap interface %s' % iface.name())
+            rospy.loginfo('Registering tap [%s]' % iface.name())
             self._trustedNetwork.addInterface(iface)
 
         # Handle ethernet interfaces
         elif iface.type() == InterfaceType.ETHERNET:
-            rospy.loginfo('Registering ethernet interface %s' % iface.name())
-            self._untrustedNetwork.addInterface(iface)
+            gateway = iface.getGateway()
+            if gateway:
+                rospy.loginfo('Skipping interface [%s] with gateway %s' % (iface.name(), gateway))
+            else:
+                rospy.loginfo('Registering ethernet [%s]' % iface.name())
+                self._untrustedNetwork.addInterface(iface)
 
     def interfaceRemoved(self, iface):
-        rospy.loginfo('Unregistering interface %s' % iface.name())
+        rospy.loginfo('Unregistering [%s]' % iface.name())
 
         # Handle WiFi interfaces
         if iface.type() == InterfaceType.WIFI:
