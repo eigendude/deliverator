@@ -29,6 +29,8 @@ from Interface import InterfaceType
 
 import rospy
 
+import subprocess
+
 # Underscore in interface name breaks UFW firewall, so use a dash
 BRIDGE_TRUSTED = 'br-trusted'
 BRIDGE_UNTRUSTED = 'br-untrusted'
@@ -40,6 +42,10 @@ class InterfaceBridge(Interface):
 
     def type(self):
         return InterfaceType.BRIDGE
+
+    def initialize(self):
+        # TODO: Check if ip has CAP_NET_ADMIN capability
+        return True
 
     def isTrusted(self):
         return self._trusted
@@ -54,8 +60,8 @@ class InterfaceBridge(Interface):
 
     def addInterface(self, interface):
         rospy.loginfo('Adding [%s] to bridge [%s]' % (interface.name(), self.name()))
-        # TODO
+        subprocess.Popen(['ip', 'link', 'set', interface, 'master', self.name()])
 
     def removeInterface(self, interface):
         rospy.loginfo('Removing [%s] from bridge [%s]' % (interface.name(), self.name()))
-        # TODO
+        subprocess.Popen(['ip', 'link', 'set', interface, 'nomaster'])
