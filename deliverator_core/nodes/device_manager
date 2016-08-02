@@ -28,38 +28,38 @@ from deliverator.hardware import HardwareScanner
 
 import rospy
 
-import os
-import subprocess
-
 NODE_NAME = 'device_manager'
 
 def main():
     rospy.init_node(NODE_NAME, log_level=rospy.DEBUG)
 
-    rate = rospy.Rate(1.0)
     devices = []
+
+    rate = rospy.Rate(1.0)
     while True:
-        oldDevices = devices
-        devices = HardwareScanner.getDevices()
+        scannedDevices = HardwareScanner.getDevices()
+
+        oldDevices = [dev for dev in devices        if dev.path() not in [d.path() for d in scannedDevices]]
+        newDevices = [dev for dev in scannedDevices if dev.path() not in [d.path() for d in devices]]
 
         # Spawn nodes for new devices
-        for device in devices:
-            if device.name() not in [oldDevice.name() for oldDevice in oldDevices]:
-                # Make sure launch file exists
-                if device.launchFile() and os.path.exists(device.launchFile()):
-                    subprocess.Popen(['roslaunch',
-                                      device.launchFile(),
-                                      'NAMESPACE:=' + rospy.get_namespace(),
-                                      'DEVICE:=' + device.path()])
+        for device in newDevices:
+            if device.launchNode():
+                devices.append(device)
 
-        # TODO: Kill nodes of expired devices
-        for oldDevice in oldDevices:
-            if oldDevice.name() not in [device.name() for device in devices]:
-                pass
+        # Kill nodes of old devices
+        for device in oldDevices:
+            devices.remove(device)
+            device.killNode()
 
         if rospy.is_shutdown():
             break
         rate.sleep()
+
+    # Clean up
+    for device in devices:
+        if device.launchNode():
+            devices.killNode()
 
 if __name__ == '__main__':
     main()
