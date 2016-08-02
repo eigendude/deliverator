@@ -31,5 +31,5 @@ class InterfaceEthernet(Interface):
     def __init__(self, name):
         super(InterfaceEthernet, self).__init__(name)
 
-    def Type(self):
+    def type(self):
         return InterfaceType.ETHERNET
