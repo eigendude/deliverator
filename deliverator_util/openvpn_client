@@ -28,8 +28,10 @@ import glob
 import os
 import netifaces
 import subprocess
+import time
 
-OPENVPN_DIR = '/etc/openvpn'
+OPENVPN_DIR  = '/etc/openvpn'
+OPENVPN_PORT = 1194
 
 def replace(lst, token, replacement):
     for index, lstToken in enumerate(lst):
@@ -63,11 +65,15 @@ class OpenVPNConfig:
             return keys[0]
         return None
 
-class OpenVPN:
-    def __init__(self, serverIP):
+class OpenVPNClient:
+    def __init__(self, serverIP, tapInterface):
         self._server = serverIP
+        self._tapInterface = tapInterface
         self._cmd = None
-        self._popen = None
+        self._proc = None
+
+    def interface(self):
+        return self._tapInterface
 
     def connect(self):
         cmd = self.getCommand()
@@ -76,7 +82,9 @@ class OpenVPN:
         print('Launching OpenVPN with command:')
         print(' '.join(cmd).replace(' --', '\n\t--') + '\n')
 
-        self._popen = subprocess.Popen(cmd)
+        self._proc = subprocess.Popen(cmd)
+
+        return True # TODO: Bail if permission was denied
 
     def getCommand(self):
         if not self._cmd:
@@ -84,6 +92,8 @@ class OpenVPN:
 
             # Process variables
             replace(cmd, '$REMOTE_IP', self._server)
+            replace(cmd, '$REMOTE_PORT', str(OPENVPN_PORT))
+            replace(cmd, '$TAP_DEVICE', self._tapInterface)
             replace(cmd, '$DHCP_SCRIPT', OpenVPNConfig.getDhcpScript())
             replace(cmd, '$CERTIFICATE_AUTHORITY', OpenVPNConfig.getCertificateAuthority())
             replace(cmd, '$CLIENT_CERTIFICATE', OpenVPNConfig.getClientCertificate())
@@ -124,7 +134,6 @@ class OpenVPN:
         return openvpnCmd
 
 def main():
-
     # Scan network interfaces for gateways
     gateways = [ ]
     niGateways = netifaces.gateways()
@@ -136,9 +145,35 @@ def main():
     # Create OpenVPN instances for the gateways
     instances = []
     for gateway in gateways:
-        openVpn = OpenVPN(gateway)
-        openVpn.connect()
-        instances.append(openVpn)
+        tapInterface = 'tap' + str(len(instances))
+        client = OpenVPNClient(gateway, tapInterface)
+        if client.connect():
+            instances.append(client)
+
+    # Wait until an instance gets an IP address
+    ipAddress = None
+    interface = None
+    while not ipAddress:
+        for client in instances:
+            try:
+                addresses = netifaces.ifaddresses(client.interface())
+            except ValueError:
+                pass
+            else:
+                if netifaces.AF_INET in addresses:
+                    for address in addresses[netifaces.AF_INET]:
+                        if address['addr'] == '0.0.0.0':
+                            continue
+                        if address['addr'].startswith('169.254'):
+                            continue
+                        ipAddress = address['addr']
+                        interface = client.interface()
+                        break
+            if ipAddress:
+                break
+        time.sleep(1)
+
+    # TODO: Kill other instances
 
 if __name__ == '__main__':
     main()
