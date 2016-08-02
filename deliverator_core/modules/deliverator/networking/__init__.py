@@ -23,4 +23,4 @@
 #
 ###########################################################################
 
-from Server import Server
+from NetworkServer import NetworkServer

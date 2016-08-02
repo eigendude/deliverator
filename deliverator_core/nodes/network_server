@@ -24,24 +24,11 @@
 #
 ################################################################################
 
-from deliverator.networking import Server
+from deliverator.networking import NetworkServer
 
 import rospy
 
 NODE_NAME = 'network_server'
-DEFAULT_TRUSTED = False # True if external networks are trusted by default
-
-class NetworkServer():
-    def __init__(self):
-        trusted = rospy.get_param('~trusted', DEFAULT_TRUSTED)
-        rospy.loginfo('Starting network server in %s mode...' % ('trusted' if trusted else 'untrusted'))
-        self._server = Server(trusted)
-
-    def initialize(self):
-        return self._server.initialize()
-    
-    def deinitialize(self):
-        self._server.deinitialize()
 
 def main():
     rospy.init_node(NODE_NAME, log_level=rospy.DEBUG)

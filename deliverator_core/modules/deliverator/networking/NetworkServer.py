@@ -30,12 +30,10 @@ from InterfaceScanner import InterfaceScanner
 from Localization import Localization
 from NetworkBridge import NetworkBridge
 from NetworkCallbacks import NetworkCallbacks
-#from NetworkTrusted import NetworkTrusted
-#from NetworkUntrusted import NetworkUntrusted
 
 import rospy
 
-class Server(InterfaceCallbacks, NetworkCallbacks):
+class NetworkServer(InterfaceCallbacks, NetworkCallbacks):
     def __init__(self):
         self._trustedNetwork = NetworkBridge()
         self._untrustedNetwork = NetworkBridge()
