@@ -24,6 +24,7 @@
 #
 ################################################################################
 
+import glob
 import os
 import netifaces
 import subprocess
@@ -35,80 +36,109 @@ def replace(lst, token, replacement):
         if lstToken == token:
             lst[index] = replacement
 
-def getClientConfig():
-    return os.path.join(OPENVPN_DIR, 'client.template.conf')
+class OpenVPNConfig:
+    @staticmethod
+    def getClientConfig():
+        return os.path.join(OPENVPN_DIR, 'client.template.conf')
 
-def getDhcpScript():
-    return os.path.join(OPENVPN_DIR, 'dhcp.sh')
+    @staticmethod
+    def getDhcpScript():
+        return os.path.join(OPENVPN_DIR, 'dhcp.sh')
 
-def getCertificateAuthority():
-    return os.path.join(OPENVPN_DIR, 'ca.crt')
+    @staticmethod
+    def getCertificateAuthority():
+        return os.path.join(OPENVPN_DIR, 'ca.crt')
 
-def getClientName():
-    return 'client1' # TODO
+    @staticmethod
+    def getClientCertificate():
+        for cert in glob.glob(os.path.join(OPENVPN_DIR, '*.crt')):
+            if os.path.basename(cert) is not 'ca.crt':
+                return cert
+        return None
 
-def getClientCertificate():
-    return os.path.join(OPENVPN_DIR, getClientName() + '.crt')
+    @staticmethod
+    def getClientKey():
+        keys = glob.glob(os.path.join(OPENVPN_DIR, '*.key'))
+        if keys:
+            return keys[0]
+        return None
 
-def getClientKey():
-    clientName = 'client1' # TODO
-    return os.path.join(OPENVPN_DIR, getClientName() + '.key')
+class OpenVPN:
+    def __init__(self, serverIP):
+        self._server = serverIP
+        self._cmd = None
+        self._popen = None
 
-def replaceVariables(lst):
-    replace(lst, '$DHCP_SCRIPT', getDhcpScript())
-    replace(lst, '$CERTIFICATE_AUTHORITY', getCertificateAuthority())
-    replace(lst, '$CLIENT_CERTIFICATE', getClientCertificate())
-    replace(lst, '$CLIENT_KEY', getClientKey())
+    def connect(self):
+        cmd = self.getCommand()
+
+        # Pretty-print command
+        print('Launching OpenVPN with command:')
+        print(' '.join(cmd).replace(' --', '\n\t--') + '\n')
+
+        self._popen = subprocess.Popen(cmd)
+
+    def getCommand(self):
+        if not self._cmd:
+            cmd = self.getCommandTemplate()
+
+            # Process variables
+            replace(cmd, '$REMOTE_IP', self._server)
+            replace(cmd, '$DHCP_SCRIPT', OpenVPNConfig.getDhcpScript())
+            replace(cmd, '$CERTIFICATE_AUTHORITY', OpenVPNConfig.getCertificateAuthority())
+            replace(cmd, '$CLIENT_CERTIFICATE', OpenVPNConfig.getClientCertificate())
+            replace(cmd, '$CLIENT_KEY', OpenVPNConfig.getClientKey())
+
+            self._cmd = cmd
+
+        return self._cmd
+
+    @staticmethod
+    def getCommandTemplate():
+        # Build OpenVPN command (arguments will be added to the list)
+        openvpnCmd = ['openvpn']
+
+        # Read client config template
+        with open(OpenVPNConfig.getClientConfig(), 'r') as f:
+            for line in f.readlines():
+                line = line.strip()
+
+                # Skip blank lines
+                if not line:
+                    continue
+
+                # Skip comments
+                if line[0] == '#' or line[0] == ';':
+                    continue
+
+                # Command line options are preceded by a double-leading-dash
+                line = '--' + line
+
+                for token in line.replace('\t', ' ').split(' '):
+                    # Skip empty tokens
+                    if not token:
+                        continue
+
+                    openvpnCmd.append(token)
+
+        return openvpnCmd
 
 def main():
-    # Build OpenVPN command (arguments will be added to the list)
-    openvpnCmd = ['openvpn']
 
     # Scan network interfaces for gateways
     gateways = [ ]
     niGateways = netifaces.gateways()
     if netifaces.AF_INET in niGateways:
         for gateway in niGateways[netifaces.AF_INET]:
-            gateways.append(gateway[0])
+            ipAddress = gateway[0]
+            gateways.append(ipAddress)
 
-    # Read client config
-    with open(getClientConfig(), 'r') as file:
-        for line in file.readlines():
-            line = line.strip()
-
-            # Skip blank lines
-            if not line:
-                continue
-
-            # Skip comments
-            if line[0] == '#' or line[0] == ';':
-                continue
-
-            # Command line options are preceded by a double-leading-dash
-            line = '--' + line
-
-            for token in line.replace('\t', ' ').split(' '):
-                # Skip empty tokens
-                if not token:
-                    continue
-
-                openvpnCmd.append(token)
-
-    # Process variables
-    replaceVariables(openvpnCmd)
-
-    # Generate one command for each gateway
-    openvpnCmds = [ ]
+    # Create OpenVPN instances for the gateways
+    instances = []
     for gateway in gateways:
-        cmd = openvpnCmd[:]
-        replace(cmd, '$REMOTE_IP', gateway)
-        openvpnCmds.append(cmd)
-
-    # Execute OpenVPN instances
-    for cmd in openvpnCmds:
-        print('Launching OpenVPN with command:')
-        print(' '.join(cmd).replace(' --', '\n\t--') + '\n')
-        subprocess.Popen(cmd)
+        openVpn = OpenVPN(gateway)
+        openVpn.connect()
+        instances.append(openVpn)
 
 if __name__ == '__main__':
     main()
