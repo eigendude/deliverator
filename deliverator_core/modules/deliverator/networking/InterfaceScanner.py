@@ -45,7 +45,7 @@ class InterfaceScanner:
 
         # Handle removed interfaces
         for name in removedInterfaces:
-            interface = self._interface[name]
+            interface = self._interfaces[name]
             self._callbacks.interfaceRemoved(interface)
             self._interfaces.pop(name)
             interface.deinitialize()
