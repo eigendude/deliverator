@@ -35,7 +35,7 @@ def main():
 
     devices = []
 
-    rate = rospy.Rate(1.0)
+    rate = rospy.Rate(0.2) # Hz
     while True:
         scannedDevices = HardwareScanner.getDevices()
 
