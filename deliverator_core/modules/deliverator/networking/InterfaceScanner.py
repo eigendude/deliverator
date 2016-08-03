@@ -58,7 +58,7 @@ class InterfaceScanner:
             if name == 'lo':
                 continue
 
-            # Skip tap device
+            # Handle tap device
             elif InterfaceTap.isTap(name):
                 iface = InterfaceTap(name)
 
