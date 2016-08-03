@@ -24,6 +24,7 @@
 #
 ################################################################################
 
+from DHCP import DHCP
 from Interface import InterfaceType
 from InterfaceCallbacks import InterfaceCallbacks
 from InterfaceScanner import InterfaceScanner
@@ -77,6 +78,11 @@ class NetworkServer(InterfaceCallbacks, NetworkCallbacks):
         # Handle ethernet interfaces
         elif iface.type() == InterfaceType.ETHERNET:
             gateway = iface.getGateway()
+            if not gateway:
+                # Interface might not have IP address yet, try to get one now
+                if DHCP.getLease(iface.name()):
+                    gateway = iface.getGateway()
+
             if gateway:
                 rospy.loginfo('Skipping interface [%s] with gateway %s' % (iface.name(), gateway))
             else:
