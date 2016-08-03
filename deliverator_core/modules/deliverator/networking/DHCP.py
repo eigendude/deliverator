@@ -30,7 +30,7 @@ import time
 
 import rospy
 
-DHCP_TIMEOUT_SEC = 1.0 # Bail if a lease is not obtained within this timeout
+DHCP_TIMEOUT_SEC = 4.0 # Bail if a lease is not obtained within this timeout
 DHCLIENT_PATH    = '/sbin/dhclient'
 
 LOG_DHCLIENT_ERROR = True
