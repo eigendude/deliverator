@@ -58,8 +58,7 @@ def main():
 
     # Clean up
     for device in devices:
-        if device.launchNode():
-            devices.killNode()
+        device.killNode()
 
 if __name__ == '__main__':
     main()
