@@ -24,6 +24,32 @@
 #
 ################################################################################
 
+################################################################################
+#
+#  Add to /etc/rc.local:
+#      "<path_to_deliverator_util>/openvpn/client_connect"
+#
+#  This script enables secure communication with the trusted network running on
+#  the master ROS node.
+#
+#  When run, this script monitors for network interfaces with a valid gateway.
+#  To avoid autodiscovery complexity, it is assumed that the DHCP server on the
+#  master ROS node reported itself as a gateway.
+#
+#  This script exits when we receive an IP address on the trusted network. It
+#  should be placed in rc.local before any ROS startup scripts.
+#
+#  For this script to work, the following files must be installed to
+#  /etc/openvpn:
+#
+#     * client.template.conf
+#     * dhcp.sh
+#     * ca.crt
+#     * <client>.crt
+#     * <client>.key
+#
+################################################################################
+
 import glob
 import os
 import netifaces
@@ -33,6 +59,9 @@ import time
 
 OPENVPN_DIR  = '/etc/openvpn'
 OPENVPN_PORT = 1194
+
+# Prefix for tap devices, e.g. 'tap' for tap0, tap1, etc
+TAP_NAME_PREFIX = 'tap'
 
 def replace(lst, token, replacement):
     for index, lstToken in enumerate(lst):
@@ -170,7 +199,7 @@ def main():
             if gateway in [i.serverAddress() for i in instances]:
                 continue
 
-            tapInterface = 'tap' + str(len(instances))
+            tapInterface = TAP_NAME_PREFIX + str(len(instances))
 
             client = OpenVPNClient(gateway, tapInterface)
             if client.connect():
