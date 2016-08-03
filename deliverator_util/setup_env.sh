@@ -25,8 +25,12 @@ source $SCRIPT_DIR/../../../devel/setup.bash
 # Set params
 export PATH=$PATH:$ROS_ROOT/bin
 
-if [ "$USE_TRUSTED_NETWORK" == "true" ]; then
-    export ROS_IP=$($SCRIPT_DIR/get_ipv4_address "br-trusted")
-else
-    export ROS_IP=$($SCRIPT_DIR/get_ipv4_address "br-untrusted")
+if [ "$1" == "server" ]; then
+    if [ "$USE_TRUSTED_NETWORK" == "true" ]; then
+        export ROS_IP=$($SCRIPT_DIR/get_ipv4_address br-trusted)
+    else
+        export ROS_IP=$($SCRIPT_DIR/get_ipv4_address br-untrusted)
+    fi
+elif [ "$1" == "client" ]; then
+    export ROS_IP=$($SCRIPT_DIR/get_tap_address)
 fi

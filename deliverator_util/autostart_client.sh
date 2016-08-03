@@ -5,6 +5,6 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-source $SCRIPT_DIR/setup_env.sh
+source $SCRIPT_DIR/setup_env.sh client
 
 roslaunch deliverator_core autostart_client.launch
