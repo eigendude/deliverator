@@ -107,7 +107,7 @@ class WiFiInterface:
 
         # Run scan
         proc = subprocess.Popen([IW_BINARY_PATH, 'dev', self._name, 'scan'], stdout=subprocess.PIPE)
-        stdout, stderr =  proc.communicate()
+        stdout, stderr = proc.communicate()
 
         scanDuration = (rospy.Time.now() - scanStart).to_sec()
 
@@ -174,7 +174,9 @@ class WiFiManager:
         return hasNetAdminCapability
 
     def checkIsWireless(self, req):
-        return req.device and req.device[0] == 'w' # TODO
+        proc = subprocess.Popen([IW_BINARY_PATH, 'dev', req.device, 'scan', 'dump'], stdout=subprocess.PIPE)
+        proc.communicate()
+        return proc.returncode == 0
 
     def startScan(self, req):
         if req.interface not in self._scanInterfaces:
