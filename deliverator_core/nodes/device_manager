@@ -44,13 +44,13 @@ def main():
 
         # Spawn nodes for new devices
         for device in newDevices:
-            if device.launchNode():
+            if device.launch():
                 devices.append(device)
 
         # Kill nodes of old devices
         for device in oldDevices:
             devices.remove(device)
-            device.killNode()
+            device.kill()
 
         if rospy.is_shutdown():
             break
@@ -58,7 +58,7 @@ def main():
 
     # Clean up
     for device in devices:
-        device.killNode()
+        device.kill()
 
 if __name__ == '__main__':
     main()

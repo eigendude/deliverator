@@ -23,11 +23,11 @@
 #
 ################################################################################
 
-from Device import Device
+from DeviceLaunchfile import DeviceLaunchfile
 
 DRIVER_PACKAGE = 'deliverator_drivers'
 LAUNCHFILE = 'v4l.launch'
 
-class DeviceV4L(Device):
+class DeviceV4L(DeviceLaunchfile):
     def __init__(self, name, path):
         super(DeviceV4L, self).__init__(name, path, DRIVER_PACKAGE, LAUNCHFILE)

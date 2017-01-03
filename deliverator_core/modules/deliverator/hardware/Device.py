@@ -23,20 +23,10 @@
 #
 ################################################################################
 
-from Process import Process
-
-import rospkg
-import rospy
-
-import os
-import subprocess
-
 class Device(object):
-    def __init__(self, name, path , packageName, launchfile):
+    def __init__(self, name, path):
         self._name = name
         self._path = path
-        self._launchFile = self._getLaunchFile(packageName, launchfile)
-        self._process = None
 
     def name(self):
         return self._name
@@ -44,35 +34,8 @@ class Device(object):
     def path(self):
         return self._path
 
-    def launchNode(self):
-        # Make sure launch file exists
-        if self._launchFile and os.path.exists(self._launchFile):
-            try:
-                popen = subprocess.Popen(['roslaunch',
-                                           self._launchFile,
-                                           'NAMESPACE:=' + rospy.get_namespace(),
-                                           'DEVICE:=' + self._path])
-                self._process = Process(popen)
-                return True
-            except:
-                pass
+    def launch(self):
+        pass
 
-        return False
-
-    def killNode(self):
-        if self._process:
-            self._process.kill()
-
-    @staticmethod
-    def _getLaunchFile(packageName, launchfile):
-        packageDir = None
-
-        rospack = rospkg.RosPack()
-        try:
-            packageDir = rospack.get_path(packageName)
-        except rospkg.ResourceNotFound:
-            pass
-        else:
-            return os.path.join(packageDir, 'launch', launchfile)
-
-        return None
+    def kill(self):
+        pass

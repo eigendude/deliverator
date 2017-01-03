@@ -23,11 +23,11 @@
 #
 ################################################################################
 
-from Device import Device
+from DeviceLaunchfile import DeviceLaunchfile
 
 DRIVER_PACKAGE = 'deliverator_drivers'
 LAUNCHFILE = 'joystick.launch'
 
-class DeviceJoystick(Device):
+class DeviceJoystick(DeviceLaunchfile):
     def __init__(self, name, path):
         super(DeviceJoystick, self).__init__(name, path, DRIVER_PACKAGE, LAUNCHFILE)
