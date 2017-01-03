@@ -41,7 +41,7 @@ cd ..
 ./build-key client4
 
 # Server configuration
-sudo cp $SCRIPT_DIR/openvpn/server.conf /etc/openvpn/
+sudo cp $SCRIPT_DIR/server.conf /etc/openvpn/
 
 # Start the server
 sudo service openvpn restart
