@@ -200,7 +200,7 @@ Restrict the permissions for the keys:
 
 ```shell
 cd /etc/openvpn
-sudo chmod 600 ca.cert <username>.crt <username>.key
+sudo chmod 600 ca.crt <username>.crt <username>.key
 ```
 
 The script `openvpn_client` will attempt to connect to OpenVPN servers at all network gateways simultaneously:
