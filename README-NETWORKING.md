@@ -93,7 +93,7 @@ The DHCP server keeps its current set of leases in `/var/lib/dhcp/dhcpd.leases`.
 
 ### 2.3. Setting up OpenVPN
 
-Setting up OpenVPN can be a pain, so I've provided a setup script: [setup_openvpn.sh](deliverator_util/setup_openvpn.sh). Run it from the `deliverator_util` directory. It follows the instructions below, so if something goes wrong the explanation can be found in this README.
+Setting up OpenVPN can be a pain, so I've provided a setup script: [setup_openvpn.sh](deliverator_util/openvpn/setup_openvpn.sh). Run it from the `deliverator_util` directory. It follows the instructions below, so if something goes wrong the explanation can be found in this README.
 
 If you're setting up OpenVPN manually, start by making sure OpenVPN is installed:
 
