@@ -15,8 +15,8 @@ To control the wireless adapter, the process needs the linux capability `CAP_SYS
 Normally, we could add this capability to the wifi_manager node via `sudo setcap cap_net_admin+ep wifi_manager`. However, the default user doesn't allow the process to inherit this capability. To fix this, runs this and log in again:
 
 ```shell
-sudo sh -c 'echo "cap_net_admin `whoami`" > /etc/security/capability.conf'
-sudo sh -c 'echo "none *"                 >> /etc/security/capability.conf
+sudo sh -c "echo 'cap_net_admin `whoami`' > /etc/security/capability.conf"
+sudo sh -c "echo 'none *'                 >> /etc/security/capability.conf"
 ```
 
 ## 2. Setting up the node running roscore
