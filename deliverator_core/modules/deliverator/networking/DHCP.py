@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 ################################################################################
 #
-#      Copyright (C) 2016 juztamau5
+#      Copyright (C) 2016-2018 juztamau5
 #      Software License Agreement (MIT License)
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy

@@ -1,6 +1,6 @@
 ################################################################################
 #
-#      Copyright (C) 2017 juztamau5
+#      Copyright (C) 2017-2018 juztamau5
 #      Software License Agreement (MIT License)
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
