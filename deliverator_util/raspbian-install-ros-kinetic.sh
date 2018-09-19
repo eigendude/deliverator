@@ -5,12 +5,13 @@
 # http://wiki.ros.org/ROSberryPi/Installing%20ROS%20Kinetic%20on%20the%20Raspberry%20Pi
 
 ROS_DISTRO=kinetic
-DEBIAN_VERSION=jessie
+DEBIAN_VERSION=stretch
 
 # Choose the particular variant you want to install:
 #   - ros_comm: ROS package, build, and communication libraries. No GUI tools.
 #   - desktop: ROS, rqt, rviz, and robot-generic libraries
-ROS_VARIANT=desktop
+#   - desktop_full: ROS, rqt, rviz, robot-generic libraries, 2D/3D simulators, navigation and 2D/3D perception
+ROS_VARIANT=desktop_full
 
 CATKIN_WORKSPACE=$HOME/catkin_ws
 INSTALL_LOCATION=/opt/ros/$ROS_DISTRO
